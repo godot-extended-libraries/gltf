@@ -53,9 +53,9 @@ void SceneExporterGLTFPlugin::_bind_methods() {
 void SceneExporterGLTFPlugin::_notification(int notification) {
 	String gltf_scene_name = TTR("GLTF...");
 	if (notification == NOTIFICATION_ENTER_TREE) {
-		editor->add_scene_export_menu_item(gltf_scene_name, this, "convert_scene_to_gltf2");
+		editor->add_tool_menu_item(gltf_scene_name, this, "convert_scene_to_gltf2");
 	} else if (notification == NOTIFICATION_EXIT_TREE) {
-		editor->remove_scene_export_menu_item(gltf_scene_name);
+		editor->remove_tool_menu_item(gltf_scene_name);
 	}
 }
 

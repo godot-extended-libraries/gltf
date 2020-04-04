@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "gltf_document.h"
-#include "../gridmap/grid_map.h"
+#include "modules/gridmap/grid_map.h"
 #include "core/bind/core_bind.h"
 #include "core/crypto/crypto_core.h"
 #include "core/io/json.h"
