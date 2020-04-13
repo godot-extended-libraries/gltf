@@ -3357,6 +3357,7 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 			if (bct.has("index")) {
 				material->set_texture(SpatialMaterial::TEXTURE_EMISSION, _get_texture(state, bct["index"]));
 				material->set_feature(SpatialMaterial::FEATURE_EMISSION, true);
+				material->set_emission(Color(0, 0, 0));
 			}
 		}
 
