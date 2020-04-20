@@ -99,11 +99,8 @@ public:
 		if (save_thread) {
 			return ERR_BUSY;
 		}
-		Ref<PackedScene> packed_scene;
-		packed_scene.instance();
 		ERR_FAIL_COND_V(p_root == NULL, FAILED);
-		packed_scene->pack(p_root);
-		user_data["scene"] = packed_scene;
+		user_data["scene"] = p_root->duplicate();
 		user_data["path"] = p_path;
 		user_data["flags"] = p_flags;
 		user_data["bake_fps"] = p_bake_fps;
@@ -122,10 +119,9 @@ public:
 	static void
 	_save_thread_function(void *p_user) {
 		Dictionary *user_data = (Dictionary *)p_user;
-		Ref<PackedScene> scene = (*user_data)["scene"];
+		Node* node = (*user_data)["scene"];
 		List<String> deps;
 		Error err;
-		Node *node = scene->instance();
 		String path = (*user_data)["path"];
 		int32_t flags = (*user_data)["flags"];
 		real_t baked_fps = (*user_data)["bake_fps"];
