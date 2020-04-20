@@ -99,7 +99,7 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags, int 
 
 	if (state.animations.size()) {
 		AnimationPlayer *ap = memnew(AnimationPlayer);
-		root->get_child(0)->add_child(ap);
+		root->add_child(ap);
 		ap->set_owner(root);
 
 		for (int i = 0; i < state.animations.size(); i++) {
