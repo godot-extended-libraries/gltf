@@ -5222,7 +5222,9 @@ void GLTFDocument::_import_animation(GLTFState &state, AnimationPlayer *ap, cons
 			const String bone = node->name;
 			node_path = path + ":" + bone;
 		} else {
-			node_path = ap->get_parent()->get_path_to(state.scene_nodes.find(node_index)->get());
+			Node *root = ap->get_parent();
+			Node *node = state.scene_nodes.find(node_index)->get();
+			node_path = root->get_path_to(node);
 		}
 
 		for (int i = 0; i < track.rotation_track.times.size(); i++) {

@@ -88,24 +88,28 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags, int 
 
 	Spatial *root = memnew(Spatial);
 
-	// scene_name is already unique
-	root->set_name(state.scene_name);
-
 	for (int i = 0; i < state.root_nodes.size(); ++i) {
 		gltf_document->_generate_scene_node(state, root, root, state.root_nodes[i]);
 	}
 
-	gltf_document->_process_mesh_instances(state, root);
-
+	gltf_document->_process_mesh_instances(state, root);	
 	if (state.animations.size()) {
 		AnimationPlayer *ap = memnew(AnimationPlayer);
-		root->add_child(ap);
+		Node *new_root = root->get_child(0);
+		new_root->add_child(ap);
 		ap->set_owner(root);
-
 		for (int i = 0; i < state.animations.size(); i++) {
 			gltf_document->_import_animation(state, ap, i, p_bake_fps);
 		}
 	}
+	{
+		Map<Node *, Node *> reown;
+		Node *base = root->get_child(0);
+		ERR_FAIL_COND_V(!base, NULL);
+		reown[root] = base;
+		root = Object::cast_to<Spatial>(base->duplicate_and_reown(reown));
+	}
+
 	return Object::cast_to<Spatial>(root);
 }
 
