@@ -105,11 +105,7 @@ Node *SceneImporterGLTF::import_scene(const String &p_path, uint32_t p_flags, in
 			gltf_document->_import_animation(state, ap, i, p_bake_fps);
 		}
 	}
-	Map<Node *, Node *> reown;
-	Node *base = root->get_child(0);
-	ERR_FAIL_COND_V(!base, NULL);
-	reown[root] = base;
-	return Object::cast_to<Spatial>(base->duplicate_and_reown(reown));
+	return Object::cast_to<Spatial>(root);
 }
 
 Node *SceneImporterGLTF::import_gltf(String p_path, int32_t p_flags, real_t p_bake_fps) {
