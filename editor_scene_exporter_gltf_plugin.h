@@ -30,14 +30,15 @@
 
 #ifndef EDITOR_SCENE_EXPORTER_GLTF_PLUGIN_H
 #define EDITOR_SCENE_EXPORTER_GLTF_PLUGIN_H
-#include "editor_scene_exporter_gltf.h"
+#include "editor_scene_importer_gltf.h"
+#include "editor/editor_plugin.h"
 
 #ifndef _3D_DISABLED
 class SceneExporterGLTFPlugin : public EditorPlugin {
 
 	GDCLASS(SceneExporterGLTFPlugin, EditorPlugin);
 
-	Ref<SceneExporterGLTF> convert_gltf2;
+	Ref<PackedSceneGLTF> convert_gltf2;
 	EditorNode *editor;
 	CheckBox *file_export_lib_merge;
 	EditorFileDialog *file_export_lib;

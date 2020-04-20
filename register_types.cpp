@@ -31,7 +31,6 @@
 #include "register_types.h"
 
 #include "editor/editor_node.h"
-#include "editor_scene_exporter_gltf.h"
 #include "editor_scene_exporter_gltf_plugin.h"
 #include "editor_scene_importer_gltf.h"
 
@@ -55,8 +54,7 @@ void register_gltf_types() {
 	ClassDB::set_current_api(prev_api);
 	EditorNode::add_init_callback(_editor_init);
 #endif
-	ClassDB::register_class<SceneExporterGLTF>();
-	ClassDB::register_class<SceneImporterGLTF>();
+	ClassDB::register_class<PackedSceneGLTF>();
 #endif
 }
 
