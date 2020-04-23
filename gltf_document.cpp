@@ -3104,9 +3104,10 @@ Error GLTFDocument::_serialize_materials(GLTFState &state) {
 				if (metallness_image.is_valid() && metallness_image->get_size() != Vector2(width, height)) {
 					metallness_image->resize(width, height, Image::INTERPOLATE_LANCZOS);
 				}
+				orm_image->lock();
 				for (int32_t h = 0; h < height; h++) {
 					for (int32_t w = 0; w < width; w++) {
-						Color c;
+						Color c = Color(1.0f, 1.0f, 1.0f);
 						if (has_ao) {
 							if (SpatialMaterial::TextureChannel::TEXTURE_CHANNEL_RED == ao_channel) {
 								ao_image->lock();
@@ -3164,11 +3165,10 @@ Error GLTFDocument::_serialize_materials(GLTFState &state) {
 								metallness_image->unlock();
 							}
 						}
-						orm_image->lock();
 						orm_image->set_pixel(w, h, c);
-						orm_image->unlock();
 					}
 				}
+				orm_image->unlock();
 				orm_image->generate_mipmaps();
 				orm_texture->create_from_image(orm_image);
 				GLTFTextureIndex orm_texture_index = -1;
