@@ -4812,7 +4812,7 @@ void GLTFDocument::_convert_scene_node(GLTFState &state, Node *p_root_node, Node
 	}
 	GLTFDocument::GLTFNode *gltf_node = memnew(GLTFDocument::GLTFNode);
 	gltf_node->name = _gen_unique_name(state, p_scene_parent->get_name());
-	_convert_spatial_to_gltf(p_scene_parent, state, spatial, gltf_node);
+	_convert_mesh_to_gltf(p_scene_parent, state, spatial, gltf_node);
 	_convert_bone_attachment_to_gltf(p_scene_parent, state, gltf_node, retflag);
 	if (retflag) {
 		return;
@@ -4977,7 +4977,7 @@ void GLTFDocument::_convert_bone_attachment_to_gltf(Node *p_scene_parent, GLTFDo
 	retflag = false;
 }
 
-void GLTFDocument::_convert_spatial_to_gltf(Node *p_scene_parent, GLTFDocument::GLTFState &state, Spatial *spatial, GLTFDocument::GLTFNode *gltf_node) {
+void GLTFDocument::_convert_mesh_to_gltf(Node *p_scene_parent, GLTFDocument::GLTFState &state, Spatial *spatial, GLTFDocument::GLTFNode *gltf_node) {
 	MeshInstance *mi = Object::cast_to<MeshInstance>(p_scene_parent);
 	if (mi) {
 		GLTFMeshIndex gltf_mesh_index = _convert_mesh_instance(state, mi);

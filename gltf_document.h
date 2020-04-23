@@ -445,7 +445,7 @@ public:
 	void _convert_mult_mesh_instance(Node *p_scene_parent, const GLTFDocument::GLTFNodeIndex &p_parent_node_index, const GLTFDocument::GLTFNodeIndex &p_root_node_index, GLTFDocument::GLTFNode *gltf_node, GLTFDocument::GLTFState &state, Node *p_root_node, bool &retflag);
 	void _convert_skeleton_to_gltf(Node *p_scene_parent, GLTFDocument::GLTFState &state, const GLTFDocument::GLTFNodeIndex &p_parent_node_index, const GLTFDocument::GLTFNodeIndex &p_root_node_index, GLTFDocument::GLTFNode *gltf_node, Node *p_root_node, bool &retflag);
 	void _convert_bone_attachment_to_gltf(Node *p_scene_parent, GLTFDocument::GLTFState &state, GLTFDocument::GLTFNode *gltf_node, bool &retflag);
-	void _convert_spatial_to_gltf(Node *p_scene_parent, GLTFDocument::GLTFState &state, Spatial *spatial, GLTFDocument::GLTFNode *gltf_node);
+	void _convert_mesh_to_gltf(Node *p_scene_parent, GLTFDocument::GLTFState &state, Spatial *spatial, GLTFDocument::GLTFNode *gltf_node);
 	void _convert_animation(GLTFState &state, AnimationPlayer *ap, String p_animation_track_name);
 	Error serialize(GLTFState &state, const String &p_path);
 	Error parse(GLTFState *state, String p_path);
