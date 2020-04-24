@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "gltf_document.h"
-#include "modules/gridmap/grid_map.h"
+#include "scene/2d/node_2d.h"
 #include "core/bind/core_bind.h"
 #include "core/crypto/crypto_core.h"
 #include "core/io/json.h"
@@ -39,6 +39,7 @@
 #include "core/version_hash.gen.h"
 #include "drivers/png/png_driver_common.h"
 #include "editor/import/resource_importer_scene.h"
+#include "modules/gridmap/grid_map.h"
 #include "modules/regex/regex.h"
 #include "scene/3d/bone_attachment.h"
 #include "scene/3d/camera.h"
@@ -4112,8 +4113,8 @@ Error GLTFDocument::_serialize_skins(GLTFState &state) {
 		}
 
 		Map<String, GLTFNodeIndex> name_gltf_node;
-		for (int32_t node_i = 0; node_i < state.nodes.size(); node_i++) {
-			name_gltf_node.insert(state.nodes[node_i]->name, node_i);
+		for (int32_t node_name_i = 0; node_name_i < state.nodes.size(); node_name_i++) {
+			name_gltf_node.insert(state.nodes[node_name_i]->name, node_name_i);
 		}
 		for (int32_t bind_i = 0; bind_i < skin->get_bind_count(); bind_i++) {
 			String bone_name = skin->get_bind_name(bind_i);
@@ -5212,19 +5213,19 @@ void GLTFDocument::_import_animation(GLTFState &state, AnimationPlayer *ap, cons
 			node_index = state.nodes[node_index]->fake_joint_parent;
 		}
 
-		const GLTFNode *node = state.nodes[track_i->key()];
+		const GLTFNode *gltf_node = state.nodes[track_i->key()];
 
-		if (node->skeleton >= 0) {
+		if (gltf_node->skeleton >= 0) {
 			const Skeleton *sk = Object::cast_to<Skeleton>(state.scene_nodes.find(node_index)->get());
 			ERR_FAIL_COND(sk == nullptr);
 
 			const String path = ap->get_parent()->get_path_to(sk);
-			const String bone = node->name;
+			const String bone = gltf_node->name;
 			node_path = path + ":" + bone;
 		} else {
 			Node *root = ap->get_parent();
-			Node *node = state.scene_nodes.find(node_index)->get();
-			node_path = root->get_path_to(node);
+			Node *godot_node = state.scene_nodes.find(node_index)->get();
+			node_path = root->get_path_to(godot_node);
 		}
 
 		for (int i = 0; i < track.rotation_track.times.size(); i++) {
@@ -5288,14 +5289,14 @@ void GLTFDocument::_import_animation(GLTFState &state, AnimationPlayer *ap, cons
 					scale = _interpolate_track<Vector3>(track.scale_track.times, track.scale_track.values, time, track.scale_track.interpolation);
 				}
 
-				if (node->skeleton >= 0) {
+				if (gltf_node->skeleton >= 0) {
 
 					Transform xform;
 					xform.basis.set_quat_scale(rot, scale);
 					xform.origin = pos;
 
-					const Skeleton *skeleton = state.skeletons[node->skeleton].godot_skeleton;
-					const int bone_idx = skeleton->find_bone(node->name);
+					const Skeleton *skeleton = state.skeletons[gltf_node->skeleton].godot_skeleton;
+					const int bone_idx = skeleton->find_bone(gltf_node->name);
 					xform = skeleton->get_bone_rest(bone_idx).affine_inverse() * xform;
 
 					rot = xform.basis.get_rotation_quat();
@@ -5318,8 +5319,8 @@ void GLTFDocument::_import_animation(GLTFState &state, AnimationPlayer *ap, cons
 		}
 
 		for (int i = 0; i < track.weight_tracks.size(); i++) {
-			ERR_CONTINUE(node->mesh < 0 || node->mesh >= state.meshes.size());
-			const GLTFMesh &mesh = state.meshes[node->mesh];
+			ERR_CONTINUE(gltf_node->mesh < 0 || gltf_node->mesh >= state.meshes.size());
+			const GLTFMesh &mesh = state.meshes[gltf_node->mesh];
 			const String prop = "blend_shapes/" + mesh.mesh->get_blend_shape_name(i);
 
 			const String blend_path = String(node_path) + ":" + prop;

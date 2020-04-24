@@ -32,6 +32,7 @@
 #define GLTF_DOCUMENT_H
 
 #include "editor/import/resource_importer_scene.h"
+#include "scene/2d/node_2d.h"
 #include "scene/3d/skeleton.h"
 #include "scene/3d/spatial.h"
 #include "scene/resources/material.h"
