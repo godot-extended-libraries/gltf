@@ -528,7 +528,6 @@ Error GLTFDocument::_parse_nodes(GLTFState &state) {
 		}
 		if (n.has("matrix")) {
 			node->xform = _arr_to_xform(n["matrix"]);
-
 		} else {
 
 			if (n.has("translation")) {
@@ -699,7 +698,6 @@ Error GLTFDocument::_parse_buffers(GLTFState &state, const String &p_base_path) 
 
 		if (i == 0 && state.glb_data.size()) {
 			state.buffers.push_back(state.glb_data);
-
 		} else {
 			const Dictionary &buffer = buffers[i];
 			if (buffer.has("uri")) {
@@ -974,12 +972,18 @@ Error GLTFDocument::_parse_accessors(GLTFDocument::GLTFState &state) {
 String GLTFDocument::_get_component_type_name(const uint32_t p_component) {
 
 	switch (p_component) {
-		case GLTFDocument::COMPONENT_TYPE_BYTE: return "Byte";
-		case GLTFDocument::COMPONENT_TYPE_UNSIGNED_BYTE: return "UByte";
-		case GLTFDocument::COMPONENT_TYPE_SHORT: return "Short";
-		case GLTFDocument::COMPONENT_TYPE_UNSIGNED_SHORT: return "UShort";
-		case GLTFDocument::COMPONENT_TYPE_INT: return "Int";
-		case GLTFDocument::COMPONENT_TYPE_FLOAT: return "Float";
+		case GLTFDocument::COMPONENT_TYPE_BYTE:
+			return "Byte";
+		case GLTFDocument::COMPONENT_TYPE_UNSIGNED_BYTE:
+			return "UByte";
+		case GLTFDocument::COMPONENT_TYPE_SHORT:
+			return "Short";
+		case GLTFDocument::COMPONENT_TYPE_UNSIGNED_SHORT:
+			return "UShort";
+		case GLTFDocument::COMPONENT_TYPE_INT:
+			return "Int";
+		case GLTFDocument::COMPONENT_TYPE_FLOAT:
+			return "Float";
 	}
 
 	return "<Error>";
@@ -1025,7 +1029,6 @@ Error GLTFDocument::_encode_buffer_view(GLTFState &state, const double *src, con
 				skip_every = 3;
 				skip_bytes = 1;
 			}
-
 		} break;
 		case COMPONENT_TYPE_SHORT:
 		case COMPONENT_TYPE_UNSIGNED_SHORT: {
@@ -1272,7 +1275,6 @@ Error GLTFDocument::_decode_buffer_view(GLTFState &state, double *dst, const GLT
 					} else {
 						d = double(s);
 					}
-
 				} break;
 				case COMPONENT_TYPE_INT: {
 					d = *(int *)src;
@@ -1293,12 +1295,24 @@ Error GLTFDocument::_decode_buffer_view(GLTFState &state, double *dst, const GLT
 int GLTFDocument::_get_component_type_size(const int component_type) {
 
 	switch (component_type) {
-		case COMPONENT_TYPE_BYTE: return 1; break;
-		case COMPONENT_TYPE_UNSIGNED_BYTE: return 1; break;
-		case COMPONENT_TYPE_SHORT: return 2; break;
-		case COMPONENT_TYPE_UNSIGNED_SHORT: return 2; break;
-		case COMPONENT_TYPE_INT: return 4; break;
-		case COMPONENT_TYPE_FLOAT: return 4; break;
+		case COMPONENT_TYPE_BYTE:
+			return 1;
+			break;
+		case COMPONENT_TYPE_UNSIGNED_BYTE:
+			return 1;
+			break;
+		case COMPONENT_TYPE_SHORT:
+			return 2;
+			break;
+		case COMPONENT_TYPE_UNSIGNED_SHORT:
+			return 2;
+			break;
+		case COMPONENT_TYPE_INT:
+			return 4;
+			break;
+		case COMPONENT_TYPE_FLOAT:
+			return 4;
+			break;
 		default: {
 			ERR_FAIL_V(0);
 		}
@@ -1341,7 +1355,6 @@ Vector<double> GLTFDocument::_decode_accessor(GLTFState &state, const GLTFAccess
 				skip_bytes = 1;
 				element_size = 12; //override for this case
 			}
-
 		} break;
 		case COMPONENT_TYPE_SHORT:
 		case COMPONENT_TYPE_UNSIGNED_SHORT: {
@@ -1366,7 +1379,6 @@ Vector<double> GLTFDocument::_decode_accessor(GLTFState &state, const GLTFAccess
 		const Error err = _decode_buffer_view(state, dst, a.buffer_view, skip_every, skip_bytes, element_size, a.count, a.type, component_count, a.component_type, component_size, a.normalized, a.byte_offset, p_for_vertex);
 		if (err != OK)
 			return Vector<double>();
-
 	} else {
 		//fill with zeros, as bufferview is not defined.
 		for (int i = 0; i < (a.count * component_count); i++) {
@@ -2398,7 +2410,6 @@ Error GLTFDocument::_serialize_meshes(GLTFState &state) {
 						}
 					}
 					primitive["indices"] = _encode_accessor_as_ints(state, mesh_indices, true);
-
 				} else {
 					//generate indices because they need to be swapped for CW/CCW
 					const Vector<Vector3> &vertices = array[Mesh::ARRAY_VERTEX];
@@ -2615,7 +2626,6 @@ Error GLTFDocument::_parse_meshes(GLTFState &state) {
 					}
 				}
 				array[Mesh::ARRAY_INDEX] = indices;
-
 			} else if (primitive == Mesh::PRIMITIVE_TRIANGLES) {
 				//generate indices because they need to be swapped for CW/CCW
 				const Vector<Vector3> &vertices = array[Mesh::ARRAY_VERTEX];
@@ -4276,7 +4286,6 @@ Error GLTFDocument::_serialize_cameras(GLTFState &state) {
 			og["znear"] = camera.znear;
 			d["orthographic"] = og;
 			d["type"] = "orthographic";
-
 		} else if (camera.perspective) {
 			Dictionary ppt;
 			// GLTF spec is in radians, Godot's camera is in degrees.
@@ -4327,7 +4336,6 @@ Error GLTFDocument::_parse_cameras(GLTFState &state) {
 			} else {
 				camera.fov_size = 10;
 			}
-
 		} else if (type == "perspective") {
 
 			camera.perspective = true;
@@ -5132,7 +5140,6 @@ T GLTFDocument::_interpolate_track(const Vector<float> &p_times, const Vector<T>
 			const float c = (p_time - p_times[idx]) / (p_times[idx + 1] - p_times[idx]);
 
 			return interp.lerp(p_values[idx], p_values[idx + 1], c);
-
 		} break;
 		case GLTFAnimation::INTERP_STEP: {
 
@@ -5143,7 +5150,6 @@ T GLTFDocument::_interpolate_track(const Vector<float> &p_times, const Vector<T>
 			}
 
 			return p_values[idx];
-
 		} break;
 		case GLTFAnimation::INTERP_CATMULLROMSPLINE: {
 
@@ -5156,7 +5162,6 @@ T GLTFDocument::_interpolate_track(const Vector<float> &p_times, const Vector<T>
 			const float c = (p_time - p_times[idx]) / (p_times[idx + 1] - p_times[idx]);
 
 			return interp.catmull_rom(p_values[idx - 1], p_values[idx], p_values[idx + 1], p_values[idx + 3], c);
-
 		} break;
 		case GLTFAnimation::INTERP_CUBIC_SPLINE: {
 
@@ -5174,7 +5179,6 @@ T GLTFDocument::_interpolate_track(const Vector<float> &p_times, const Vector<T>
 			const T c2 = to + p_values[idx * 3 + 3];
 
 			return interp.bezier(from, c1, c2, to, c);
-
 		} break;
 	}
 
@@ -5946,7 +5950,6 @@ Error GLTFDocument::_serialize_file(GLTFDocument::GLTFState &state, const String
 		}
 
 		f->close();
-
 	} else {
 
 		err = _encode_buffer_bins(state, p_path);
