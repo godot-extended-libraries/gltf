@@ -98,6 +98,7 @@ void SceneExporterGLTFPlugin::convert_scene_to_gltf2(Variant p_user_data) {
 	file_export_lib = memnew(EditorFileDialog);
 	file_export_lib->set_title(TTR("Export Library"));
 	file_export_lib->set_mode(EditorFileDialog::MODE_SAVE_FILE);
+	file_export_lib->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
 	file_export_lib_merge = memnew(CheckBox);
 	file_export_lib_merge->set_text(TTR("Merge With Existing"));
 	file_export_lib_merge->set_pressed(false);
