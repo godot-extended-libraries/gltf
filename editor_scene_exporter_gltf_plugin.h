@@ -38,10 +38,10 @@ class SceneExporterGLTFPlugin : public EditorPlugin {
 
 	GDCLASS(SceneExporterGLTFPlugin, EditorPlugin);
 
-	Ref<PackedSceneGLTF> convert_gltf2;
-	EditorNode *editor;
-	CheckBox *file_export_lib_merge;
-	EditorFileDialog *file_export_lib;
+	Ref<PackedSceneGLTF> convert_gltf2 = nullptr;
+	EditorNode *editor = nullptr;
+	CheckBox *file_export_lib_merge = nullptr;
+	EditorFileDialog *file_export_lib = nullptr;
 
 protected:
 	static void _bind_methods();

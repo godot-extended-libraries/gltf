@@ -77,6 +77,22 @@ void PackedSceneGLTF::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("pack_gltf", "path", "flags", "bake_fps"), &PackedSceneGLTF::pack_gltf, DEFVAL(0), DEFVAL(1000.0f));
 }
 
+void PackedSceneGLTF::_save_thread_function(void *p_user) {
+	Dictionary *user_data = (Dictionary *)p_user;
+	Node *node = (*user_data)["scene"];
+	List<String> deps;
+	Error err;
+	String path = (*user_data)["path"];
+	int32_t flags = (*user_data)["flags"];
+	real_t baked_fps = (*user_data)["bake_fps"];
+	Ref<PackedSceneGLTF> exporter;
+	exporter.instance();
+	exporter->save_scene(node, path, "", flags, baked_fps, &deps, &err);
+	(*user_data)["error"] = err;
+	Ref<PackedSceneGLTF> self_exporter = (*user_data)["self"];
+	self_exporter->save_thread = NULL;
+}
+
 Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, List<String> *r_missing_deps, Error *r_err) {
 	GLTFDocument::GLTFState state;
 	state.use_named_skin_binds = p_flags & EditorSceneImporter::IMPORT_USE_NAMED_SKIN_BINDS;
@@ -119,6 +135,9 @@ void PackedSceneGLTF::pack_gltf(String p_path, int32_t p_flags, real_t p_bake_fp
 	Node *root = import_scene(p_path, p_flags, p_bake_fps, &deps, &err);
 	ERR_FAIL_COND(err != OK);
 	pack(root);
+}
+
+ PackedSceneGLTF::PackedSceneGLTF() {
 }
 
 #endif //_3D_DISABLED
@@ -243,6 +262,27 @@ void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path, const Strin
 	if (r_err) {
 		*r_err = err;
 	}
+}
+
+Error PackedSceneGLTF::export_gltf(Node *p_root, String p_path, int32_t p_flags /*= 0*/, real_t p_bake_fps /*= 1000.0f*/) {
+	if (save_thread) {
+		return ERR_BUSY;
+	}
+	ERR_FAIL_COND_V(p_root == NULL, FAILED);
+	user_data["scene"] = p_root->duplicate();
+	user_data["path"] = p_path;
+	user_data["flags"] = p_flags;
+	user_data["bake_fps"] = p_bake_fps;
+	user_data["error"] = FAILED;
+	user_data["self"] = Ref<PackedSceneGLTF>(this);
+	Ref<PackedSceneGLTF> exporter;
+	exporter.instance();
+	save_thread = Thread::create(_save_thread_function, &user_data);
+	int32_t error_code = user_data["error"];
+	if (error_code != 0) {
+		return Error(error_code);
+	}
+	return OK;
 }
 
 void PackedSceneGLTF::_find_all_multimesh_instance(Vector<MultiMeshInstance *> &r_items, Node *p_current_node, const Node *p_owner) {

@@ -72,69 +72,31 @@ public:
 #endif
 
 class PackedSceneGLTF : public PackedScene {
-
 	GDCLASS(PackedSceneGLTF, PackedScene);
-
-protected:
-	static void _bind_methods();
-
-private:
 	struct MeshInfo {
-		Transform transform;
-		Ref<Mesh> mesh;
-		String name;
+		Transform transform = Transform();
+		Ref<Mesh> mesh = nullptr;
+		String name = "";
 		Vector<Ref<Material> > materials;
-		Node *original_node = NULL;
-		Node *original_parent = NULL;
+		Node *original_node = nullptr;
+		Node *original_parent = nullptr;
 	};
 	void _find_all_multimesh_instance(Vector<MultiMeshInstance *> &r_items, Node *p_current_node, const Node *p_owner);
 	void _find_all_gridmaps(Vector<GridMap *> &r_items, Node *p_current_node, const Node *p_owner);
 	void _find_all_csg_roots(Vector<CSGShape *> &r_items, Node *p_current_node, const Node *p_owner);
-	Thread *save_thread = NULL;
+	Thread *save_thread = nullptr;
 	Dictionary user_data;
+
+protected:
+	static void _bind_methods();
 
 public:
 	void save_scene(Node *p_node, const String &p_path, const String &p_src_path, uint32_t p_flags, int p_bake_fps, List<String> *r_missing_deps, Error *r_err = NULL);
-	Error export_gltf(Node *p_root, String p_path, int32_t p_flags = 0, real_t p_bake_fps = 1000.0f) {
-		if (save_thread) {
-			return ERR_BUSY;
-		}
-		ERR_FAIL_COND_V(p_root == NULL, FAILED);
-		user_data["scene"] = p_root->duplicate();
-		user_data["path"] = p_path;
-		user_data["flags"] = p_flags;
-		user_data["bake_fps"] = p_bake_fps;
-		user_data["error"] = FAILED;
-		user_data["self"] = Ref<PackedSceneGLTF>(this);
-		Ref<PackedSceneGLTF> exporter;
-		exporter.instance();
-		save_thread = Thread::create(_save_thread_function, &user_data);
-		int32_t error_code = user_data["error"];
-		if (error_code != 0) {
-			return Error(error_code);
-		}
-		return OK;
-	}
-
-	static void
-	_save_thread_function(void *p_user) {
-		Dictionary *user_data = (Dictionary *)p_user;
-		Node* node = (*user_data)["scene"];
-		List<String> deps;
-		Error err;
-		String path = (*user_data)["path"];
-		int32_t flags = (*user_data)["flags"];
-		real_t baked_fps = (*user_data)["bake_fps"];
-		Ref<PackedSceneGLTF> exporter;
-		exporter.instance();
-		exporter->save_scene(node, path, "", flags, baked_fps, &deps, &err);
-		(*user_data)["error"] = err;
-		Ref<PackedSceneGLTF> self_exporter = (*user_data)["self"];
-		self_exporter->save_thread = NULL;
-	}
+	Error export_gltf(Node *p_root, String p_path, int32_t p_flags = 0, real_t p_bake_fps = 1000.0f);
+	static void	_save_thread_function(void *p_user);
 	Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, List<String> *r_missing_deps, Error *r_err);	
 	void pack_gltf(String p_path, int32_t p_flags = 0, real_t p_bake_fps = 1000.0f);
-	PackedSceneGLTF() {}
+	PackedSceneGLTF();
 };
 
 #endif // _3D_DISABLED
