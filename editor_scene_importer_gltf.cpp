@@ -98,6 +98,7 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags, int 
 	state.use_named_skin_binds = p_flags & EditorSceneImporter::IMPORT_USE_NAMED_SKIN_BINDS;
 
 	Ref<GLTFDocument> gltf_document;
+	gltf_document.instance();
 	Error err = gltf_document->parse(&state, p_path);
 	*r_err = err;
 	ERR_FAIL_COND_V(err != Error::OK, NULL);
