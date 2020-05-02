@@ -3497,10 +3497,15 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 	p_material->set_albedo(r_spec_gloss.diffuse_factor);
 	Ref<ImageTexture> diffuse_image_texture;
 	diffuse_image_texture.instance();
-	diffuse_image_texture->create_from_image(r_spec_gloss.diffuse_img);
-	p_material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, diffuse_image_texture);
+	if (r_spec_gloss.diffuse_img.is_valid()) {
+		diffuse_image_texture->create_from_image(r_spec_gloss.diffuse_img);
+		p_material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, diffuse_image_texture);
+	}
 	Ref<ImageTexture> rm_image_texture;
 	rm_image_texture.instance();
+	if (rm_img.is_null()) {
+		return;
+	}
 	rm_image_texture->create_from_image(rm_img);
 	p_material->set_texture(SpatialMaterial::TEXTURE_ROUGHNESS, rm_image_texture);
 	p_material->set_roughness_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_GREEN);
