@@ -426,6 +426,20 @@ private:
 	Error _serialize_extensions(GLTFState &state) const;
 
 public:
+	// http://www.itu.int/rec/R-REC-BT.601
+	// http://www.itu.int/dms_pubrec/itu-r/rec/bt/R-REC-BT.601-7-201103-I!!PDF-E.pdf
+	const float R_BRIGHTNESS_COEFF = 0.299f;
+	const float G_BRIGHTNESS_COEFF = 0.587f;
+	const float B_BRIGHTNESS_COEFF = 0.114f;
+private:
+
+	// https://github.com/microsoft/glTF-SDK/blob/master/GLTFSDK/Source/PBRUtils.cpp#L9
+	// https://bghgary.github.io/glTF/convert-between-workflows-bjs/js/babylon.pbrUtilities.js
+	float solve_metallic(float p_dielectric_specular, float diffuse, float specular, float p_one_minus_specular_strength);
+	float get_perceived_brightness(const Color p_color);
+	float get_max_component(const Color &p_color);
+
+public:
 	void
 	_process_mesh_instances(GLTFState &state, Node *scene_root);
 	void _generate_scene_node(GLTFState &state, Node *scene_parent, Spatial *scene_root, const GLTFNodeIndex node_index);

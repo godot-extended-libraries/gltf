@@ -29,7 +29,6 @@
 /*************************************************************************/
 
 #include "gltf_document.h"
-#include "scene/2d/node_2d.h"
 #include "core/bind/core_bind.h"
 #include "core/crypto/crypto_core.h"
 #include "core/io/json.h"
@@ -41,6 +40,7 @@
 #include "editor/import/resource_importer_scene.h"
 #include "modules/gridmap/grid_map.h"
 #include "modules/regex/regex.h"
+#include "scene/2d/node_2d.h"
 #include "scene/3d/bone_attachment.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/mesh_instance.h"
@@ -3268,8 +3268,11 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 		if (d.has("name")) {
 			material->set_name(d["name"]);
 		}
-
-		if (d.has("pbrMetallicRoughness")) {
+		Dictionary extensions;
+		if (d.has("extensions")) {
+			extensions = d["extensions"];
+		}
+		if (d.has("pbrMetallicRoughness") && !extensions.has("KHR_materials_pbrSpecularGlossiness")) {
 
 			const Dictionary &mr = d["pbrMetallicRoughness"];
 			if (mr.has("baseColorFactor")) {
@@ -3331,6 +3334,158 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 					if (!mr.has("roughnessFactor")) {
 						material->set_roughness(1);
 					}
+				}
+			}
+		}
+		if (extensions.has("KHR_materials_pbrSpecularGlossiness")) {
+			ERR_PRINT("Specular glossiness is converted to roughness metallic.");
+			Dictionary sgm = extensions["KHR_materials_pbrSpecularGlossiness"];
+			if (sgm.has("diffuseTexture")) {
+				const Dictionary &diffuse_texture = sgm["diffuseTexture"];
+				if (diffuse_texture.has("index")) {
+					material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, _get_texture(state, diffuse_texture["index"]));
+				}
+			}
+
+			if (sgm.has("diffuseFactor")) {
+				const Array &arr = sgm["diffuseFactor"];
+				ERR_FAIL_COND_V(arr.size() != 4, ERR_PARSE_ERROR);
+				const Color c = Color(arr[0], arr[1], arr[2], arr[3]).to_srgb();
+
+				material->set_albedo(c);
+			}
+			if (sgm.has("glossinessFactor")) {
+				float gloss = sgm["glossinessFactor"];
+				material->set_roughness(1.0f - gloss);
+			}
+			if (sgm.has("specularGlossinessTexture")) {
+				Ref<Texture> diffuse_texture;
+				if (sgm.has("diffuseTexture")) {
+					const Dictionary &diffuse_texture_dict = sgm["diffuseTexture"];
+					if (diffuse_texture_dict.has("index")) {
+						diffuse_texture = _get_texture(state, diffuse_texture_dict["index"]);
+					}
+				}
+				Color diffuse_factor;
+				if (sgm.has("diffuseFactor")) {
+					const Array &arr = sgm["diffuseFactor"];
+					ERR_FAIL_COND_V(arr.size() != 4, ERR_PARSE_ERROR);
+					const Color c = Color(arr[0], arr[1], arr[2], arr[3]).to_srgb();
+
+					diffuse_factor = c;
+				}
+				Color DIELECTRIC_SPECULAR = Color(0.04f, 0.04f, 0.04f);
+
+				const Dictionary &spec_gloss_texture = sgm["specularGlossinessTexture"];
+				if (spec_gloss_texture.has("index")) {
+					const Ref<Texture> orig_texture = _get_texture(state, spec_gloss_texture["index"]);
+					Ref<Image> spec_gloss_img = orig_texture->get_data();
+					Ref<Image> rm_img;
+					rm_img.instance();
+					rm_img->create(spec_gloss_img->get_width(), spec_gloss_img->get_height(), false, spec_gloss_img->get_format());
+					Ref<Image> diffuse_img;
+					if (diffuse_texture.is_valid()) {
+						diffuse_img = diffuse_texture->get_data();
+					}
+					if (spec_gloss_img.is_valid()) {
+						rm_img->lock();
+						spec_gloss_img->lock();
+						spec_gloss_img->decompress();
+						if (diffuse_img.is_valid()) {
+							diffuse_img->lock();
+							diffuse_img->decompress();
+						}
+						for (int32_t y = 0; y < spec_gloss_img->get_height(); y++) {
+							for (int32_t x = 0; x < spec_gloss_img->get_width(); x++) {
+								Color pixel = spec_gloss_img->get_pixel(x, y).to_linear();
+								Color specular = Color(pixel.r, pixel.g, pixel.b).to_linear();
+								if (sgm.has("specularFactor")) {
+									const Array &arr = sgm["specularFactor"];
+									ERR_FAIL_COND_V(arr.size() != 3, ERR_PARSE_ERROR);
+									const Color color = Color(arr[0], arr[1], arr[2]);
+									specular *= color;
+								}
+								const float one_minus_specular_strength = 1.0f - get_max_component(specular);
+								const float dielectric_specular_red = DIELECTRIC_SPECULAR.r;
+
+								float brightnessDiffuse = get_perceived_brightness(diffuse_factor);
+								Color diffuse = diffuse_factor;
+								if (diffuse_img.is_valid() && diffuse_img->get_height() == spec_gloss_img->get_height() &&
+										diffuse_img->get_width() == spec_gloss_img->get_width()) {
+									diffuse = diffuse_img->get_pixel(x, y).to_linear();
+									brightnessDiffuse = get_perceived_brightness(diffuse);
+								}
+
+								const float brightnessSpecular = get_perceived_brightness(specular);
+
+								const float metallic = solve_metallic(dielectric_specular_red, brightnessDiffuse, brightnessSpecular, one_minus_specular_strength);
+								const float one_minus_metallic = 1.0f - metallic;
+
+								const Color base_color_from_diffuse = diffuse * (one_minus_specular_strength / (1.0f - dielectric_specular_red) / MAX((one_minus_metallic), std::numeric_limits<float>::epsilon()));
+								const Color base_color_from_specular = (specular - (DIELECTRIC_SPECULAR * (one_minus_metallic))) * (1.0f / MAX(metallic, CMP_EPSILON));
+								Color base_color;
+								base_color.r = Math::lerp(base_color_from_diffuse.r, base_color_from_specular.r, metallic * metallic);
+								base_color.g = Math::lerp(base_color_from_diffuse.g, base_color_from_specular.g, metallic * metallic);
+								base_color.b = Math::lerp(base_color_from_diffuse.b, base_color_from_specular.b, metallic * metallic);
+								if (base_color.r > 1.0f) {
+									base_color.r = 1.0f;
+								}
+								if (base_color.g > 1.0f) {
+									base_color.g = 1.0f;
+								}
+								if (base_color.b > 1.0f) {
+									base_color.b = 1.0f;
+								}
+
+								if (base_color.r < 0.0f) {
+									base_color.r = 0.0f;
+								}
+								if (base_color.g < 0.0f) {
+									base_color.g = 0.0f;
+								}
+								if (base_color.b < 0.0f) {
+									base_color.b = 0.0f;
+								}
+
+								Color mr = Color(1.0f, 1.0f, 1.0f);
+								float gloss = pixel.a;
+								if (sgm.has("glossinessFactor")) {
+									float gloss_factor = sgm["glossinessFactor"];
+									gloss = gloss_factor * gloss;
+								}
+								mr.g = 1.0f - gloss;
+								mr.b = metallic;
+								rm_img->set_pixel(x, y, mr.to_srgb());
+								if (diffuse_img.is_valid() && diffuse_img->get_height() == spec_gloss_img->get_height() &&
+										diffuse_img->get_width() == spec_gloss_img->get_width()) {
+
+									diffuse_img->set_pixel(x, y, base_color.to_srgb());
+								}
+							}
+						}
+						rm_img->unlock();
+						spec_gloss_img->unlock();
+						if (diffuse_img.is_valid()) {
+							diffuse_img->unlock();
+						}
+					}
+					if (rm_img.is_valid()) {
+						rm_img->generate_mipmaps();
+					}
+					if (diffuse_img.is_valid()) {
+						diffuse_img->generate_mipmaps();
+					}
+					Ref<ImageTexture> diffuse_image_texture;
+					diffuse_image_texture.instance();
+					diffuse_image_texture->create_from_image(diffuse_img);
+					material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, diffuse_image_texture);
+					Ref<ImageTexture> rm_image_texture;
+					rm_image_texture.instance();
+					rm_image_texture->create_from_image(rm_img);
+					material->set_texture(SpatialMaterial::TEXTURE_ROUGHNESS, rm_image_texture);
+					material->set_roughness_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_GREEN);
+					material->set_texture(SpatialMaterial::TEXTURE_METALLIC, rm_image_texture);
+					material->set_metallic_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_BLUE);
 				}
 			}
 		}
@@ -5421,6 +5576,37 @@ void GLTFDocument::_convert_mesh_instances(GLTFState &state) {
 			node->translation = xform.origin;
 		}
 	}
+}
+
+float GLTFDocument::solve_metallic(float p_dielectric_specular, float diffuse, float specular, float p_one_minus_specular_strength) {
+	if (specular <= p_dielectric_specular) {
+		return 0.0f;
+	}
+
+	const float a = p_dielectric_specular;
+	const float b = diffuse * p_one_minus_specular_strength / (1.0f - p_dielectric_specular) + specular - 2.0f * p_dielectric_specular;
+	const float c = p_dielectric_specular - specular;
+	const float D = b * b - 4.0f * a * c;
+	return CLAMP((-b + Math::sqrt(D)) / (2.0f * a), 0.0f, 1.0f);
+}
+
+float GLTFDocument::get_perceived_brightness(const Color p_color) {
+	const Color coeff = Color(R_BRIGHTNESS_COEFF, G_BRIGHTNESS_COEFF, B_BRIGHTNESS_COEFF);
+	const Color value = coeff * (p_color * p_color);
+
+	const float r = value.r;
+	const float g = value.g;
+	const float b = value.b;
+
+	return Math::sqrt(r + g + b);
+}
+
+float GLTFDocument::get_max_component(const Color &p_color) {
+	const float r = p_color.r;
+	const float g = p_color.g;
+	const float b = p_color.b;
+
+	return MAX(MAX(r, g), b);
 }
 
 void GLTFDocument::_process_mesh_instances(GLTFState &state, Node *scene_root) {
