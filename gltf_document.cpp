@@ -3483,8 +3483,8 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 				}
 				for (int32_t y = 0; y < spec_gloss_img->get_height(); y++) {
 					for (int32_t x = 0; x < spec_gloss_img->get_width(); x++) {
-						Color pixel = spec_gloss_img->get_pixel(x, y);
-						Color specular = Color(pixel.r, pixel.g, pixel.b).to_linear();
+						Color pixel = spec_gloss_img->get_pixel(x, y).to_linear();
+						Color specular = Color(pixel.r, pixel.g, pixel.b);			
 						const float one_minus_specular_strength = 1.0f - get_max_component(specular);
 						const float dielectric_specular_red = DIELECTRIC_SPECULAR.r;
 
@@ -3528,11 +3528,12 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 						if (base_color.b < 0.0f) {
 							base_color.b = 0.0f;
 						}
+
 						Color mr = Color(1.0f, 1.0f, 1.0f);
 						float gloss = pixel.a;
 						mr.g = 1.0f - gloss;
 						mr.b = metallic;
-						rm_img->set_pixel(x, y, mr.to_srgb());
+						rm_img->set_pixel(x, y, mr);
 						if (diffuse_img.is_valid() && diffuse_img->get_height() == spec_gloss_img->get_height() &&
 								diffuse_img->get_width() == spec_gloss_img->get_width()) {
 							diffuse_img->set_pixel(x, y, base_color.to_srgb());
