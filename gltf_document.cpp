@@ -3354,16 +3354,24 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 				const Array &arr = sgm["diffuseFactor"];
 				ERR_FAIL_COND_V(arr.size() != 4, ERR_PARSE_ERROR);
 				const Color c = Color(arr[0], arr[1], arr[2], arr[3]).to_srgb();
-
 				spec_gloss.diffuse_factor = c;
+				material->set_albedo(spec_gloss.diffuse_factor);
 			}
+
+			float metallic_factor = 1.0f;
+			Color base_color_factor = Color(1.0f, 1.0f, 1.0f);
+			spec_gloss_to_metal_base_color(spec_gloss.specular_factor, spec_gloss.diffuse_factor, base_color_factor, metallic_factor);
+				
 			if (sgm.has("specularFactor")) {
 				const Array &arr = sgm["specularFactor"];
 				ERR_FAIL_COND_V(arr.size() != 3, ERR_PARSE_ERROR);
 				spec_gloss.specular_factor = Color(arr[0], arr[1], arr[2]);
+				material->set_metallic(metallic_factor);
+				material->set_albedo(spec_gloss.diffuse_factor);
 			}
 			if (sgm.has("glossinessFactor")) {
 				spec_gloss.gloss_factor = sgm["glossinessFactor"];
+				material->set_roughness(1.0f - CLAMP(spec_gloss.gloss_factor, 0.0f, 1.0f));		
 			}
 			if (sgm.has("specularGlossinessTexture")) {
 				const Dictionary &spec_gloss_texture = sgm["specularGlossinessTexture"];
@@ -3444,6 +3452,8 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 
 void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<SpatialMaterial> p_material) {
 	Ref<Image> rm_img;
+	bool has_roughness = false;
+	bool has_metal = false;
 	if (r_spec_gloss.spec_gloss_img.is_valid()) {
 		rm_img.instance();
 		rm_img->create(r_spec_gloss.spec_gloss_img->get_width(), r_spec_gloss.spec_gloss_img->get_height(), false, r_spec_gloss.spec_gloss_img->get_format());
@@ -3471,6 +3481,12 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 				Color mr = Color(1.0f, 1.0f, 1.0f);
 				mr.g = 1.0f - specular_pixel.a;
 				mr.b = metallic;
+				if (!Math::is_equal_approx(mr.g, 0.0f)) {
+					has_roughness = true;
+				}
+				if (!Math::is_equal_approx(mr.b, 0.0f)) {
+					has_metal = true;
+				}
 				rm_img->set_pixel(x, y, mr);
 				if (r_spec_gloss.diffuse_img.is_valid() && r_spec_gloss.diffuse_img->get_height() == r_spec_gloss.spec_gloss_img->get_height() &&
 						r_spec_gloss.diffuse_img->get_width() == r_spec_gloss.spec_gloss_img->get_width()) {
@@ -3489,12 +3505,6 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 	if (rm_img.is_valid()) {
 		rm_img->generate_mipmaps();
 	}
-	float metallic = 1.0f;
-	Color base_color = Color(1.0f, 1.0f, 1.0f);
-	spec_gloss_to_metal_base_color(r_spec_gloss.specular_factor, r_spec_gloss.diffuse_factor, base_color, metallic);
-	p_material->set_metallic(metallic);
-	p_material->set_roughness(1.0f - CLAMP(r_spec_gloss.specular_factor.a, 0.0f, 1.0f));
-	p_material->set_albedo(r_spec_gloss.diffuse_factor);
 	Ref<ImageTexture> diffuse_image_texture;
 	diffuse_image_texture.instance();
 	if (r_spec_gloss.diffuse_img.is_valid()) {
@@ -3507,10 +3517,14 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 		return;
 	}
 	rm_image_texture->create_from_image(rm_img);
-	p_material->set_texture(SpatialMaterial::TEXTURE_ROUGHNESS, rm_image_texture);
-	p_material->set_roughness_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_GREEN);
-	p_material->set_texture(SpatialMaterial::TEXTURE_METALLIC, rm_image_texture);
-	p_material->set_metallic_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_BLUE);
+	if (has_roughness) {
+		p_material->set_texture(SpatialMaterial::TEXTURE_ROUGHNESS, rm_image_texture);
+		p_material->set_roughness_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_GREEN);
+	}
+	if (has_metal) {
+		p_material->set_texture(SpatialMaterial::TEXTURE_METALLIC, rm_image_texture);
+		p_material->set_metallic_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_BLUE);
+	}
 }
 
 void GLTFDocument::spec_gloss_to_metal_base_color(const Color &p_specular_factor, const Color &p_diffuse, Color &r_base_color, float &r_metallic) {
