@@ -333,6 +333,13 @@ public:
 		COMPONENT_TYPE_FLOAT = 5126,
 
 	};
+	struct GLTFSpecGloss {
+		Ref<Image> diffuse_img = nullptr;
+		Color diffuse_factor = Color(1.0f, 1.0f, 1.0f);
+		float gloss_factor = 1.0f;
+		Color specular_factor = Color(1.0f, 1.0f, 1.0f);
+		Ref<Image> spec_gloss_img = nullptr;
+	};
 
 private:
 	String _get_component_type_name(const uint32_t p_component);
@@ -371,6 +378,8 @@ private:
 	Error _parse_images(GLTFState &state, const String &p_base_path);
 	Error _parse_textures(GLTFState &state);
 	Error _parse_materials(GLTFState &state);
+	void spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<SpatialMaterial> p_material);
+	static void spec_gloss_to_metal_base_color(const Color &p_specular_factor, const Color &p_diffuse, Color &r_base_color, float &r_metallic);
 	GLTFNodeIndex _find_highest_node(GLTFState &state, const Vector<GLTFNodeIndex> &subset);
 	bool _capture_nodes_in_skin(GLTFState &state, GLTFSkin &skin, const GLTFNodeIndex node_index);
 	void _capture_nodes_for_multirooted_skin(GLTFState &state, GLTFSkin &skin);
@@ -428,16 +437,16 @@ private:
 public:
 	// http://www.itu.int/rec/R-REC-BT.601
 	// http://www.itu.int/dms_pubrec/itu-r/rec/bt/R-REC-BT.601-7-201103-I!!PDF-E.pdf
-	const float R_BRIGHTNESS_COEFF = 0.299f;
-	const float G_BRIGHTNESS_COEFF = 0.587f;
-	const float B_BRIGHTNESS_COEFF = 0.114f;
+	static constexpr float R_BRIGHTNESS_COEFF = 0.299f;
+	static constexpr float G_BRIGHTNESS_COEFF = 0.587f;
+	static constexpr float B_BRIGHTNESS_COEFF = 0.114f;
 private:
 
 	// https://github.com/microsoft/glTF-SDK/blob/master/GLTFSDK/Source/PBRUtils.cpp#L9
 	// https://bghgary.github.io/glTF/convert-between-workflows-bjs/js/babylon.pbrUtilities.js
-	float solve_metallic(float p_dielectric_specular, float diffuse, float specular, float p_one_minus_specular_strength);
-	float get_perceived_brightness(const Color p_color);
-	float get_max_component(const Color &p_color);
+	static float solve_metallic(float p_dielectric_specular, float diffuse, float specular, float p_one_minus_specular_strength);
+	static float get_perceived_brightness(const Color p_color);
+	static float get_max_component(const Color &p_color);
 
 public:
 	void
