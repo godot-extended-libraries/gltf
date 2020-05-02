@@ -3358,17 +3358,12 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 				material->set_albedo(spec_gloss.diffuse_factor);
 			}
 
-			float metallic_factor = 1.0f;
-			Color base_color_factor = Color(1.0f, 1.0f, 1.0f);
-			spec_gloss_to_metal_base_color(spec_gloss.specular_factor, spec_gloss.diffuse_factor, base_color_factor, metallic_factor);
-				
 			if (sgm.has("specularFactor")) {
 				const Array &arr = sgm["specularFactor"];
 				ERR_FAIL_COND_V(arr.size() != 3, ERR_PARSE_ERROR);
 				spec_gloss.specular_factor = Color(arr[0], arr[1], arr[2]);
-				material->set_metallic(metallic_factor);
-				material->set_albedo(spec_gloss.diffuse_factor);
 			}
+
 			if (sgm.has("glossinessFactor")) {
 				spec_gloss.gloss_factor = sgm["glossinessFactor"];
 				material->set_roughness(1.0f - CLAMP(spec_gloss.gloss_factor, 0.0f, 1.0f));		
@@ -3378,6 +3373,7 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 				if (spec_gloss_texture.has("index")) {
 					const Ref<Texture> orig_texture = _get_texture(state, spec_gloss_texture["index"]);
 					spec_gloss.spec_gloss_img = orig_texture->get_data();
+					material->set_roughness(CLAMP(spec_gloss.gloss_factor, 0.0f, 1.0f));
 				}
 			}
 			spec_gloss_to_rough_metal(spec_gloss, material);
@@ -3494,7 +3490,6 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 				}
 			}
 		}
-		p_material->set_albedo(Color(1.0f, 1.0f, 1.0f));
 		rm_img->unlock();
 		r_spec_gloss.spec_gloss_img->unlock();
 		r_spec_gloss.diffuse_img->unlock();
