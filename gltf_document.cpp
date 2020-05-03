@@ -3463,6 +3463,7 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 			r_spec_gloss.diffuse_img->decompress();
 			r_spec_gloss.diffuse_img->resize(r_spec_gloss.spec_gloss_img->get_width(), r_spec_gloss.spec_gloss_img->get_height(), Image::INTERPOLATE_LANCZOS);	
 			r_spec_gloss.diffuse_img->lock();
+			r_spec_gloss.spec_gloss_img->resize(r_spec_gloss.diffuse_img->get_width(), r_spec_gloss.diffuse_img->get_height(), Image::INTERPOLATE_LANCZOS);
 		}
 		for (int32_t y = 0; y < r_spec_gloss.spec_gloss_img->get_height(); y++) {
 			for (int32_t x = 0; x < r_spec_gloss.spec_gloss_img->get_width(); x++) {
@@ -3477,18 +3478,18 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 				Color base_color;
 				spec_gloss_to_metal_base_color(specular, diffuse, base_color, metallic);
 				Color mr = Color(1.0f, 1.0f, 1.0f);
-				mr.g = 1.0f - specular_pixel.a;
-				mr.g *= 1.0f - r_spec_gloss.gloss_factor;
+				mr.g = specular_pixel.a;
 				mr.b = metallic;
-				if (!Math::is_equal_approx(mr.g, 0.0f)) {
+				if (!Math::is_equal_approx(mr.g, 1.0f)) {
 					has_roughness = true;
 				}
 				if (!Math::is_equal_approx(mr.b, 0.0f)) {
 					has_metal = true;
 				}
+				mr.g *= r_spec_gloss.gloss_factor;
+				mr.g = 1.0f - mr.g;
 				rm_img->set_pixel(x, y, mr);
-				if (r_spec_gloss.diffuse_img.is_valid() && r_spec_gloss.diffuse_img->get_height() == r_spec_gloss.spec_gloss_img->get_height() &&
-						r_spec_gloss.diffuse_img->get_width() == r_spec_gloss.spec_gloss_img->get_width()) {
+				if (r_spec_gloss.diffuse_img.is_valid()) {
 					r_spec_gloss.diffuse_img->set_pixel(x, y, base_color.to_srgb());
 				}
 			}
@@ -3499,8 +3500,6 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 		if (r_spec_gloss.diffuse_img.is_valid()) {
 			r_spec_gloss.diffuse_img->generate_mipmaps();
 		}
-	}
-	if (rm_img.is_valid()) {
 		rm_img->generate_mipmaps();
 	}
 	Ref<ImageTexture> diffuse_image_texture;
