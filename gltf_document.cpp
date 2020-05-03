@@ -3458,13 +3458,13 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 
 		rm_img->lock();
 		r_spec_gloss.spec_gloss_img->decompress();
-		r_spec_gloss.spec_gloss_img->lock();
 		if (r_spec_gloss.diffuse_img.is_valid()) {
 			r_spec_gloss.diffuse_img->decompress();
 			r_spec_gloss.diffuse_img->resize(r_spec_gloss.spec_gloss_img->get_width(), r_spec_gloss.spec_gloss_img->get_height(), Image::INTERPOLATE_LANCZOS);	
 			r_spec_gloss.diffuse_img->lock();
 			r_spec_gloss.spec_gloss_img->resize(r_spec_gloss.diffuse_img->get_width(), r_spec_gloss.diffuse_img->get_height(), Image::INTERPOLATE_LANCZOS);
 		}
+		r_spec_gloss.spec_gloss_img->lock();
 		for (int32_t y = 0; y < r_spec_gloss.spec_gloss_img->get_height(); y++) {
 			for (int32_t x = 0; x < r_spec_gloss.spec_gloss_img->get_width(); x++) {
 				const Color specular_pixel = r_spec_gloss.spec_gloss_img->get_pixel(x, y).to_linear();
