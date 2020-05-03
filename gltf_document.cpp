@@ -3469,7 +3469,7 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 				const Color specular_pixel = r_spec_gloss.spec_gloss_img->get_pixel(x, y).to_linear();
 				Color specular = Color(specular_pixel.r, specular_pixel.g, specular_pixel.b);
 				specular *= r_spec_gloss.specular_factor;
-				Color diffuse = r_spec_gloss.diffuse_factor;
+				Color diffuse = Color(1.0f, 1.0f, 1.0f);
 				if (r_spec_gloss.diffuse_img.is_valid()) {
 					diffuse *= r_spec_gloss.diffuse_img->get_pixel(x, y).to_linear();
 				}
