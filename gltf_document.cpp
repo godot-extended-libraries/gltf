@@ -3301,7 +3301,7 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 
 			if (sgm.has("glossinessFactor")) {
 				spec_gloss.gloss_factor = sgm["glossinessFactor"];
-				material->set_roughness(1.0f - CLAMP(spec_gloss.gloss_factor, 0.0f, 1.0f));		
+				material->set_roughness(1.0f - CLAMP(spec_gloss.gloss_factor, 0.0f, 1.0f));
 			}
 			if (sgm.has("specularGlossinessTexture")) {
 				const Dictionary &spec_gloss_texture = sgm["specularGlossinessTexture"];
@@ -3450,6 +3450,9 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 	if (r_spec_gloss.spec_gloss_img.is_null()) {
 		return;
 	}
+	if (r_spec_gloss.diffuse_img.is_null()) {
+		return;
+	}
 	Ref<Image> rm_img;
 	bool has_roughness = false;
 	bool has_metal = false;
@@ -3472,9 +3475,7 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 			Color specular = Color(specular_pixel.r, specular_pixel.g, specular_pixel.b);
 			specular *= r_spec_gloss.specular_factor;
 			Color diffuse = Color(1.0f, 1.0f, 1.0f);
-			if (r_spec_gloss.diffuse_img.is_valid()) {
-				diffuse *= r_spec_gloss.diffuse_img->get_pixel(x, y).to_linear();
-			}
+			diffuse *= r_spec_gloss.diffuse_img->get_pixel(x, y).to_linear();
 			float metallic = 0.0f;
 			Color base_color;
 			spec_gloss_to_metal_base_color(specular, diffuse, base_color, metallic);
@@ -3497,22 +3498,15 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 	}
 	rm_img->unlock();
 	rm_img->generate_mipmaps();
-	if (r_spec_gloss.diffuse_img.is_valid()) {
-		r_spec_gloss.diffuse_img->unlock();
-		r_spec_gloss.diffuse_img->generate_mipmaps();
-	}
+	r_spec_gloss.diffuse_img->unlock();
+	r_spec_gloss.diffuse_img->generate_mipmaps();
 	r_spec_gloss.spec_gloss_img->unlock();
 	Ref<ImageTexture> diffuse_image_texture;
 	diffuse_image_texture.instance();
-	if (r_spec_gloss.diffuse_img.is_valid()) {
-		diffuse_image_texture->create_from_image(r_spec_gloss.diffuse_img);
-		p_material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, diffuse_image_texture);
-	}
+	diffuse_image_texture->create_from_image(r_spec_gloss.diffuse_img);
+	p_material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, diffuse_image_texture);
 	Ref<ImageTexture> rm_image_texture;
 	rm_image_texture.instance();
-	if (rm_img.is_null()) {
-		return;
-	}
 	rm_image_texture->create_from_image(rm_img);
 	if (has_roughness) {
 		p_material->set_texture(SpatialMaterial::TEXTURE_ROUGHNESS, rm_image_texture);
