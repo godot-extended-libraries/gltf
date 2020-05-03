@@ -3272,7 +3272,47 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 		if (d.has("extensions")) {
 			extensions = d["extensions"];
 		}
-		if (d.has("pbrMetallicRoughness") && !extensions.has("KHR_materials_pbrSpecularGlossiness")) {
+		if (extensions.has("KHR_materials_pbrSpecularGlossiness")) {
+			ERR_PRINT("Specular glossiness is converted to roughness metallic.");
+			Dictionary sgm = extensions["KHR_materials_pbrSpecularGlossiness"];
+
+			GLTFSpecGloss spec_gloss;
+			if (sgm.has("diffuseTexture")) {
+				const Dictionary &diffuse_texture_dict = sgm["diffuseTexture"];
+				if (diffuse_texture_dict.has("index")) {
+					Ref<Texture> diffuse_texture = _get_texture(state, diffuse_texture_dict["index"]);
+					spec_gloss.diffuse_img = diffuse_texture->get_data();
+					material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, diffuse_texture);
+				}
+			}
+			if (sgm.has("diffuseFactor")) {
+				const Array &arr = sgm["diffuseFactor"];
+				ERR_FAIL_COND_V(arr.size() != 4, ERR_PARSE_ERROR);
+				const Color c = Color(arr[0], arr[1], arr[2], arr[3]).to_srgb();
+				spec_gloss.diffuse_factor = c;
+				material->set_albedo(spec_gloss.diffuse_factor);
+			}
+
+			if (sgm.has("specularFactor")) {
+				const Array &arr = sgm["specularFactor"];
+				ERR_FAIL_COND_V(arr.size() != 3, ERR_PARSE_ERROR);
+				spec_gloss.specular_factor = Color(arr[0], arr[1], arr[2]);
+			}
+
+			if (sgm.has("glossinessFactor")) {
+				spec_gloss.gloss_factor = sgm["glossinessFactor"];
+				material->set_roughness(1.0f - CLAMP(spec_gloss.gloss_factor, 0.0f, 1.0f));		
+			}
+			if (sgm.has("specularGlossinessTexture")) {
+				const Dictionary &spec_gloss_texture = sgm["specularGlossinessTexture"];
+				if (spec_gloss_texture.has("index")) {
+					const Ref<Texture> orig_texture = _get_texture(state, spec_gloss_texture["index"]);
+					spec_gloss.spec_gloss_img = orig_texture->get_data();
+					material->set_roughness(1.0f);
+				}
+			}
+			spec_gloss_to_rough_metal(spec_gloss, material);
+		} else if (d.has("pbrMetallicRoughness") {
 
 			const Dictionary &mr = d["pbrMetallicRoughness"];
 			if (mr.has("baseColorFactor")) {
@@ -3336,47 +3376,6 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 					}
 				}
 			}
-		}
-		if (extensions.has("KHR_materials_pbrSpecularGlossiness")) {
-			ERR_PRINT("Specular glossiness is converted to roughness metallic.");
-			Dictionary sgm = extensions["KHR_materials_pbrSpecularGlossiness"];
-
-			GLTFSpecGloss spec_gloss;
-			if (sgm.has("diffuseTexture")) {
-				const Dictionary &diffuse_texture_dict = sgm["diffuseTexture"];
-				if (diffuse_texture_dict.has("index")) {
-					Ref<Texture> diffuse_texture = _get_texture(state, diffuse_texture_dict["index"]);
-					spec_gloss.diffuse_img = diffuse_texture->get_data();
-					material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, diffuse_texture);
-				}
-			}
-			if (sgm.has("diffuseFactor")) {
-				const Array &arr = sgm["diffuseFactor"];
-				ERR_FAIL_COND_V(arr.size() != 4, ERR_PARSE_ERROR);
-				const Color c = Color(arr[0], arr[1], arr[2], arr[3]).to_srgb();
-				spec_gloss.diffuse_factor = c;
-				material->set_albedo(spec_gloss.diffuse_factor);
-			}
-
-			if (sgm.has("specularFactor")) {
-				const Array &arr = sgm["specularFactor"];
-				ERR_FAIL_COND_V(arr.size() != 3, ERR_PARSE_ERROR);
-				spec_gloss.specular_factor = Color(arr[0], arr[1], arr[2]);
-			}
-
-			if (sgm.has("glossinessFactor")) {
-				spec_gloss.gloss_factor = sgm["glossinessFactor"];
-				material->set_roughness(1.0f - CLAMP(spec_gloss.gloss_factor, 0.0f, 1.0f));		
-			}
-			if (sgm.has("specularGlossinessTexture")) {
-				const Dictionary &spec_gloss_texture = sgm["specularGlossinessTexture"];
-				if (spec_gloss_texture.has("index")) {
-					const Ref<Texture> orig_texture = _get_texture(state, spec_gloss_texture["index"]);
-					spec_gloss.spec_gloss_img = orig_texture->get_data();
-					material->set_roughness(1.0f);
-				}
-			}
-			spec_gloss_to_rough_metal(spec_gloss, material);
 		}
 
 		if (d.has("normalTexture")) {
