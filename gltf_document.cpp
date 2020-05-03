@@ -3477,7 +3477,7 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 			}
 			float metallic = 0.0f;
 			Color base_color;
-			_spec_gloss_to_metal_base_color(specular, diffuse, base_color, metallic);
+			spec_gloss_to_metal_base_color(specular, diffuse, base_color, metallic);
 			Color mr = Color(1.0f, 1.0f, 1.0f);
 			mr.g = specular_pixel.a;
 			mr.b = metallic;
