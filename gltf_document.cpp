@@ -3308,11 +3308,10 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 				if (spec_gloss_texture.has("index")) {
 					const Ref<Texture> orig_texture = _get_texture(state, spec_gloss_texture["index"]);
 					spec_gloss.spec_gloss_img = orig_texture->get_data();
-					material->set_roughness(1.0f);
 				}
 			}
 			spec_gloss_to_rough_metal(spec_gloss, material);
-		} else if (d.has("pbrMetallicRoughness") {
+		} else if (d.has("pbrMetallicRoughness")) {
 
 			const Dictionary &mr = d["pbrMetallicRoughness"];
 			if (mr.has("baseColorFactor")) {
@@ -3453,13 +3452,13 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 	bool has_metal = false;
 	if (r_spec_gloss.spec_gloss_img.is_valid()) {
 		rm_img.instance();
-		rm_img->create(r_spec_gloss.spec_gloss_img->get_width(), r_spec_gloss.spec_gloss_img->get_height(), false, r_spec_gloss.spec_gloss_img->get_format());
+		rm_img->create(r_spec_gloss.spec_gloss_img->get_width(), r_spec_gloss.spec_gloss_img->get_height(), false, Image::FORMAT_RGBA8);
 
 		rm_img->lock();
 		r_spec_gloss.spec_gloss_img->decompress();
 		if (r_spec_gloss.diffuse_img.is_valid()) {
 			r_spec_gloss.diffuse_img->decompress();
-			r_spec_gloss.diffuse_img->resize(r_spec_gloss.spec_gloss_img->get_width(), r_spec_gloss.spec_gloss_img->get_height(), Image::INTERPOLATE_LANCZOS);	
+			r_spec_gloss.diffuse_img->resize(r_spec_gloss.spec_gloss_img->get_width(), r_spec_gloss.spec_gloss_img->get_height(), Image::INTERPOLATE_LANCZOS);
 			r_spec_gloss.diffuse_img->lock();
 			r_spec_gloss.spec_gloss_img->resize(r_spec_gloss.diffuse_img->get_width(), r_spec_gloss.diffuse_img->get_height(), Image::INTERPOLATE_LANCZOS);
 		}
@@ -3494,12 +3493,12 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 			}
 		}
 		rm_img->unlock();
-		r_spec_gloss.spec_gloss_img->unlock();
-		r_spec_gloss.diffuse_img->unlock();
+		rm_img->generate_mipmaps();
 		if (r_spec_gloss.diffuse_img.is_valid()) {
+			r_spec_gloss.diffuse_img->unlock();
 			r_spec_gloss.diffuse_img->generate_mipmaps();
 		}
-		rm_img->generate_mipmaps();
+		r_spec_gloss.spec_gloss_img->unlock();
 	}
 	Ref<ImageTexture> diffuse_image_texture;
 	diffuse_image_texture.instance();
@@ -3516,10 +3515,13 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 	if (has_roughness) {
 		p_material->set_texture(SpatialMaterial::TEXTURE_ROUGHNESS, rm_image_texture);
 		p_material->set_roughness_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_GREEN);
+		p_material->set_roughness(1.0f);
 	}
+
 	if (has_metal) {
 		p_material->set_texture(SpatialMaterial::TEXTURE_METALLIC, rm_image_texture);
 		p_material->set_metallic_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_BLUE);
+		p_material->set_metallic(1.0f);
 	}
 }
 
