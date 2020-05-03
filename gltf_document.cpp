@@ -3388,6 +3388,8 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 			if (bct.has("scale")) {
 				material->set_normal_scale(bct["scale"]);
 			}
+			float scale = material->get_normal_scale();
+			material->set_normal_scale(-scale);
 		}
 		if (d.has("occlusionTexture")) {
 			const Dictionary &bct = d["occlusionTexture"];
