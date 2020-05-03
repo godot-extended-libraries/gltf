@@ -3273,7 +3273,7 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 			extensions = d["extensions"];
 		}
 		if (extensions.has("KHR_materials_pbrSpecularGlossiness")) {
-			ERR_PRINT("Specular glossiness is converted to roughness metallic.");
+			WARN_PRINT("Material uses a specular and glossiness workflow. Textures will be converted to roughness and metallic workflow, which may not be 100% accurate.");			
 			Dictionary sgm = extensions["KHR_materials_pbrSpecularGlossiness"];
 
 			GLTFSpecGloss spec_gloss;
