@@ -3499,6 +3499,8 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 			r_spec_gloss.diffuse_img->generate_mipmaps();
 		}
 		r_spec_gloss.spec_gloss_img->unlock();
+		p_material->set_roughness(1.0f);
+		p_material->set_metallic(1.0f);
 	}
 	Ref<ImageTexture> diffuse_image_texture;
 	diffuse_image_texture.instance();
@@ -3515,13 +3517,10 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 	if (has_roughness) {
 		p_material->set_texture(SpatialMaterial::TEXTURE_ROUGHNESS, rm_image_texture);
 		p_material->set_roughness_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_GREEN);
-		p_material->set_roughness(1.0f);
 	}
-
 	if (has_metal) {
 		p_material->set_texture(SpatialMaterial::TEXTURE_METALLIC, rm_image_texture);
 		p_material->set_metallic_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_BLUE);
-		p_material->set_metallic(1.0f);
 	}
 }
 
