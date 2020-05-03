@@ -3373,7 +3373,7 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 				if (spec_gloss_texture.has("index")) {
 					const Ref<Texture> orig_texture = _get_texture(state, spec_gloss_texture["index"]);
 					spec_gloss.spec_gloss_img = orig_texture->get_data();
-					material->set_roughness(CLAMP(spec_gloss.gloss_factor, 0.0f, 1.0f));
+					material->set_roughness(1.0f);
 				}
 			}
 			spec_gloss_to_rough_metal(spec_gloss, material);
@@ -3476,6 +3476,7 @@ void GLTFDocument::spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss, Ref<Sp
 				spec_gloss_to_metal_base_color(specular, diffuse, base_color, metallic);
 				Color mr = Color(1.0f, 1.0f, 1.0f);
 				mr.g = 1.0f - specular_pixel.a;
+				mr.g *= 1.0f - r_spec_gloss.gloss_factor;
 				mr.b = metallic;
 				if (!Math::is_equal_approx(mr.g, 0.0f)) {
 					has_roughness = true;
