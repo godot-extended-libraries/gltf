@@ -2311,16 +2311,10 @@ Error GLTFDocument::_serialize_meshes(GLTFState &state) {
 					Vector<Color> attribs;
 					attribs.resize(ret_size);
 					for (int i = 0; i < ret_size; i++) {
-						Vector3 tangent;
-						tangent.x = a[(i * 4) + 0];
-						tangent.y = a[(i * 4) + 1];
-						tangent.z = a[(i * 4) + 2];
-						tangent.normalize();
-
 						Color out;
-						out.r = tangent.x;
-						out.g = tangent.y;
-						out.b = tangent.z;
+						out.r = a[(i * 4) + 0];
+						out.g = a[(i * 4) + 1];
+						out.b = a[(i * 4) + 2];
 						out.a = a[(i * 4) + 3];
 						attribs.write[i] = out;
 					}
