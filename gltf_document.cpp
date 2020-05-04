@@ -2469,9 +2469,7 @@ Error GLTFDocument::_serialize_meshes(GLTFState &state) {
 						Vector<Vector3> attribs;
 						attribs.resize(ret_size);
 						for (int i = 0; i < ret_size; i++) {
-							Vector3 tangent =  Vector3(tarr[(i * 4) + 0], tarr[(i * 4) + 1], tarr[(i * 4) + 2]).normalized();
-							tangent = tarr[(i * 4) + 3] * tangent; 
-							attribs.write[i] = tangent;
+							attribs.write[i] = Vector3(tarr[(i * 4) + 0], tarr[(i * 4) + 1], tarr[(i * 4) + 2]).normalized();
 						}
 						t["TANGENT"] = _encode_accessor_as_vec3(state, attribs, true);
 					}
@@ -3388,6 +3386,8 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 			if (bct.has("scale")) {
 				material->set_normal_scale(bct["scale"]);
 			}
+			float scale = material->get_normal_scale();
+			material->set_normal_scale(-scale);
 		}
 		if (d.has("occlusionTexture")) {
 			const Dictionary &bct = d["occlusionTexture"];
