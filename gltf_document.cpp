@@ -2781,10 +2781,11 @@ Error GLTFDocument::_parse_meshes(GLTFState &state) {
 		GLTFMesh mesh;
 		mesh.mesh = array_mesh;
 
+		mesh.blend_weights.resize(array_mesh->get_blend_shape_count());
+
 		if (d.has("weights")) {
 			const Array &weights = d["weights"];
 			ERR_FAIL_COND_V(array_mesh->get_blend_shape_count() != weights.size(), ERR_PARSE_ERROR);
-			mesh.blend_weights.resize(weights.size());
 			for (int j = 0; j < weights.size(); j++) {
 				mesh.blend_weights.write[j] = weights[j];
 			}
@@ -4741,7 +4742,7 @@ Error GLTFDocument::_parse_animations(GLTFState &state) {
 
 				ERR_FAIL_INDEX_V(state.nodes[node]->mesh, state.meshes.size(), ERR_PARSE_ERROR);
 				const GLTFMesh *mesh = &state.meshes[state.nodes[node]->mesh];
-				ERR_FAIL_COND_V(mesh->blend_weights.size() == 0, ERR_PARSE_ERROR);
+				ERR_CONTINUE(!mesh->blend_weights.size());
 				const int wc = mesh->blend_weights.size();
 
 				track->weight_tracks.resize(wc);
