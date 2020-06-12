@@ -4256,9 +4256,14 @@ Error GLTFDocument::_serialize_skins(GLTFState &state) {
 			if (!state.skeletons[gltf_skin.skeleton].godot_skeleton->get_bone_count()) {
 				break;
 			}
+			if (bone_name.empty()) {
+				int32_t bone = skin->get_bind_bone(bind_i);
+				bone_name = state.skeletons[gltf_skin.skeleton].godot_skeleton->get_bone_name(bone);
+			}
 			if (state.skeletons[gltf_skin.skeleton].godot_skeleton->find_bone(bone_name) == -1) {
 				bone_name = state.skeletons[gltf_skin.skeleton].godot_skeleton->get_bone_name(0);
 			}
+			bone_name = _sanitize_bone_name(bone_name);
 			int32_t bone_index = skin->get_bind_bone(bind_i);
 			if (gltf_skin.skeleton == -1) {
 				bone_index = 0;
@@ -5498,8 +5503,10 @@ void GLTFDocument::_convert_skeletons(GLTFState &state) {
 		GLTFNodeIndex skeleton_node = state.skeleton_to_node[skeleton_i];
 		for (int32_t bone_i = 0; bone_i < state.skeletons[skeleton_i].godot_skeleton->get_bone_count(); bone_i++) {
 			GLTFNode *node = memnew(GLTFNode);
-			node->name = _gen_unique_name(state, state.skeletons[skeleton_i].godot_skeleton->get_bone_name(bone_i));
-
+			String bone_name = state.skeletons[skeleton_i].godot_skeleton->get_bone_name(bone_i); 
+			bone_name = _sanitize_bone_name(bone_name); 
+			node->name = _gen_unique_name(state, bone_name); 
+ 
 			Transform xform = state.skeletons[skeleton_i].godot_skeleton->get_bone_rest(bone_i);
 			node->scale = xform.basis.get_scale();
 			node->rotation = xform.basis.get_rotation_quat();
