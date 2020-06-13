@@ -510,11 +510,6 @@ private:
 			Ref<Animation> p_animation, Transform p_bone_rest,
 			int32_t p_track_i,
 			GLTFDocument::GLTFNodeIndex p_node_i);
-	GLTFAnimation::Track
-	_convert_animation_bezier_track(GLTFDocument::GLTFState &state,
-			Ref<Animation> p_animation,
-			Vector<int32_t> p_track_i,
-			GLTFDocument::GLTFNodeIndex p_node_i);
 	Error _encode_buffer_bins(GLTFState &state, const String &p_path);
 	Error _encode_buffer_glb(GLTFState &state, const String &p_path);
 	Error _serialize_bone_attachment(GLTFState &state);
