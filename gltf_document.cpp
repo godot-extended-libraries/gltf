@@ -544,6 +544,17 @@ Error GLTFDocument::_parse_nodes(GLTFState &state) {
 			node->xform.origin = node->translation;
 		}
 
+		if (n.has("extensions")) {
+			Dictionary extensions = n["extensions"];
+			if (extensions.has("KHR_lights_punctual")) {
+				Dictionary lights_punctual = extensions["KHR_lights_punctual"];
+				if (lights_punctual.has("light")) {
+					GLTFLightIndex light = lights_punctual["light"];
+					node->light = light;
+				}
+			}
+		}
+
 		if (n.has("children")) {
 			const Array &children = n["children"];
 			for (int j = 0; j < children.size(); j++) {
@@ -2647,7 +2658,7 @@ Error GLTFDocument::_parse_meshes(GLTFState &state) {
 				//must generate mikktspace tangents.. ergh..
 				Ref<SurfaceTool> st;
 				st.instance();
-				st->create_from_triangle_arrays(array);				
+				st->create_from_triangle_arrays(array);
 				st->generate_tangents();
 				array = st->commit_to_arrays();
 			}
@@ -3257,13 +3268,13 @@ Error GLTFDocument::_parse_materials(GLTFState &state) {
 		if (d.has("name")) {
 			material->set_name(d["name"]);
 		}
-		Dictionary extensions;
+		Dictionary pbr_spec_gloss_extensions;
 		if (d.has("extensions")) {
-			extensions = d["extensions"];
+			pbr_spec_gloss_extensions = d["extensions"];
 		}
-		if (extensions.has("KHR_materials_pbrSpecularGlossiness")) {
-			WARN_PRINT("Material uses a specular and glossiness workflow. Textures will be converted to roughness and metallic workflow, which may not be 100% accurate.");			
-			Dictionary sgm = extensions["KHR_materials_pbrSpecularGlossiness"];
+		if (pbr_spec_gloss_extensions.has("KHR_materials_pbrSpecularGlossiness")) {
+			WARN_PRINT("Material uses a specular and glossiness workflow. Textures will be converted to roughness and metallic workflow, which may not be 100% accurate.");
+			Dictionary sgm = pbr_spec_gloss_extensions["KHR_materials_pbrSpecularGlossiness"];
 
 			GLTFSpecGloss spec_gloss;
 			if (sgm.has("diffuseTexture")) {
@@ -4440,6 +4451,58 @@ Error GLTFDocument::_serialize_cameras(GLTFState &state) {
 	return OK;
 }
 
+Error GLTFDocument::_parse_lights(GLTFState &state) {
+	if (!state.json.has("extensions")) {
+		return OK;
+	}
+	Dictionary extensions = state.json["extensions"];
+	if (!extensions.has("KHR_lights_punctual")) {
+		return OK;
+	}
+	Dictionary lights_punctual = extensions["KHR_lights_punctual"];
+	if (!lights_punctual.has("lights")) {
+		return OK;
+	}
+
+	const Array &lights = lights_punctual["lights"];
+
+	for (GLTFLightIndex light_i = 0; light_i < lights.size(); light_i++) {
+		const Dictionary &d = lights[light_i];
+
+		GLTFLight light;
+		ERR_FAIL_COND_V(!d.has("type"), ERR_PARSE_ERROR);
+		const String &type = d["type"];
+		light.type = type;
+
+		if (d.has("color")) {
+			const Array &arr = d["color"];
+			ERR_FAIL_COND_V(arr.size() != 3, ERR_PARSE_ERROR);
+			const Color c = Color(arr[0], arr[1], arr[2]).to_srgb();
+			light.color = c;
+		}
+		if (d.has("intensity")) {
+			light.intensity = d["intensity"];
+		}
+		if (d.has("range")) {
+			light.range = d["range"];
+		}
+		if (type == "spot") {
+			const Dictionary &spot = d["spot"];
+			light.inner_cone_angle = spot["innerConeAngle"];
+			light.outer_cone_angle = spot["outerConeAngle"];
+			ERR_FAIL_COND_V_MSG(light.inner_cone_angle >= light.outer_cone_angle, ERR_PARSE_ERROR, "The inner angle must be smaller than the outer angle.");
+		} else if (type != "point" && type != "directional") {
+			ERR_FAIL_V_MSG(ERR_PARSE_ERROR, "Light type is unknown.");
+		}
+
+		state.lights.push_back(light);
+	}
+
+	print_verbose("glTF: Total lights: " + itos(state.lights.size()));
+
+	return OK;
+}
+
 Error GLTFDocument::_parse_cameras(GLTFState &state) {
 
 	if (!state.json.has("cameras"))
@@ -4878,6 +4941,58 @@ MeshInstance *GLTFDocument::_generate_mesh_instance(GLTFState &state, Node *scen
 	return mi;
 }
 
+Light *GLTFDocument::_generate_light(GLTFState &state, Node *scene_parent, const GLTFNodeIndex node_index) {
+	const GLTFNode *gltf_node = state.nodes[node_index];
+
+	ERR_FAIL_INDEX_V(gltf_node->light, state.lights.size(), nullptr);
+
+	print_verbose("glTF: Creating light for: " + gltf_node->name);
+
+	const GLTFLight &l = state.lights[gltf_node->light];
+
+	float intensity = l.intensity;
+	if (intensity > 10) {
+		// GLTF spec has the default around 1, but Blender defaults lights to 100.
+		// The only sane way to handle this is to check where it came from and
+		// handle it accordingly. If it's over 10, it probably came from Blender.
+		intensity /= 100;
+	}
+
+	if (l.type == "directional") {
+		DirectionalLight *light = memnew(DirectionalLight);
+		light->set_param(Light::PARAM_ENERGY, intensity);
+		light->set_color(l.color);
+		return light;
+	}
+
+	const float range = CLAMP(l.range, 0, 4096);
+	// Doubling the range will double the effective brightness, so we need double attenuation (half brightness).
+	// We want to have double intensity give double brightness, so we need half the attenuation.
+	const float attenuation = range / intensity;
+	if (l.type == "point") {
+		OmniLight *light = memnew(OmniLight);
+		light->set_param(OmniLight::PARAM_ATTENUATION, attenuation);
+		light->set_param(OmniLight::PARAM_RANGE, range);
+		light->set_color(l.color);
+		return light;
+	}
+	if (l.type == "spot") {
+		SpotLight *light = memnew(SpotLight);
+		light->set_param(SpotLight::PARAM_ATTENUATION, attenuation);
+		light->set_param(SpotLight::PARAM_RANGE, range);
+		light->set_param(SpotLight::PARAM_SPOT_ANGLE, Math::rad2deg(l.outer_cone_angle));
+		light->set_color(l.color);
+
+		// Line of best fit derived from guessing, see https://www.desmos.com/calculator/biiflubp8b
+		// The points in desmos are not exact, except for (1, infinity).
+		float angle_ratio = l.inner_cone_angle / l.outer_cone_angle;
+		float angle_attenuation = 0.2 / (1 - angle_ratio) - 0.1;
+		light->set_param(SpotLight::PARAM_SPOT_ATTENUATION, angle_attenuation);
+		return light;
+	}
+	return nullptr;
+}
+
 Camera *GLTFDocument::_generate_camera(GLTFState &state, Node *scene_parent, const GLTFNodeIndex node_index) {
 	const GLTFNode *gltf_node = state.nodes[node_index];
 
@@ -5174,6 +5289,8 @@ void GLTFDocument::_generate_scene_node(GLTFState &state, Node *scene_parent, Sp
 			current_node = _generate_mesh_instance(state, scene_parent, node_index);
 		} else if (gltf_node->camera >= 0) {
 			current_node = _generate_camera(state, scene_parent, node_index);
+		} else if (gltf_node->light >= 0) {
+			current_node = _generate_light(state, scene_parent, node_index);
 		} else {
 			current_node = _generate_spatial(state, scene_parent, node_index);
 		}
@@ -5503,10 +5620,10 @@ void GLTFDocument::_convert_skeletons(GLTFState &state) {
 		GLTFNodeIndex skeleton_node = state.skeleton_to_node[skeleton_i];
 		for (int32_t bone_i = 0; bone_i < state.skeletons[skeleton_i].godot_skeleton->get_bone_count(); bone_i++) {
 			GLTFNode *node = memnew(GLTFNode);
-			String bone_name = state.skeletons[skeleton_i].godot_skeleton->get_bone_name(bone_i); 
-			bone_name = _sanitize_bone_name(bone_name); 
-			node->name = _gen_unique_name(state, bone_name); 
- 
+			String bone_name = state.skeletons[skeleton_i].godot_skeleton->get_bone_name(bone_i);
+			bone_name = _sanitize_bone_name(bone_name);
+			node->name = _gen_unique_name(state, bone_name);
+
 			Transform xform = state.skeletons[skeleton_i].godot_skeleton->get_bone_rest(bone_i);
 			node->scale = xform.basis.get_scale();
 			node->rotation = xform.basis.get_rotation_quat();
@@ -5996,17 +6113,23 @@ Error GLTFDocument::parse(GLTFDocument::GLTFState *state, String p_path) {
 	if (err != OK)
 		return Error::FAILED;
 
-	/* STEP 14 PARSE CAMERAS */
+	/* STEP 14 PARSE LIGHTS */
+	err = _parse_lights(*state);
+	if (err != OK) {
+		return Error::FAILED;
+	}
+
+	/* STEP 15 PARSE CAMERAS */
 	err = _parse_cameras(*state);
 	if (err != OK)
 		return Error::FAILED;
 
-	/* STEP 15 PARSE ANIMATIONS */
+	/* STEP 16 PARSE ANIMATIONS */
 	err = _parse_animations(*state);
 	if (err != OK)
 		return Error::FAILED;
 
-	/* STEP 16 ASSIGN SCENE NAMES */
+	/* STEP 17 ASSIGN SCENE NAMES */
 	_assign_scene_names(*state);
 
 	return OK;

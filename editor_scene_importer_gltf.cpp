@@ -56,25 +56,33 @@ void EditorSceneImporterGLTF::get_extensions(List<String> *r_extensions) const {
 	r_extensions->push_back("glb");
 }
 
-Node *EditorSceneImporterGLTF::import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, List<String> *r_missing_deps, Error *r_err) {
+Node *EditorSceneImporterGLTF::import_scene(const String &p_path,
+		uint32_t p_flags, int p_bake_fps,
+		List<String> *r_missing_deps,
+		Error *r_err) {
 
 	Ref<PackedSceneGLTF> importer;
 	importer.instance();
-	return importer->import_scene(p_path, p_flags, p_bake_fps, r_missing_deps, r_err);
+	return importer->import_scene(p_path, p_flags, p_bake_fps, r_missing_deps,
+			r_err);
 }
 
-Ref<Animation> EditorSceneImporterGLTF::import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps) {
+Ref<Animation> EditorSceneImporterGLTF::import_animation(const String &p_path,
+		uint32_t p_flags,
+		int p_bake_fps) {
 
 	return Ref<Animation>();
 }
 
-EditorSceneImporterGLTF::EditorSceneImporterGLTF() {
-}
+EditorSceneImporterGLTF::EditorSceneImporterGLTF() {}
 
 #endif
 void PackedSceneGLTF::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("export_gltf", "node", "path", "flags", "bake_fps"), &PackedSceneGLTF::export_gltf, DEFVAL(0), DEFVAL(1000.0f));
-	ClassDB::bind_method(D_METHOD("pack_gltf", "path", "flags", "bake_fps"), &PackedSceneGLTF::pack_gltf, DEFVAL(0), DEFVAL(1000.0f));
+	ClassDB::bind_method(
+			D_METHOD("export_gltf", "node", "path", "flags", "bake_fps"),
+			&PackedSceneGLTF::export_gltf, DEFVAL(0), DEFVAL(1000.0f));
+	ClassDB::bind_method(D_METHOD("pack_gltf", "path", "flags", "bake_fps"),
+			&PackedSceneGLTF::pack_gltf, DEFVAL(0), DEFVAL(1000.0f));
 }
 
 void PackedSceneGLTF::_save_thread_function(void *p_user) {
@@ -93,9 +101,13 @@ void PackedSceneGLTF::_save_thread_function(void *p_user) {
 	self_exporter->save_thread = NULL;
 }
 
-Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, List<String> *r_missing_deps, Error *r_err) {
+Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
+		int p_bake_fps,
+		List<String> *r_missing_deps,
+		Error *r_err) {
 	GLTFDocument::GLTFState state;
-	state.use_named_skin_binds = p_flags & EditorSceneImporter::IMPORT_USE_NAMED_SKIN_BINDS;
+	state.use_named_skin_binds =
+			p_flags & EditorSceneImporter::IMPORT_USE_NAMED_SKIN_BINDS;
 
 	Ref<GLTFDocument> gltf_document;
 	gltf_document.instance();
@@ -109,7 +121,7 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags, int 
 		gltf_document->_generate_scene_node(state, root, root, state.root_nodes[i]);
 	}
 
-	gltf_document->_process_mesh_instances(state, root);	
+	gltf_document->_process_mesh_instances(state, root);
 	if (state.animations.size()) {
 		AnimationPlayer *ap = memnew(AnimationPlayer);
 		Node *new_root = root->get_child(0);
@@ -119,18 +131,12 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags, int 
 			gltf_document->_import_animation(state, ap, i, p_bake_fps);
 		}
 	}
-	{
-		Map<Node *, Node *> reown;
-		Node *base = root->get_child(0);
-		ERR_FAIL_COND_V(!base, NULL);
-		reown[root] = base;
-		root = Object::cast_to<Spatial>(base->duplicate_and_reown(reown));
-	}
 
 	return Object::cast_to<Spatial>(root);
 }
 
-void PackedSceneGLTF::pack_gltf(String p_path, int32_t p_flags, real_t p_bake_fps) {
+void PackedSceneGLTF::pack_gltf(String p_path, int32_t p_flags,
+		real_t p_bake_fps) {
 	Error err = FAILED;
 	List<String> deps;
 	Node *root = import_scene(p_path, p_flags, p_bake_fps, &deps, &err);
@@ -138,14 +144,15 @@ void PackedSceneGLTF::pack_gltf(String p_path, int32_t p_flags, real_t p_bake_fp
 	pack(root);
 }
 
- PackedSceneGLTF::PackedSceneGLTF() {
-}
+PackedSceneGLTF::PackedSceneGLTF() {}
 
 #endif //_3D_DISABLED
 
-
 #ifndef _3D_DISABLED
-void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path, const String &p_src_path, uint32_t p_flags, int p_bake_fps, List<String> *r_missing_deps, Error *r_err) {
+void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path,
+		const String &p_src_path, uint32_t p_flags,
+		int p_bake_fps, List<String> *r_missing_deps,
+		Error *r_err) {
 	Error err = FAILED;
 	if (r_err) {
 		*r_err = err;
@@ -161,25 +168,31 @@ void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path, const Strin
 
 	Vector<MeshInfo> meshes;
 
-	for (int32_t multimesh_i = 0; multimesh_i < multimesh_items.size(); multimesh_i++) {
+	for (int32_t multimesh_i = 0; multimesh_i < multimesh_items.size();
+			multimesh_i++) {
 		Ref<MultiMesh> mesh = multimesh_items[multimesh_i]->get_multimesh();
 		if (mesh.is_null()) {
 			continue;
 		}
-		for (int32_t instance_i = 0; instance_i < mesh->get_instance_count(); instance_i++) {
+		for (int32_t instance_i = 0; instance_i < mesh->get_instance_count();
+				instance_i++) {
 			MeshInfo mesh_info;
 			mesh_info.mesh = mesh->get_mesh();
 			if (mesh->get_transform_format() == MultiMesh::TRANSFORM_2D) {
 				Transform2D xform_2d = mesh->get_instance_transform_2d(instance_i);
-				mesh_info.transform.origin = Vector3(xform_2d.get_origin().x, 0, xform_2d.get_origin().y);
+				mesh_info.transform.origin =
+						Vector3(xform_2d.get_origin().x, 0, xform_2d.get_origin().y);
 				real_t rotation = xform_2d.get_rotation();
 				Quat quat;
 				quat.set_axis_angle(Vector3(0, 1, 0), rotation);
 				Size2 scale = xform_2d.get_scale();
-				mesh_info.transform.basis.set_quat_scale(quat, Vector3(scale.x, 0, scale.y));
-				mesh_info.transform = multimesh_items[multimesh_i]->get_transform() * mesh_info.transform;
+				mesh_info.transform.basis.set_quat_scale(quat,
+						Vector3(scale.x, 0, scale.y));
+				mesh_info.transform =
+						multimesh_items[multimesh_i]->get_transform() * mesh_info.transform;
 			} else if (mesh->get_transform_format() == MultiMesh::TRANSFORM_3D) {
-				mesh_info.transform = multimesh_items[multimesh_i]->get_transform() * mesh->get_instance_transform(instance_i);
+				mesh_info.transform = multimesh_items[multimesh_i]->get_transform() *
+									  mesh->get_instance_transform(instance_i);
 			}
 			mesh_info.original_parent = multimesh_items[multimesh_i]->get_parent();
 			mesh_info.name = multimesh_items[multimesh_i]->get_name();
@@ -194,12 +207,14 @@ void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path, const Strin
 		}
 		Ref<Mesh> mesh = mesh_arr[1];
 		MeshInfo mesh_info;
-		for (int32_t material_i = 0; material_i < mesh->get_surface_count(); material_i++) {
+		for (int32_t material_i = 0; material_i < mesh->get_surface_count();
+				material_i++) {
 			mesh_info.materials.push_back(mesh->surface_get_material(material_i));
 		}
 		if (csg_items[i]->get_material_override().is_valid()) {
 			mesh_info.materials.clear();
-			for (int32_t material_i = 0; material_i < mesh->get_surface_count(); material_i++) {
+			for (int32_t material_i = 0; material_i < mesh->get_surface_count();
+					material_i++) {
 				mesh_info.materials.push_back(csg_items[i]->get_material_override());
 			}
 		}
@@ -213,19 +228,28 @@ void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path, const Strin
 		Array cells = grid_map_items[i]->get_used_cells();
 		for (int32_t k = 0; k < cells.size(); k++) {
 			Vector3 cell_location = cells[k];
-			int32_t cell = grid_map_items[i]->get_cell_item(cell_location.x, cell_location.y, cell_location.z);
+			int32_t cell = grid_map_items[i]->get_cell_item(
+					cell_location.x, cell_location.y, cell_location.z);
 			MeshInfo mesh_info;
-			Ref<Mesh> mesh = grid_map_items[i]->get_mesh_library()->get_item_mesh(cell);
-			for (int32_t material_i = 0; material_i < mesh->get_surface_count(); material_i++) {
+			Ref<Mesh> mesh =
+					grid_map_items[i]->get_mesh_library()->get_item_mesh(cell);
+			for (int32_t material_i = 0; material_i < mesh->get_surface_count();
+					material_i++) {
 				mesh_info.materials.push_back(mesh->surface_get_material(material_i));
 			}
 			mesh_info.mesh = mesh;
 			Transform cell_xform;
-			cell_xform.basis.set_orthogonal_index(grid_map_items[i]->get_cell_item_orientation(cell_location.x, cell_location.y, cell_location.z));
-			cell_xform.basis.scale(Vector3(grid_map_items[i]->get_cell_scale(), grid_map_items[i]->get_cell_scale(), grid_map_items[i]->get_cell_scale()));
-			cell_xform.set_origin(grid_map_items[i]->map_to_world(cell_location.x, cell_location.y, cell_location.z));
+			cell_xform.basis.set_orthogonal_index(
+					grid_map_items[i]->get_cell_item_orientation(
+							cell_location.x, cell_location.y, cell_location.z));
+			cell_xform.basis.scale(Vector3(grid_map_items[i]->get_cell_scale(),
+					grid_map_items[i]->get_cell_scale(),
+					grid_map_items[i]->get_cell_scale()));
+			cell_xform.set_origin(grid_map_items[i]->map_to_world(
+					cell_location.x, cell_location.y, cell_location.z));
 			mesh_info.transform = cell_xform * grid_map_items[i]->get_transform();
-			mesh_info.name = grid_map_items[i]->get_mesh_library()->get_item_name(cell);
+			mesh_info.name =
+					grid_map_items[i]->get_mesh_library()->get_item_name(cell);
 			mesh_info.original_parent = grid_map_items[i]->get_parent();
 			meshes.push_back(mesh_info);
 		}
@@ -255,7 +279,8 @@ void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path, const Strin
 
 	GLTFDocument::GLTFState state;
 	const GLTFDocument::GLTFNodeIndex scene_root = 0;
-	gltf_document->_convert_scene_node(state, p_node->get_child(0), p_node, scene_root, scene_root);
+	gltf_document->_convert_scene_node(state, p_node->get_child(0), p_node,
+			scene_root, scene_root);
 	gltf_document->_convert_mesh_instances(state);
 	gltf_document->_convert_skeletons(state);
 	state.scene_name = p_node->get_name();
@@ -265,7 +290,9 @@ void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path, const Strin
 	}
 }
 
-Error PackedSceneGLTF::export_gltf(Node *p_root, String p_path, int32_t p_flags /*= 0*/, real_t p_bake_fps /*= 1000.0f*/) {
+Error PackedSceneGLTF::export_gltf(Node *p_root, String p_path,
+		int32_t p_flags /*= 0*/,
+		real_t p_bake_fps /*= 1000.0f*/) {
 	if (save_thread) {
 		return ERR_BUSY;
 	}
@@ -286,17 +313,23 @@ Error PackedSceneGLTF::export_gltf(Node *p_root, String p_path, int32_t p_flags 
 	return OK;
 }
 
-void PackedSceneGLTF::_find_all_multimesh_instance(Vector<MultiMeshInstance *> &r_items, Node *p_current_node, const Node *p_owner) {
-	MultiMeshInstance *multimesh = Object::cast_to<MultiMeshInstance>(p_current_node);
+void PackedSceneGLTF::_find_all_multimesh_instance(
+		Vector<MultiMeshInstance *> &r_items, Node *p_current_node,
+		const Node *p_owner) {
+	MultiMeshInstance *multimesh =
+			Object::cast_to<MultiMeshInstance>(p_current_node);
 	if (multimesh != NULL) {
 		r_items.push_back(multimesh);
 	}
 	for (int32_t i = 0; i < p_current_node->get_child_count(); i++) {
-		_find_all_multimesh_instance(r_items, p_current_node->get_child(i), p_owner);
+		_find_all_multimesh_instance(r_items, p_current_node->get_child(i),
+				p_owner);
 	}
 }
 
-void PackedSceneGLTF::_find_all_gridmaps(Vector<GridMap *> &r_items, Node *p_current_node, const Node *p_owner) {
+void PackedSceneGLTF::_find_all_gridmaps(Vector<GridMap *> &r_items,
+		Node *p_current_node,
+		const Node *p_owner) {
 	GridMap *gridmap = Object::cast_to<GridMap>(p_current_node);
 	if (gridmap != NULL) {
 		r_items.push_back(gridmap);
@@ -306,7 +339,9 @@ void PackedSceneGLTF::_find_all_gridmaps(Vector<GridMap *> &r_items, Node *p_cur
 	}
 }
 
-void PackedSceneGLTF::_find_all_csg_roots(Vector<CSGShape *> &r_items, Node *p_current_node, const Node *p_owner) {
+void PackedSceneGLTF::_find_all_csg_roots(Vector<CSGShape *> &r_items,
+		Node *p_current_node,
+		const Node *p_owner) {
 	CSGShape *csg = Object::cast_to<CSGShape>(p_current_node);
 	if (csg && csg->is_root_shape()) {
 		r_items.push_back(csg);
