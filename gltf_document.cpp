@@ -5872,12 +5872,12 @@ GLTFDocument::GLTFAnimation::Track GLTFDocument::_convert_animation_track(GLTFDo
 
 			for (int32_t key_i = 0; key_i < p_track.scale_track.times.size(); key_i++) {
 				Vector3 bezier_track = p_track.scale_track.values[key_i];
-				if (path.find("/scale:x")) {
+				if (path.find("/scale:x") != -1) {
 					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
-				} else if (path.find("/scale:y")) {
-					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
-				} else if (path.find("/scale:z")) {
-					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
+				} else if (path.find("/scale:y") != -1) {
+					bezier_track.y = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
+				} else if (path.find("/scale:z") != -1) {
+					bezier_track.z = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
 				}
 				p_track.scale_track.values.write[key_i] = bezier_track;
 			}
@@ -5898,12 +5898,12 @@ GLTFDocument::GLTFAnimation::Track GLTFDocument::_convert_animation_track(GLTFDo
 
 			for (int32_t key_i = 0; key_i < p_track.translation_track.times.size(); key_i++) {
 				Vector3 bezier_track = p_track.translation_track.values[key_i];
-				if (path.find("/translation:x")) {
+				if (path.find("/translation:x") != -1) {
 					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
-				} else if (path.find("/translation:y")) {
-					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
-				} else if (path.find("/translation:z")) {
-					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
+				} else if (path.find("/translation:y") != -1) {
+					bezier_track.y = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
+				} else if (path.find("/translation:z") != -1) {
+					bezier_track.z = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
 				}
 				p_track.translation_track.values.write[key_i] = bezier_track;
 			}
