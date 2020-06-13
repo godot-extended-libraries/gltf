@@ -5874,13 +5874,10 @@ GLTFDocument::GLTFAnimation::Track GLTFDocument::_convert_animation_track(GLTFDo
 				Vector3 bezier_track = p_track.scale_track.values[key_i];
 				if (path.find("/scale:x") != -1) {
 					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
-					bezier_track.x = p_bone_rest.affine_inverse().basis.get_scale().x * bezier_track.x;
 				} else if (path.find("/scale:y") != -1) {
 					bezier_track.y = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
-					bezier_track.y = p_bone_rest.affine_inverse().basis.get_scale().y * bezier_track.y;
 				} else if (path.find("/scale:z") != -1) {
 					bezier_track.z = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
-					bezier_track.z = p_bone_rest.affine_inverse().basis.get_scale().z * bezier_track.z;
 				}
 				p_track.scale_track.values.write[key_i] = bezier_track;
 			}
@@ -5902,14 +5899,11 @@ GLTFDocument::GLTFAnimation::Track GLTFDocument::_convert_animation_track(GLTFDo
 			for (int32_t key_i = 0; key_i < p_track.translation_track.times.size(); key_i++) {
 				Vector3 bezier_track = p_track.translation_track.values[key_i];
 				if (path.find("/translation:x") != -1) {
-					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);				
-					bezier_track.x = p_bone_rest.affine_inverse().origin.x * bezier_track.x;
+					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
 				} else if (path.find("/translation:y") != -1) {
-					bezier_track.y = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);				
-					bezier_track.y = p_bone_rest.affine_inverse().origin.y * bezier_track.y;
+					bezier_track.y = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
 				} else if (path.find("/translation:z") != -1) {
-					bezier_track.z = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);					
-					bezier_track.z = p_bone_rest.affine_inverse().origin.z * bezier_track.z;
+					bezier_track.z = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
 				}
 				p_track.translation_track.values.write[key_i] = bezier_track;
 			}
@@ -6064,14 +6058,13 @@ void GLTFDocument::_convert_animation(GLTFState &state, AnimationPlayer *ap, Str
 					if (state.skeletons[skeleton_i].godot_skeleton == godot_node) {
 						int32_t bone = state.skeletons[skeleton_i].godot_skeleton->find_bone(suffix);
 						ERR_CONTINUE(bone == -1);
-						Transform xform = state.skeletons[skeleton_i].godot_skeleton->get_bone_rest(bone);
 						GLTFNodeIndex node_i = state.skeletons[skeleton_i].godot_bone_node[bone];
 						Map<int, GLTFAnimation::Track>::Element *property_track_i = gltf_animation.tracks.find(node_i);
 						GLTFAnimation::Track track;
 						if (property_track_i) {
 							track = property_track_i->get();
 						}
-						track = _convert_animation_track(state, track, animation, xform, track_i, node_i);
+						track = _convert_animation_track(state, track, animation, Transform(), track_i, node_i);
 						gltf_animation.tracks[node_i] = track;
 						break;
 					}
@@ -6086,14 +6079,13 @@ void GLTFDocument::_convert_animation(GLTFState &state, AnimationPlayer *ap, Str
 					if (state.skeletons[skeleton_i].godot_skeleton == godot_node) {
 						int32_t bone = state.skeletons[skeleton_i].godot_skeleton->find_bone(suffix);
 						ERR_CONTINUE(bone == -1);
-						Transform xform = state.skeletons[skeleton_i].godot_skeleton->get_bone_rest(bone);
 						GLTFNodeIndex node_i = state.skeletons[skeleton_i].godot_bone_node[bone];
 						Map<int, GLTFAnimation::Track>::Element *property_track_i = gltf_animation.tracks.find(node_i);
 						GLTFAnimation::Track track;
 						if (property_track_i) {
 							track = property_track_i->get();
 						}
-						track = _convert_animation_track(state, track, animation, xform, track_i, node_i);
+						track = _convert_animation_track(state, track, animation, Transform(), track_i, node_i);
 						gltf_animation.tracks[node_i] = track;
 						break;
 					}
@@ -6108,14 +6100,13 @@ void GLTFDocument::_convert_animation(GLTFState &state, AnimationPlayer *ap, Str
 					if (state.skeletons[skeleton_i].godot_skeleton == godot_node) {
 						int32_t bone = state.skeletons[skeleton_i].godot_skeleton->find_bone(suffix);
 						ERR_CONTINUE(bone == -1);
-						Transform xform = state.skeletons[skeleton_i].godot_skeleton->get_bone_rest(bone);
 						GLTFNodeIndex node_i = state.skeletons[skeleton_i].godot_bone_node[bone];
 						Map<int, GLTFAnimation::Track>::Element *property_track_i = gltf_animation.tracks.find(node_i);
 						GLTFAnimation::Track track;
 						if (property_track_i) {
 							track = property_track_i->get();
 						}
-						track = _convert_animation_track(state, track, animation, xform, track_i, node_i);
+						track = _convert_animation_track(state, track, animation, Transform(), track_i, node_i);
 						gltf_animation.tracks[node_i] = track;
 						break;
 					}
