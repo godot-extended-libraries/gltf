@@ -5852,8 +5852,8 @@ GLTFDocument::GLTFAnimation::Track GLTFDocument::_convert_animation_track(GLTFDo
 		}
 	} else if (track_type == Animation::TYPE_BEZIER) {
 		if (path.find("/scale") != -1) {
+			const int32_t keys = p_animation->track_get_key_time(p_track_i, key_count - 1) * BAKE_FPS;
 			if (!p_track.scale_track.times.size()) {
-				const int32_t keys = p_animation->track_get_key_time(p_track_i, key_count - 1) * BAKE_FPS;
 				Vector<float> new_times;
 				new_times.resize(keys);
 				for (int32_t key_i = 0; key_i < keys; key_i++) {
@@ -5870,7 +5870,7 @@ GLTFDocument::GLTFAnimation::Track GLTFDocument::_convert_animation_track(GLTFDo
 				p_track.scale_track.interpolation = gltf_interpolation;
 			}
 
-			for (int32_t key_i = 0; key_i < p_track.scale_track.times.size(); key_i++) {
+			for (int32_t key_i = 0; key_i < keys; key_i++) {
 				Vector3 bezier_track = p_track.scale_track.values[key_i];
 				if (path.find("/scale:x") != -1) {
 					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
@@ -5882,8 +5882,8 @@ GLTFDocument::GLTFAnimation::Track GLTFDocument::_convert_animation_track(GLTFDo
 				p_track.scale_track.values.write[key_i] = bezier_track;
 			}
 		} else if (path.find("/translation") != -1) {
+			const int32_t keys = p_animation->track_get_key_time(p_track_i, key_count - 1) * BAKE_FPS;
 			if (!p_track.translation_track.times.size()) {
-				const int32_t keys = p_animation->track_get_key_time(p_track_i, key_count - 1) * BAKE_FPS;
 				Vector<float> new_times;
 				new_times.resize(keys);
 				for (int32_t key_i = 0; key_i < keys; key_i++) {
@@ -5896,7 +5896,7 @@ GLTFDocument::GLTFAnimation::Track GLTFDocument::_convert_animation_track(GLTFDo
 				p_track.translation_track.interpolation = gltf_interpolation;
 			}
 
-			for (int32_t key_i = 0; key_i < p_track.translation_track.times.size(); key_i++) {
+			for (int32_t key_i = 0; key_i < keys; key_i++) {
 				Vector3 bezier_track = p_track.translation_track.values[key_i];
 				if (path.find("/translation:x") != -1) {
 					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
