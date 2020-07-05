@@ -344,8 +344,10 @@ void PackedSceneGLTF::_find_all_csg_roots(Vector<CSGShape *> &r_items,
 		const Node *p_owner) {
 	CSGShape *csg = Object::cast_to<CSGShape>(p_current_node);
 	if (csg && csg->is_root_shape()) {
+		csg->call("_make_dirty");
+		csg->call("_update_shape");
 		r_items.push_back(csg);
-	}
+	}	
 	for (int32_t i = 0; i < p_current_node->get_child_count(); i++) {
 		_find_all_csg_roots(r_items, p_current_node->get_child(i), p_owner);
 	}
