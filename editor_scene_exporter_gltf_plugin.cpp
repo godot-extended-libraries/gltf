@@ -81,7 +81,9 @@ void SceneExporterGLTFPlugin::_gltf2_dialog_action(String p_file) {
 			editor->show_accept(TTR("Can't load scene for merging!"), TTR("OK"));
 			return;
 		} else {
-			root->add_child(scene->instance());
+			Node *node = scene->instance();
+			root->add_child(node);
+			node->set_owner(root);
 		}
 	}
 	List<String> deps;
