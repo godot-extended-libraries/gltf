@@ -5085,16 +5085,10 @@ void GLTFDocument::_convert_scene_node(GLTFState &state, Node *p_root_node, Node
 		csg->call("_make_dirty");
 		csg->call("_update_shape");
 		Ref<Mesh> mesh = csg->get_meshes()[1];
-		for (int32_t material_i = 0; material_i < mesh->get_surface_count();
-				material_i++) {
-			// TODO Set mesh material
-			mesh->surface_get_material(material_i);
-		}
 		if (csg->get_material_override().is_valid()) {
 			for (int32_t material_i = 0; material_i < mesh->get_surface_count();
 					material_i++) {
-				// TODO Override material
-				csg->get_material_override();
+				mesh->surface_set_material(material_i, csg->get_material_override());
 			}
 		}
 		GLTFMesh gltf_mesh;
@@ -5195,11 +5189,6 @@ void GLTFDocument::_convert_grid_map_to_gltf(Node *p_scene_parent, const GLTFDoc
 					cell_location.x, cell_location.y, cell_location.z);
 			Ref<Mesh> mesh =
 					grid_map->get_mesh_library()->get_item_mesh(cell);
-			for (int32_t material_i = 0; material_i < mesh->get_surface_count();
-					material_i++) {
-				// TODO Set materials
-				mesh->surface_get_material(material_i);
-			}
 			Transform cell_xform;
 			cell_xform.basis.set_orthogonal_index(
 					grid_map->get_cell_item_orientation(
@@ -5224,17 +5213,14 @@ void GLTFDocument::_convert_mult_mesh_instance(Node *p_scene_parent, const GLTFD
 	retflag = true;
 	MultiMeshInstance *multi_mesh_instance = Object::cast_to<MultiMeshInstance>(p_scene_parent);
 	if (multi_mesh_instance) {
-		Ref<MultiMesh> mesh = multi_mesh_instance->get_multimesh();
-		if (mesh.is_valid()) {
-			for (int32_t instance_i = 0; instance_i < mesh->get_instance_count();
+		Ref<MultiMesh> multi_mesh = multi_mesh_instance->get_multimesh();
+		if (multi_mesh.is_valid()) {
+			for (int32_t instance_i = 0; instance_i < multi_mesh->get_instance_count();
 					instance_i++) {
 				GLTFNode *new_gltf_node = memnew(GLTFNode);
-				new_gltf_node->parent = p_parent_node_index;
-				gltf_node->children.push_back(state.nodes.size());
-				state.nodes.push_back(new_gltf_node);
 				Transform transform;
-				if (mesh->get_transform_format() == MultiMesh::TRANSFORM_2D) {
-					Transform2D xform_2d = mesh->get_instance_transform_2d(instance_i);
+				if (multi_mesh->get_transform_format() == MultiMesh::TRANSFORM_2D) {
+					Transform2D xform_2d = multi_mesh->get_instance_transform_2d(instance_i);
 					transform.origin =
 							Vector3(xform_2d.get_origin().x, 0, xform_2d.get_origin().y);
 					real_t rotation = xform_2d.get_rotation();
@@ -5245,16 +5231,26 @@ void GLTFDocument::_convert_mult_mesh_instance(Node *p_scene_parent, const GLTFD
 							Vector3(scale.x, 0, scale.y));
 					transform =
 							multi_mesh_instance->get_transform() * transform;
-				} else if (mesh->get_transform_format() == MultiMesh::TRANSFORM_3D) {
+				} else if (multi_mesh->get_transform_format() == MultiMesh::TRANSFORM_3D) {
 					transform = multi_mesh_instance->get_transform() *
-								mesh->get_instance_transform(instance_i);
+								multi_mesh->get_instance_transform(instance_i);
 				}
+				Ref<ArrayMesh> mesh = multi_mesh->get_mesh();
 				GLTFMesh gltf_mesh;
+				if (multi_mesh_instance->get_material_override().is_valid()) {
+					for (int32_t material_i = 0; material_i < mesh->get_surface_count();
+							material_i++) {
+						mesh->surface_set_material(material_i, multi_mesh_instance->get_material_override());
+					}
+				}
 				gltf_mesh.mesh = mesh;
 				new_gltf_node->mesh = state.meshes.size();
 				state.meshes.push_back(gltf_mesh);
 				new_gltf_node->xform = transform;
 				new_gltf_node->name = multi_mesh_instance->get_name();
+				new_gltf_node->parent = p_parent_node_index;
+				gltf_node->children.push_back(state.nodes.size());
+				state.nodes.push_back(new_gltf_node);
 			}
 		}
 	}
