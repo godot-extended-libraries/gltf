@@ -83,12 +83,6 @@ class PackedSceneGLTF : public PackedScene {
     Node *original_node = nullptr;
     Node *original_parent = nullptr;
   };
-  void _find_all_multimesh_instance(Vector<MultiMeshInstance *> &r_items,
-                                    Node *p_current_node, const Node *p_owner);
-  void _find_all_gridmaps(Vector<GridMap *> &r_items, Node *p_current_node,
-                          const Node *p_owner);
-  void _find_all_csg_roots(Vector<CSGShape *> &r_items, Node *p_current_node,
-                           const Node *p_owner);
   Thread *save_thread = nullptr;
   Dictionary user_data;
 

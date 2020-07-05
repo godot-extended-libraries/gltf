@@ -38,6 +38,7 @@
 #include "core/version_hash.gen.h"
 #include "drivers/png/png_driver_common.h"
 #include "editor/import/resource_importer_scene.h"
+#include "modules/csg/csg_shape.h"
 #include "modules/gridmap/grid_map.h"
 #include "modules/regex/regex.h"
 #include "scene/2d/node_2d.h"
@@ -5079,6 +5080,30 @@ void GLTFDocument::_convert_scene_node(GLTFState &state, Node *p_root_node, Node
 	if (retflag) {
 		return;
 	}
+	CSGShape *csg = Object::cast_to<CSGShape>(p_scene_parent);
+	if (csg && csg->is_root_shape()) {
+		csg->call("_make_dirty");
+		csg->call("_update_shape");
+		Ref<Mesh> mesh = csg->get_meshes()[1];
+		for (int32_t material_i = 0; material_i < mesh->get_surface_count();
+				material_i++) {
+			// TODO Set mesh material
+			mesh->surface_get_material(material_i);
+		}
+		if (csg->get_material_override().is_valid()) {
+			for (int32_t material_i = 0; material_i < mesh->get_surface_count();
+					material_i++) {
+				// TODO Override material
+				csg->get_material_override();
+			}
+		}
+		GLTFMesh gltf_mesh;
+		gltf_mesh.mesh = csg->get_meshes()[1];
+		gltf_node->mesh = state.meshes.size();
+		state.meshes.push_back(gltf_mesh);
+		gltf_node->xform = csg->get_meshes()[0];
+		gltf_node->name = csg->get_name();
+	}
 	_convert_grid_map_to_gltf(p_scene_parent, p_parent_node_index, p_root_node_index, gltf_node, state, p_root_node, retflag);
 	if (retflag) {
 		return;
@@ -5159,13 +5184,38 @@ void GLTFDocument::_convert_grid_map_to_gltf(Node *p_scene_parent, const GLTFDoc
 	retflag = true;
 	GridMap *grid_map = Object::cast_to<GridMap>(p_scene_parent);
 	if (grid_map) {
-		if (p_parent_node_index != p_root_node_index) {
-			memdelete(gltf_node);
+		Array cells = grid_map->get_used_cells();
+		for (int32_t k = 0; k < cells.size(); k++) {
+			GLTFNode *new_gltf_node = memnew(GLTFNode);
+			new_gltf_node->parent = p_parent_node_index;
+			gltf_node->children.push_back(state.nodes.size());
+			state.nodes.push_back(new_gltf_node);
+			Vector3 cell_location = cells[k];
+			int32_t cell = grid_map->get_cell_item(
+					cell_location.x, cell_location.y, cell_location.z);
+			Ref<Mesh> mesh =
+					grid_map->get_mesh_library()->get_item_mesh(cell);
+			for (int32_t material_i = 0; material_i < mesh->get_surface_count();
+					material_i++) {
+				// TODO Set materials
+				mesh->surface_get_material(material_i);
+			}
+			Transform cell_xform;
+			cell_xform.basis.set_orthogonal_index(
+					grid_map->get_cell_item_orientation(
+							cell_location.x, cell_location.y, cell_location.z));
+			cell_xform.basis.scale(Vector3(grid_map->get_cell_scale(),
+					grid_map->get_cell_scale(),
+					grid_map->get_cell_scale()));
+			cell_xform.set_origin(grid_map->map_to_world(
+					cell_location.x, cell_location.y, cell_location.z));
+			GLTFMesh gltf_mesh;
+			gltf_mesh.mesh = mesh;
+			new_gltf_node->mesh = state.meshes.size();
+			state.meshes.push_back(gltf_mesh);
+			new_gltf_node->xform = cell_xform * grid_map->get_transform();
+			new_gltf_node->name = grid_map->get_mesh_library()->get_item_name(cell);
 		}
-		for (int node_i = 0; node_i < p_scene_parent->get_child_count(); node_i++) {
-			_convert_scene_node(state, p_root_node, p_scene_parent->get_child(node_i), p_root_node_index, p_parent_node_index);
-		}
-		return;
 	}
 	retflag = false;
 }
@@ -5174,13 +5224,39 @@ void GLTFDocument::_convert_mult_mesh_instance(Node *p_scene_parent, const GLTFD
 	retflag = true;
 	MultiMeshInstance *multi_mesh_instance = Object::cast_to<MultiMeshInstance>(p_scene_parent);
 	if (multi_mesh_instance) {
-		if (p_parent_node_index != p_root_node_index) {
-			memdelete(gltf_node);
+		Ref<MultiMesh> mesh = multi_mesh_instance->get_multimesh();
+		if (mesh.is_valid()) {
+			for (int32_t instance_i = 0; instance_i < mesh->get_instance_count();
+					instance_i++) {
+				GLTFNode *new_gltf_node = memnew(GLTFNode);
+				new_gltf_node->parent = p_parent_node_index;
+				gltf_node->children.push_back(state.nodes.size());
+				state.nodes.push_back(new_gltf_node);
+				Transform transform;
+				if (mesh->get_transform_format() == MultiMesh::TRANSFORM_2D) {
+					Transform2D xform_2d = mesh->get_instance_transform_2d(instance_i);
+					transform.origin =
+							Vector3(xform_2d.get_origin().x, 0, xform_2d.get_origin().y);
+					real_t rotation = xform_2d.get_rotation();
+					Quat quat;
+					quat.set_axis_angle(Vector3(0, 1, 0), rotation);
+					Size2 scale = xform_2d.get_scale();
+					transform.basis.set_quat_scale(quat,
+							Vector3(scale.x, 0, scale.y));
+					transform =
+							multi_mesh_instance->get_transform() * transform;
+				} else if (mesh->get_transform_format() == MultiMesh::TRANSFORM_3D) {
+					transform = multi_mesh_instance->get_transform() *
+								mesh->get_instance_transform(instance_i);
+				}
+				GLTFMesh gltf_mesh;
+				gltf_mesh.mesh = mesh;
+				new_gltf_node->mesh = state.meshes.size();
+				state.meshes.push_back(gltf_mesh);
+				new_gltf_node->xform = transform;
+				new_gltf_node->name = multi_mesh_instance->get_name();
+			}
 		}
-		for (int node_i = 0; node_i < p_scene_parent->get_child_count(); node_i++) {
-			_convert_scene_node(state, p_root_node, p_scene_parent->get_child(node_i), p_root_node_index, p_parent_node_index);
-		}
-		return;
 	}
 	retflag = false;
 }
@@ -5661,8 +5737,11 @@ void GLTFDocument::_convert_mesh_instances(GLTFState &state) {
 
 		if (node->mesh >= 0) {
 			Map<GLTFNodeIndex, Node *>::Element *mi_element = state.scene_nodes.find(node_i);
+			if (!mi_element) {
+				continue;
+			}
 			MeshInstance *mi = Object::cast_to<MeshInstance>(mi_element->get());
-			ERR_FAIL_COND(mi == nullptr);
+			ERR_FAIL_COND(!mi);
 
 			Transform xform = mi->get_transform();
 			node->scale = xform.basis.get_scale();
@@ -5902,13 +5981,13 @@ GLTFDocument::GLTFAnimation::Track GLTFDocument::_convert_animation_track(GLTFDo
 			for (int32_t key_i = 0; key_i < keys; key_i++) {
 				Vector3 bezier_track = p_track.translation_track.values[key_i];
 				if (path.find("/translation:x") != -1) {
-					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);				
+					bezier_track.x = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
 					bezier_track.x = p_bone_rest.affine_inverse().origin.x * bezier_track.x;
 				} else if (path.find("/translation:y") != -1) {
-					bezier_track.y = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);				
+					bezier_track.y = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
 					bezier_track.y = p_bone_rest.affine_inverse().origin.y * bezier_track.y;
 				} else if (path.find("/translation:z") != -1) {
-					bezier_track.z = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);					
+					bezier_track.z = p_animation->bezier_track_interpolate(p_track_i, key_i / BAKE_FPS);
 					bezier_track.z = p_bone_rest.affine_inverse().origin.z * bezier_track.z;
 				}
 				p_track.translation_track.values.write[key_i] = bezier_track;
