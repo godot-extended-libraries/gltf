@@ -82,7 +82,6 @@ void SceneExporterGLTFPlugin::_gltf2_dialog_action(String p_file) {
 			return;
 		} else {
 			root->add_child(scene->instance());
-			scene->set_owner(root);
 		}
 	}
 	List<String> deps;
