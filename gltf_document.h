@@ -550,8 +550,7 @@ public:
 	GLTFSkeletonIndex _convert_skeleton(GLTFState &state, Skeleton *p_skeleton,
 			GLTFNodeIndex p_node_index);
 	void _convert_spatial(GLTFState &state, Spatial *p_spatial, GLTFNode *p_node);
-	void _convert_scene_node(GLTFState &state, Node *_root_node,
-			Node *p_root_node,
+	void _convert_scene_node(GLTFState &state, Node *p_root_node, Node *p_scene_parent,
 			const GLTFNodeIndex p_root_node_index,
 			const GLTFNodeIndex p_parent_node_index);
 	void _create_gltf_node(GLTFDocument::GLTFState &state,

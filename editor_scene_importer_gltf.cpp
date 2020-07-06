@@ -159,14 +159,12 @@ void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path,
 	}
 	Ref<GLTFDocument> gltf_document;
 	gltf_document.instance();
-
 	GLTFDocument::GLTFState state;
 	const GLTFDocument::GLTFNodeIndex scene_root = 0;
 	gltf_document->_convert_scene_node(state, p_node->get_child(0), p_node,
 			scene_root, scene_root);
 	gltf_document->_convert_mesh_instances(state);
 	gltf_document->_convert_skeletons(state);
-	state.scene_name = p_node->get_name();
 	err = gltf_document->serialize(state, p_path);
 	if (r_err) {
 		*r_err = err;
