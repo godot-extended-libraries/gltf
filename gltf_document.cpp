@@ -306,13 +306,13 @@ static Vector3 _arr_to_vec3(const Array &p_array) {
 	return Vector3(p_array[0], p_array[1], p_array[2]);
 }
 
-static Vector<real_t> _quat_to_array(const Quat &p_quat) {
-	Vector<real_t> array;
+static Array _quat_to_array(const Quat &p_quat) {
+	Array array;
 	array.resize(4);
-	array.write[0] = p_quat.x;
-	array.write[1] = p_quat.y;
-	array.write[2] = p_quat.z;
-	array.write[3] = p_quat.w;
+	array[0] = p_quat.x;
+	array[1] = p_quat.y;
+	array[2] = p_quat.z;
+	array[3] = p_quat.w;
 	return array;
 }
 
