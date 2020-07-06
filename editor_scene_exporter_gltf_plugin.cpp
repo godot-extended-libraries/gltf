@@ -74,7 +74,7 @@ void SceneExporterGLTFPlugin::_gltf2_dialog_action(String p_file) {
 		return;
 	}
 	List<String> deps;
-	convert_gltf2->save_scene(root->get_child(0), p_file, p_file, 0, 1000.0f, &deps);
+	convert_gltf2->save_scene(root, p_file, p_file, 0, 1000.0f, &deps);
 	EditorFileSystem::get_singleton()->scan_changes();
 	file_export_lib->queue_delete();
 }
