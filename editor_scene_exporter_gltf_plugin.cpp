@@ -65,8 +65,6 @@ bool SceneExporterGLTFPlugin::has_main_screen() const {
 SceneExporterGLTFPlugin::SceneExporterGLTFPlugin(EditorNode *p_node) {
 	editor = p_node;
 	convert_gltf2.instance();
-	file_export_lib_merge = NULL;
-	file_export_lib = NULL;
 }
 
 void SceneExporterGLTFPlugin::_gltf2_dialog_action(String p_file) {
@@ -75,22 +73,10 @@ void SceneExporterGLTFPlugin::_gltf2_dialog_action(String p_file) {
 		editor->show_accept(TTR("This operation can't be done without a scene."), TTR("OK"));
 		return;
 	}
-	if (FileAccess::exists(p_file) && file_export_lib_merge->is_pressed()) {
-		Ref<PackedScene> scene = ResourceLoader::load(p_file, "PackedScene");
-		if (scene.is_null()) {
-			editor->show_accept(TTR("Can't load scene for merging!"), TTR("OK"));
-			return;
-		} else {
-			Node *node = scene->instance();
-			root->add_child(node);
-			node->set_owner(root);
-		}
-	}
 	List<String> deps;
 	convert_gltf2->save_scene(root, p_file, p_file, 0, 1000.0f, &deps);
 	EditorFileSystem::get_singleton()->scan_changes();
 	file_export_lib->queue_delete();
-	file_export_lib_merge->queue_delete();
 }
 
 void SceneExporterGLTFPlugin::convert_scene_to_gltf2(Variant p_user_data) {
@@ -98,10 +84,6 @@ void SceneExporterGLTFPlugin::convert_scene_to_gltf2(Variant p_user_data) {
 	file_export_lib->set_title(TTR("Export Library"));
 	file_export_lib->set_mode(EditorFileDialog::MODE_SAVE_FILE);
 	file_export_lib->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
-	file_export_lib_merge = memnew(CheckBox);
-	file_export_lib_merge->set_text(TTR("Merge With Existing"));
-	file_export_lib_merge->set_pressed(false);
-	file_export_lib->get_vbox()->add_child(file_export_lib_merge);
 	editor->get_gui_base()->add_child(file_export_lib);
 	file_export_lib->clear_filters();
 	file_export_lib->add_filter("*.glb");

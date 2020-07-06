@@ -40,7 +40,6 @@ class SceneExporterGLTFPlugin : public EditorPlugin {
 
 	Ref<PackedSceneGLTF> convert_gltf2 = nullptr;
 	EditorNode *editor = nullptr;
-	CheckBox *file_export_lib_merge = nullptr;
 	EditorFileDialog *file_export_lib = nullptr;
 
 protected:
