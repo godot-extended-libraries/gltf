@@ -134,19 +134,25 @@ Error GLTFDocument::serialize(GLTFState &state, const String &p_path) {
 		return Error::FAILED;
 	}
 
-	/* STEP 13 SERIALIZE EXTENSIONS */
+	/* STEP 13 SERIALIZE SCENE */
+	err = _serialize_lights(state);
+	if (err != OK) {
+		return Error::FAILED;
+	}
+
+	/* STEP 14 SERIALIZE EXTENSIONS */
 	err = _serialize_extensions(state);
 	if (err != OK) {
 		return Error::FAILED;
 	}
 
-	/* STEP 14 SERIALIZE VERSION */
+	/* STEP 15 SERIALIZE VERSION */
 	err = _serialize_version(state);
 	if (err != OK) {
 		return Error::FAILED;
 	}
 
-	/* STEP 15 SERIALIZE FILE */
+	/* STEP 16 SERIALIZE FILE */
 	err = _serialize_file(state, p_path);
 	if (err != OK) {
 		return Error::FAILED;
@@ -160,7 +166,9 @@ Error GLTFDocument::serialize(GLTFState &state, const String &p_path) {
 
 Error GLTFDocument::_serialize_extensions(GLTFState &state) const {
 	const String texture_transform = "KHR_texture_transform";
+	const String punctual_lights = "KHR_lights_punctual";
 	Array extensions_used;
+	extensions_used.push_back(punctual_lights);
 	extensions_used.push_back(texture_transform);
 	state.json["extensionsUsed"] = extensions_used;
 	Array extensions_required;
@@ -364,11 +372,18 @@ Error GLTFDocument::_serialize_nodes(GLTFState &state) {
 	for (int i = 0; i < state.nodes.size(); i++) {
 		Dictionary node;
 		GLTFNode *n = state.nodes[i];
+		Dictionary extensions;
+		node["extensions"] = extensions;
 		if (!n->name.empty()) {
 			node["name"] = n->name;
 		}
 		if (n->camera != -1) {
 			node["camera"] = n->camera;
+		}
+		if (n->light != -1) {
+			Dictionary lights_punctual;
+			extensions["KHR_lights_punctual"] = lights_punctual;
+			lights_punctual["light"] = n->light;
 		}
 		if (n->mesh != -1) {
 			node["mesh"] = n->mesh;
@@ -4411,6 +4426,53 @@ void GLTFDocument::_remove_duplicate_skins(GLTFState &state) {
 	}
 }
 
+Error GLTFDocument::_serialize_lights(GLTFState &state) {
+
+	Array lights;
+	for (GLTFLightIndex i = 0; i < state.lights.size(); i++) {
+		Dictionary d;
+		GLTFLight light = state.lights[i];
+		Array color;
+		color.resize(3);
+		color[0] = light.color.r;
+		color[1] = light.color.g;
+		color[2] = light.color.b;
+		d["color"] = color;
+		d["type"] = light.type;
+		if (light.type == "spot") {
+			Dictionary s;
+			float inner_cone_angle = light.inner_cone_angle;
+			s["innerConeAngle"] = inner_cone_angle;
+			float outer_cone_angle = light.outer_cone_angle;
+			s["outerConeAngle"] = outer_cone_angle;
+			d["spot"] = s;
+		}
+		float intensity = light.intensity;
+		d["intensity"] = intensity;
+		float range = light.range;
+		d["range"] = range;
+		lights.push_back(d);
+	}
+
+	if (!state.lights.size()) {
+		return OK;
+	}
+
+	Dictionary extensions;
+	if (state.json.has("extensions")) {
+		extensions = state.json["extensions"];
+	} else {
+		state.json["extensions"] = extensions;
+	}
+	Dictionary lights_punctual;
+	extensions["KHR_lights_punctual"] = lights_punctual;
+	lights_punctual["lights"] = lights;
+
+	print_verbose("glTF: Total lights: " + itos(state.lights.size()));
+
+	return OK;
+}
+
 Error GLTFDocument::_serialize_cameras(GLTFState &state) {
 
 	Array cameras;
@@ -5032,6 +5094,41 @@ GLTFDocument::GLTFCameraIndex GLTFDocument::_convert_camera(GLTFState &state, Ca
 	return camera_index;
 }
 
+GLTFDocument::GLTFLightIndex GLTFDocument::_convert_light(GLTFState &state, Light *p_light) {
+	print_verbose("glTF: Converting light: " + p_light->get_name());
+
+	GLTFLight l;
+	l.color = p_light->get_color();
+	if (cast_to<DirectionalLight>(p_light)) {
+		l.type = "directional";
+		DirectionalLight *light = cast_to<DirectionalLight>(p_light);
+		l.intensity = light->get_param(DirectionalLight::PARAM_ENERGY);
+		l.range = FLT_MAX; // Range for directional lights is infinite in Godot.
+	} else if (cast_to<OmniLight>(p_light)) {
+		l.type = "point";
+		OmniLight *light = cast_to<OmniLight>(p_light);
+		l.range = light->get_param(OmniLight::PARAM_RANGE);
+		float attenuation = p_light->get_param(OmniLight::PARAM_ATTENUATION);
+		l.intensity = l.range / attenuation;
+	} else if (cast_to<SpotLight>(p_light)) {
+		l.type = "spot";
+		SpotLight *light = cast_to<SpotLight>(p_light);
+		l.range = light->get_param(SpotLight::PARAM_RANGE);
+		float attenuation = light->get_param(SpotLight::PARAM_ATTENUATION);
+		l.intensity = l.range / attenuation;
+		l.outer_cone_angle = Math::deg2rad(light->get_param(SpotLight::PARAM_SPOT_ANGLE));
+
+		// This equation is the inverse of the import equation (which has a desmos link).
+		float angle_ratio = 1 - (0.2 / (0.1 + light->get_param(SpotLight::PARAM_SPOT_ATTENUATION)));
+		angle_ratio = MAX(0, angle_ratio);
+		l.inner_cone_angle = l.outer_cone_angle * angle_ratio;
+	}
+
+	GLTFLightIndex light_index = state.lights.size();
+	state.lights.push_back(l);
+	return light_index;
+}
+
 GLTFDocument::GLTFSkeletonIndex GLTFDocument::_convert_skeleton(GLTFState &state, Skeleton *p_skeleton, GLTFNodeIndex p_node_index) {
 	print_verbose("glTF: Converting skeleton: " + p_skeleton->get_name());
 	GLTFSkeleton gltf_skeleton;
@@ -5104,6 +5201,8 @@ void GLTFDocument::_convert_scene_node(GLTFState &state, Node *p_root_node, Node
 	}
 	Camera *camera = Object::cast_to<Camera>(p_scene_parent);
 	_convert_camera_to_gltf(camera, state, spatial, gltf_node);
+	Light *light = Object::cast_to<Light>(p_scene_parent);
+	_convert_light_to_gltf(light, state, spatial, gltf_node);
 	_convert_spatial_to_gltf(spatial, state, gltf_node);
 
 	AnimationPlayer *animation_player = Object::cast_to<AnimationPlayer>(p_scene_parent);
@@ -5170,6 +5269,16 @@ void GLTFDocument::_convert_camera_to_gltf(Camera *camera, GLTFDocument::GLTFSta
 		if (camera_index != -1) {
 			_convert_spatial(state, spatial, gltf_node);
 			gltf_node->camera = camera_index;
+		}
+	}
+}
+
+void GLTFDocument::_convert_light_to_gltf(Light *light, GLTFDocument::GLTFState &state, Spatial *spatial, GLTFDocument::GLTFNode *gltf_node) {
+	if (light) {
+		GLTFLightIndex light_index = _convert_light(state, light);
+		if (light_index != -1) {
+			_convert_spatial(state, spatial, gltf_node);
+			gltf_node->light = light_index;
 		}
 	}
 }

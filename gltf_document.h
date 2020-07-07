@@ -230,20 +230,12 @@ public:
 	};
 
 	struct GLTFLight {
-		Color color;
-		float intensity;
-		String type;
-		float range;
-		float inner_cone_angle;
-		float outer_cone_angle;
-		GLTFLight() {
-			color = Color(1.0f, 1.0f, 1.0f);
-			intensity = 1.0f;
-			type = "";
-			range = Math_INF;
-			inner_cone_angle = 0.0f;
-			outer_cone_angle = Math_PI / 4.0;
-		}
+		Color color = Color(1.0f, 1.0f, 1.0f);
+		float intensity = 0.0f;
+		String type = "";
+		float range = Math_INF;
+		float inner_cone_angle= 0.0f;
+		float outer_cone_angle = Math_PI / 4.0;
 	};
 
 	struct GLTFAnimation {
@@ -414,6 +406,7 @@ private:
 	Error _parse_meshes(GLTFState &state);
 	Error _serialize_textures(GLTFState &state);
 	Error _serialize_images(GLTFState &state, const String &p_path);
+	Error GLTFDocument::_serialize_lights(GLTFState &state);
 	Error _parse_images(GLTFState &state, const String &p_base_path);
 	Error _parse_textures(GLTFState &state);
 	Error _parse_materials(GLTFState &state);
@@ -546,6 +539,8 @@ public:
 			MeshInstance *p_mesh_instance);
 	void _convert_mesh_instances(GLTFState &state);
 	GLTFCameraIndex _convert_camera(GLTFState &state, Camera *p_camera);
+	void _convert_light_to_gltf(Light *light, GLTFDocument::GLTFState &state, Spatial *spatial, GLTFDocument::GLTFNode *gltf_node);
+	GLTFLightIndex _convert_light(GLTFState &state, Light *p_light);
 	void _convert_skeletons(GLTFState &state);
 	GLTFSkeletonIndex _convert_skeleton(GLTFState &state, Skeleton *p_skeleton,
 			GLTFNodeIndex p_node_index);
