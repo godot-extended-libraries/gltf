@@ -406,7 +406,7 @@ private:
 	Error _parse_meshes(GLTFState &state);
 	Error _serialize_textures(GLTFState &state);
 	Error _serialize_images(GLTFState &state, const String &p_path);
-	Error GLTFDocument::_serialize_lights(GLTFState &state);
+	Error _serialize_lights(GLTFState &state);
 	Error _parse_images(GLTFState &state, const String &p_base_path);
 	Error _parse_textures(GLTFState &state);
 	Error _parse_materials(GLTFState &state);
