@@ -83,8 +83,6 @@ void PackedSceneGLTF::_bind_methods() {
 			&PackedSceneGLTF::export_gltf, DEFVAL(0), DEFVAL(1000.0f));
 	ClassDB::bind_method(D_METHOD("pack_gltf", "path", "flags", "bake_fps"),
 			&PackedSceneGLTF::pack_gltf, DEFVAL(0), DEFVAL(1000.0f));
-	ClassDB::bind_method(D_METHOD("import_gltf", "path", "flags", "bake_fps"),
-			&PackedSceneGLTF::import_gltf, DEFVAL(0), DEFVAL(1000.0f));
 }
 
 void PackedSceneGLTF::_save_thread_function(void *p_user) {
