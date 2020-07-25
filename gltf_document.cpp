@@ -2862,10 +2862,12 @@ Error GLTFDocument::_serialize_images(GLTFState &state, const String &p_path) {
 			d["bufferView"] = bvi;
 			d["mimeType"] = "image/png";
 		} else {
-			String name = image->get_name();
+			String name = state.images[i]->get_name();
 			if (name.empty()) {
-				name = itos(i).pad_zeros(3);
+				name = itos(i);
 			}
+			name = _gen_unique_name(state, name);
+			name = name.pad_zeros(3);
 			Ref<_Directory> dir;
 			dir.instance();
 			String texture_dir = "textures";
@@ -3077,6 +3079,7 @@ Error GLTFDocument::_serialize_materials(GLTFState &state) {
 				GLTFTextureIndex gltf_texture_index = -1;
 
 				if (albedo_texture.is_valid() && albedo_texture->get_data().is_valid()) {
+					albedo_texture->set_name(material->get_name() + "_albedo");
 					gltf_texture_index = _set_texture(state, albedo_texture);
 				}
 				if (gltf_texture_index != -1) {
@@ -3216,6 +3219,7 @@ Error GLTFDocument::_serialize_materials(GLTFState &state) {
 				orm_texture->create_from_image(orm_image);
 				GLTFTextureIndex orm_texture_index = -1;
 				if (has_ao || has_roughness || has_metalness) {
+					orm_texture->set_name(material->get_name() + "_orm");
 					orm_texture_index = _set_texture(state, orm_texture);
 				}
 				if (has_ao) {
@@ -3237,6 +3241,7 @@ Error GLTFDocument::_serialize_materials(GLTFState &state) {
 			Ref<Texture> normal_texture = material->get_texture(SpatialMaterial::TEXTURE_NORMAL);
 			GLTFTextureIndex gltf_texture_index = -1;
 			if (normal_texture.is_valid() && normal_texture->get_data().is_valid()) {
+				normal_texture->set_name(material->get_name() + "_normal");
 				gltf_texture_index = _set_texture(state, normal_texture);
 			}
 			nt["scale"] = material->get_normal_scale();
@@ -3259,6 +3264,7 @@ Error GLTFDocument::_serialize_materials(GLTFState &state) {
 			Ref<Texture> emission_texture = material->get_texture(SpatialMaterial::TEXTURE_EMISSION);
 			GLTFTextureIndex gltf_texture_index = -1;
 			if (emission_texture.is_valid() && emission_texture->get_data().is_valid()) {
+				emission_texture->set_name(material->get_name() + "_emission");
 				gltf_texture_index = _set_texture(state, emission_texture);
 			}
 
