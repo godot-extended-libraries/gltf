@@ -2838,7 +2838,7 @@ Error GLTFDocument::_serialize_images(GLTFState &state, const String &p_path) {
 		Ref<Image> image = state.images[i]->get_data();
 		ERR_CONTINUE(image.is_null());
 
-		{
+		if (p_path.to_lower().ends_with("glb")) {
 			GLTFBufferViewIndex bvi;
 
 			GLTFBufferView bv;
@@ -2861,6 +2861,22 @@ Error GLTFDocument::_serialize_images(GLTFState &state, const String &p_path) {
 			bvi = state.buffer_views.size() - 1;
 			d["bufferView"] = bvi;
 			d["mimeType"] = "image/png";
+		} else {
+			String name = image->get_name();
+			if (name.empty()) {
+				name = itos(i).pad_zeros(3);
+			}
+			Ref<_Directory> dir;
+			dir.instance();
+			String texture_dir = "textures";
+			String new_texture_dir = p_path.get_base_dir() + "/" + texture_dir;
+			dir->open(p_path.get_base_dir());
+			if (!dir->dir_exists(new_texture_dir)) {
+				dir->make_dir(new_texture_dir);
+			}
+			name = name + ".png";
+			image->save_png(new_texture_dir.plus_file(name));
+			d["uri"] = texture_dir.plus_file(name);
 		}
 		images.push_back(d);
 	}
