@@ -99,7 +99,7 @@ void SceneExporterGLTFPlugin::convert_scene_to_gltf2(Variant p_user_data) {
 	if (filename.empty()) {
 		filename = root->get_name();
 	}
-	file_export_lib->set_current_file(filename + String(".glb"));
+	file_export_lib->set_current_file(filename + String(".gltf"));
 	file_export_lib->connect("file_selected", this, "_gltf2_dialog_action");
 }
 #endif
