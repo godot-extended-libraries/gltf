@@ -2305,6 +2305,9 @@ Error GLTFDocument::_serialize_meshes(GLTFState &state) {
 
 		print_verbose("glTF: Serializing mesh: " + itos(gltf_mesh_i));
 		Ref<Mesh> godot_mesh = state.meshes[gltf_mesh_i].mesh;
+		if (godot_mesh.is_null()) {
+			continue;
+		}
 		Array primitives;
 		Array targets;
 		Dictionary gltf_mesh;
@@ -5494,7 +5497,9 @@ void GLTFDocument::_generate_scene_node(GLTFState &state, Node *scene_parent, Sp
 			current_node = _generate_camera(state, scene_parent, node_index);
 		} else if (gltf_node->light >= 0) {
 			current_node = _generate_light(state, scene_parent, node_index);
-		} else {
+		}
+
+		if (!current_node) {
 			current_node = _generate_spatial(state, scene_parent, node_index);
 		}
 
@@ -5868,7 +5873,7 @@ void GLTFDocument::_convert_mesh_instances(GLTFState &state) {
 				continue;
 			}
 			MeshInstance *mi = Object::cast_to<MeshInstance>(mi_element->get());
-			ERR_FAIL_COND(!mi);
+			ERR_CONTINUE(!mi);
 
 			Transform xform = mi->get_transform();
 			node->scale = xform.basis.get_scale();
