@@ -2444,6 +2444,9 @@ Error GLTFDocument::_serialize_meshes(GLTFState &state) {
 					{
 						for (int k = 0; k < vs; k += 3) {
 							generated_indices.write[k] = k;
+							if (k + 2 >= generated_indices.size()) {
+								generated_indices.resize(k + 2 + 1);
+							}
 							generated_indices.write[k + 1] = k + 2;
 							generated_indices.write[k + 2] = k + 1;
 						}
