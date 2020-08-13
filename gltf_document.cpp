@@ -1323,8 +1323,6 @@ int GLTFDocument::_get_component_type_size(const int component_type) {
 
 	switch (component_type) {
 		case COMPONENT_TYPE_BYTE:
-			return 1;
-			break;
 		case COMPONENT_TYPE_UNSIGNED_BYTE:
 			return 1;
 			break;
@@ -1335,8 +1333,6 @@ int GLTFDocument::_get_component_type_size(const int component_type) {
 			return 2;
 			break;
 		case COMPONENT_TYPE_INT:
-			return 4;
-			break;
 		case COMPONENT_TYPE_FLOAT:
 			return 4;
 			break;
@@ -2073,16 +2069,6 @@ GLTFDocument::_encode_accessor_as_xform(GLTFState &state, const Vector<Transform
 				type_min.write[2] = attribs[i * 16 + 2];
 				type_min.write[3] = attribs[i * 16 + 3];
 
-				type_max.write[0] = attribs[i * 16 + 0];
-				type_max.write[1] = attribs[i * 16 + 1];
-				type_max.write[2] = attribs[i * 16 + 2];
-				type_max.write[3] = attribs[i * 16 + 3];
-
-				type_min.write[0] = attribs[i * 16 + 0];
-				type_min.write[1] = attribs[i * 16 + 1];
-				type_min.write[2] = attribs[i * 16 + 2];
-				type_min.write[3] = attribs[i * 16 + 3];
-
 				type_max.write[4] = attribs[i * 16 + 4];
 				type_max.write[5] = attribs[i * 16 + 5];
 				type_max.write[6] = attribs[i * 16 + 6];
@@ -2477,11 +2463,7 @@ Error GLTFDocument::_serialize_meshes(GLTFState &state) {
 						if (shape_mode == ArrayMesh::BlendShapeMode::BLEND_SHAPE_MODE_NORMALIZED) {
 							const int max_idx = src_varr.size();
 							for (int blend_i = 0; blend_i < max_idx; blend_i++) {
-								if (blend_i < max_idx) {
-									varr.write[blend_i] = Vector3(varr[blend_i]) - src_varr[blend_i];
-								} else {
-									varr.write[blend_i] = src_varr[blend_i];
-								}
+								varr.write[blend_i] = Vector3(varr[blend_i]) - src_varr[blend_i];
 							}
 						}
 

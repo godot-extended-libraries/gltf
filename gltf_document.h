@@ -130,6 +130,7 @@ public:
 		int sparse_values_byte_offset;
 
 		GLTFAccessor() {
+            type = TYPE_SCALAR;
 			buffer_view = 0;
 			byte_offset = 0;
 			component_type = 0;
