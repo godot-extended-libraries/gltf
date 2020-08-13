@@ -2435,20 +2435,25 @@ Error GLTFDocument::_serialize_meshes(GLTFState &state) {
 					}
 					primitive["indices"] = _encode_accessor_as_ints(state, mesh_indices, true);
 				} else {
-					//generate indices because they need to be swapped for CW/CCW
-					const Vector<Vector3> &vertices = array[Mesh::ARRAY_VERTEX];
-					ERR_FAIL_COND_V(vertices.size() == 0, ERR_PARSE_ERROR);
-					Vector<int32_t> generated_indices;
-					const int vs = vertices.size();
-					generated_indices.resize(vs);
-					{
-						for (int k = 0; k < vs; k += 3) {
-							generated_indices.write[k] = k;
-							generated_indices.write[k + 1] = k + 2;
-							generated_indices.write[k + 2] = k + 1;
+					if (primitive_type == Mesh::PRIMITIVE_TRIANGLES) {
+						//generate indices because they need to be swapped for CW/CCW
+						const Vector<Vector3> &vertices = array[Mesh::ARRAY_VERTEX];
+						Ref<SurfaceTool> st;
+						st.instance();
+						st->create_from_triangle_arrays(array);
+						st->index();
+						Vector<int32_t> generated_indices = st->commit_to_arrays()[Mesh::ARRAY_INDEX];
+						const int vs = vertices.size();
+						generated_indices.resize(vs);
+						{
+							for (int k = 0; k < vs; k += 3) {
+								generated_indices.write[k] = k;
+								generated_indices.write[k + 1] = k + 2;
+								generated_indices.write[k + 2] = k + 1;
+							}
 						}
+						primitive["indices"] = _encode_accessor_as_ints(state, generated_indices, true);
 					}
-					primitive["indices"] = _encode_accessor_as_ints(state, generated_indices, true);
 				}
 			}
 
