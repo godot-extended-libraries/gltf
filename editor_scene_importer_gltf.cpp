@@ -37,9 +37,9 @@
 #include "core/os/os.h"
 #include "editor/import/resource_importer_scene.h"
 #include "modules/regex/regex.h"
-#include "scene/3d/bone_attachment.h"
-#include "scene/3d/camera.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/bone_attachment_3d.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/surface_tool.h"
@@ -115,7 +115,7 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
 	*r_err = err;
 	ERR_FAIL_COND_V(err != Error::OK, NULL);
 
-	Spatial *root = memnew(Spatial);
+	Node3D *root = memnew(Node3D);
 
 	for (int i = 0; i < state.root_nodes.size(); ++i) {
 		gltf_document->_generate_scene_node(state, root, root, state.root_nodes[i]);
@@ -132,7 +132,7 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
 		}
 	}
 
-	return Object::cast_to<Spatial>(root);
+	return Object::cast_to<Node3D>(root);
 }
 
 void PackedSceneGLTF::pack_gltf(String p_path, int32_t p_flags,

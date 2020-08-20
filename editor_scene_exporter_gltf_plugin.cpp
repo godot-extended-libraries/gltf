@@ -33,7 +33,7 @@
 #include "core/project_settings.h"
 #include "core/vector.h"
 #include "editor/editor_file_system.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/gui/check_box.h"
 #include "scene/main/node.h"
 
@@ -82,7 +82,7 @@ void SceneExporterGLTFPlugin::_gltf2_dialog_action(String p_file) {
 void SceneExporterGLTFPlugin::convert_scene_to_gltf2(Variant p_user_data) {
 	file_export_lib = memnew(EditorFileDialog);
 	file_export_lib->set_title(TTR("Export Library"));
-	file_export_lib->set_mode(EditorFileDialog::MODE_SAVE_FILE);
+	file_export_lib->set_file_mode(EditorFileDialog::FILE_MODE_SAVE_FILE);
 	file_export_lib->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
 	editor->get_gui_base()->add_child(file_export_lib);
 	file_export_lib->clear_filters();
@@ -100,6 +100,6 @@ void SceneExporterGLTFPlugin::convert_scene_to_gltf2(Variant p_user_data) {
 		filename = root->get_name();
 	}
 	file_export_lib->set_current_file(filename + String(".gltf"));
-	file_export_lib->connect("file_selected", this, "_gltf2_dialog_action");
+	file_export_lib->connect_compat("file_selected", this, "_gltf2_dialog_action");
 }
 #endif
