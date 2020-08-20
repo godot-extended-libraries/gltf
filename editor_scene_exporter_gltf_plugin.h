@@ -44,17 +44,17 @@ class SceneExporterGLTFPlugin : public EditorPlugin {
 
 protected:
 	static void _bind_methods();
+	virtual void _notification(int notification);
 
 public:
+	virtual String get_name() const override;
+	bool has_main_screen() const override;
+
 	void _gltf_dialog_action(String p_file);
 	void convert_scene_to_gltf(Variant p_user_data);
-	virtual String get_name() const;
-	virtual void _notification(int notification);
-	bool has_main_screen() const;
-
-	SceneExporterGLTFPlugin(class EditorNode *p_node);
 	void _gltf2_dialog_action(String p_file);
 	void convert_scene_to_gltf2(Variant p_user_data);
+	SceneExporterGLTFPlugin(class EditorNode *p_node);
 };
 
 #endif
