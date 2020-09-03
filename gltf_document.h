@@ -164,7 +164,7 @@ private:
 	Error _parse_images(Ref<GLTFState> state, const String &p_base_path);
 	Error _parse_textures(Ref<GLTFState> state);
 	Error _parse_materials(Ref<GLTFState> state);
-	void spec_gloss_to_rough_metal(GLTFSpecGloss &r_spec_gloss,
+	void spec_gloss_to_rough_metal(Ref<GLTFSpecGloss> r_spec_gloss,
 			Ref<StandardMaterial3D> p_material);
 	static void spec_gloss_to_metal_base_color(const Color &p_specular_factor,
 			const Color &p_diffuse,
@@ -172,11 +172,11 @@ private:
 			float &r_metallic);
 	GLTFNodeIndex _find_highest_node(Ref<GLTFState> state,
 			const Vector<GLTFNodeIndex> &subset);
-	bool _capture_nodes_in_skin(Ref<GLTFState> state, GLTFSkin &skin,
+	bool _capture_nodes_in_skin(Ref<GLTFState> state, Ref<GLTFSkin> skin,
 			const GLTFNodeIndex node_index);
-	void _capture_nodes_for_multirooted_skin(Ref<GLTFState> state, GLTFSkin &skin);
-	Error _expand_skin(Ref<GLTFState> state, GLTFSkin &skin);
-	Error _verify_skin(Ref<GLTFState> state, GLTFSkin &skin);
+	void _capture_nodes_for_multirooted_skin(Ref<GLTFState> state, Ref<GLTFSkin> skin);
+	Error _expand_skin(Ref<GLTFState> state, Ref<GLTFSkin> skin);
+	Error _verify_skin(Ref<GLTFState> state, Ref<GLTFSkin> skin);
 	Error _parse_skins(Ref<GLTFState> state);
 	Error _determine_skeletons(Ref<GLTFState> state);
 	Error _reparent_non_joint_skeleton_subtrees(
@@ -190,7 +190,7 @@ private:
 	Error _map_skin_joints_indices_to_skeleton_bone_indices(Ref<GLTFState> state);
 	Error _serialize_skins(Ref<GLTFState> state);
 	Error _create_skins(Ref<GLTFState> state);
-	bool _skins_are_same(const Ref<Skin> &skin_a, const Ref<Skin> &skin_b);
+	bool _skins_are_same(const Ref<Skin> skin_a, const Ref<Skin> skin_b);
 	void _remove_duplicate_skins(Ref<GLTFState> state);
 	Error _serialize_cameras(Ref<GLTFState> state);
 	Error _parse_cameras(Ref<GLTFState> state);

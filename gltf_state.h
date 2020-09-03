@@ -26,12 +26,12 @@ public:
 
 	bool use_named_skin_binds;
 
-	Vector<GLTFNode *> nodes;
+	Vector<Ref<GLTFNode>> nodes;
 	Vector<Vector<uint8_t> > buffers;
-	Vector<GLTFBufferView> buffer_views;
-	Vector<GLTFAccessor> accessors;
+	Vector<Ref<GLTFBufferView>> buffer_views;
+	Vector<Ref<GLTFAccessor>> accessors;
 
-	Vector<GLTFMesh> meshes; // meshes are loaded directly, no reason not to.
+	Vector<Ref<GLTFMesh>> meshes; // meshes are loaded directly, no reason not to.
 
 	Vector<AnimationPlayer *> animation_players;
 	Map<Ref<Material>, GLTFMaterialIndex> material_cache;
@@ -40,12 +40,12 @@ public:
 	String scene_name;
 	Vector<int> root_nodes;
 
-	Vector<GLTFTexture> textures;
+	Vector<Ref<GLTFTexture>> textures;
 	Vector<Ref<Texture2D> > images;
 
-	Vector<GLTFSkin> skins;
-	Vector<GLTFCamera> cameras;
-	Vector<GLTFLight> lights;
+	Vector<Ref<GLTFSkin>> skins;
+	Vector<Ref<GLTFCamera>> cameras;
+	Vector<Ref<GLTFLight>> lights;
 
 	Set<String> unique_names;
 
@@ -57,8 +57,5 @@ public:
 	GLTFState() {
 	}
 	~GLTFState() {
-		for (int i = 0; i < nodes.size(); i++) {
-			memdelete(nodes[i]);
-		}
 	}
 };
