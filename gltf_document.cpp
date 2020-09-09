@@ -5199,7 +5199,7 @@ GLTFSkeletonIndex GLTFDocument::_convert_skeleton(Ref<GLTFState> state, Skeleton
 	return state->skeletons.size() - 1;
 }
 
-void GLTFDocument::_convert_spatial(Ref<GLTFState> state, Node3D *p_spatial, GLTFNode *p_node) {
+void GLTFDocument::_convert_spatial(Ref<GLTFState> state, Node3D *p_spatial, Ref<GLTFNode> p_node) {
 	Transform xform = p_spatial->get_transform();
 	p_node->scale = xform.basis.get_scale();
 	p_node->rotation = xform.basis.get_rotation_quat();
@@ -5223,21 +5223,47 @@ void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_current, No
 	if (retflag) {
 		return;
 	}
-	GLTFNode *gltf_node = memnew(GLTFNode);
+
+	Ref<GLTFNode> gltf_node;
+	gltf_node.instance();
 	gltf_node->name = _gen_unique_name(state, p_current->get_name());
-	_convert_mesh_to_gltf(p_current, state, spatial, gltf_node);
-	_convert_bone_attachment_to_gltf(p_current, state, gltf_node, retflag);
-	if (retflag) {
+	if (p_current->get_class_name() == MeshInstance3D::get_class_static()) {
+		_convert_mesh_to_gltf(p_current, state, spatial, gltf_node);
+	} else if (p_current->get_class_name() == BoneAttachment3D::get_class_static()) {
+		_convert_bone_attachment_to_gltf(p_current, state, gltf_node, retflag);
 		return;
-	}
-	_convert_skeleton_to_gltf(p_current, state, p_gltf_parent, p_gltf_root, gltf_node, p_root, retflag);
-	if (retflag) {
+	} else if (p_current->get_class_name() == Skeleton3D::get_class_static()) {
+		_convert_skeleton_to_gltf(p_current, state, p_gltf_parent, p_gltf_root, gltf_node, p_root);
 		return;
-	}
-	_convert_mult_mesh_instance(p_current, p_gltf_parent, p_gltf_root, gltf_node, state, p_root, retflag);
-	if (retflag) {
+	} else if (p_current->get_class_name() == MultiMeshInstance3D::get_class_static()) {
+		_convert_mult_mesh_instance_to_gltf(p_current, p_gltf_parent, p_gltf_root, gltf_node, state, p_root);
+	} else if (p_current->get_class_name() == CSGShape3D::get_class_static()) {
+		_convert_csg_shape_to_gltf(p_current, gltf_node, state);
+	} else if (p_current->get_class_name() == GridMap::get_class_static()) {
+		_convert_grid_map_to_gltf(p_current, p_gltf_parent, p_gltf_root, gltf_node, state, p_root, retflag);
+	} else if (p_current->get_class_name() == Camera3D::get_class_static()) {
+		Camera3D *camera = Object::cast_to<Camera3D>(p_current);
+		_convert_camera_to_gltf(camera, state, spatial, gltf_node);
+	} else if (p_current->get_class_name() == Light3D::get_class_static()) {
+		Light3D *light = Object::cast_to<Light3D>(p_current);
+		_convert_light_to_gltf(light, state, spatial, gltf_node);
+	} else if (p_current->get_class_name() == AnimationPlayer::get_class_static()) {
+		AnimationPlayer *animation_player = Object::cast_to<AnimationPlayer>(p_current);
+		_convert_animation_player_to_gltf(animation_player, state, p_gltf_parent, p_gltf_root, gltf_node, p_current, p_root, retflag);
 		return;
+	} else {
+		_convert_spatial_to_gltf(spatial, state, gltf_node);
 	}
+
+	GLTFNodeIndex current_node_i = state->nodes.size();
+	_create_gltf_node(state, current_node_i, p_current, p_gltf_parent, gltf_node);
+
+	for (int node_i = 0; node_i < p_current->get_child_count(); node_i++) {
+		_convert_scene_node(state, p_current->get_child(node_i), p_root, current_node_i, p_gltf_root);
+	}
+}
+
+void GLTFDocument::_convert_csg_shape_to_gltf(Node *p_current, Ref<GLTFNode> gltf_node, Ref<GLTFState> state) {
 	CSGShape3D *csg = Object::cast_to<CSGShape3D>(p_current);
 	if (csg && csg->is_root_shape()) {
 		csg->call("_make_dirty");
@@ -5257,31 +5283,10 @@ void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_current, No
 		gltf_node->xform = csg->get_meshes()[0];
 		gltf_node->name = csg->get_name();
 	}
-	_convert_grid_map_to_gltf(p_current, p_gltf_parent, p_gltf_root, gltf_node, state, p_root, retflag);
-	if (retflag) {
-		return;
-	}
-	Camera3D *camera = Object::cast_to<Camera3D>(p_current);
-	_convert_camera_to_gltf(camera, state, spatial, gltf_node);
-	Light3D *light = Object::cast_to<Light3D>(p_current);
-	_convert_light_to_gltf(light, state, spatial, gltf_node);
-	_convert_spatial_to_gltf(spatial, state, gltf_node);
-
-	AnimationPlayer *animation_player = Object::cast_to<AnimationPlayer>(p_current);
-	_convert_animation_player_to_gltf(animation_player, state, p_gltf_parent, p_gltf_root, gltf_node, p_current, p_root, retflag);
-	if (retflag) {
-		return;
-	}
-	GLTFNodeIndex current_node_i = state->nodes.size();
-	_create_gltf_node(state, current_node_i, p_current, p_gltf_parent, gltf_node);
-
-	for (int node_i = 0; node_i < p_current->get_child_count(); node_i++) {
-		_convert_scene_node(state, p_current->get_child(node_i), p_root, current_node_i, p_gltf_root);
-	}
 }
 
 void GLTFDocument::_create_gltf_node(Ref<GLTFState> state, GLTFNodeIndex current_node_i, Node *p_scene_parent,
-		const GLTFNodeIndex p_parent_node_index, GLTFNode *gltf_node) {
+		GLTFNodeIndex p_parent_node_index, Ref<GLTFNode> gltf_node) {
 	gltf_node->parent = p_parent_node_index;
 	state->scene_nodes.insert(current_node_i, p_scene_parent);
 	state->nodes.push_back(gltf_node);
@@ -5290,13 +5295,13 @@ void GLTFDocument::_create_gltf_node(Ref<GLTFState> state, GLTFNodeIndex current
 	}
 }
 
-void GLTFDocument::_convert_animation_player_to_gltf(AnimationPlayer *animation_player, Ref<GLTFState> state, const GLTFNodeIndex &p_gltf_current, const GLTFNodeIndex &p_gltf_root_index, GLTFNode *p_gltf_node, Node *p_scene_parent, Node *p_root, bool &retflag) {
+void GLTFDocument::_convert_animation_player_to_gltf(AnimationPlayer *animation_player, Ref<GLTFState> state, const GLTFNodeIndex &p_gltf_current, const GLTFNodeIndex &p_gltf_root_index, Ref<GLTFNode> p_gltf_node, Node *p_scene_parent, Node *p_root, bool &retflag) {
 	retflag = true;
 	if (animation_player) {
 		state->animation_players.push_back(animation_player);
 		print_verbose(String("glTF: Converting animation player: ") + animation_player->get_name());
 		if (p_gltf_current != p_gltf_root_index) {
-			memdelete(p_gltf_node);
+			p_gltf_node.unref();
 		}
 		for (int node_i = 0; node_i < p_scene_parent->get_child_count(); node_i++) {
 			_convert_scene_node(state, p_scene_parent->get_child(node_i), p_root, p_gltf_current, p_gltf_root_index);
@@ -5306,7 +5311,7 @@ void GLTFDocument::_convert_animation_player_to_gltf(AnimationPlayer *animation_
 	retflag = false;
 }
 
-void GLTFDocument::_convert_spatial_to_gltf(Node3D *spatial, Ref<GLTFState> state, GLTFNode *gltf_node) {
+void GLTFDocument::_convert_spatial_to_gltf(Node3D *spatial, Ref<GLTFState> state, Ref<GLTFNode> gltf_node) {
 	if (spatial) {
 		_convert_spatial(state, spatial, gltf_node);
 		print_verbose(String("glTF: Converting spatial: ") + spatial->get_name());
@@ -5324,7 +5329,7 @@ void GLTFDocument::_check_visibility(Node2D *node_2d, Node3D *spatial, bool &ret
 	retflag = false;
 }
 
-void GLTFDocument::_convert_camera_to_gltf(Camera3D *camera, Ref<GLTFState> state, Node3D *spatial, GLTFNode *gltf_node) {
+void GLTFDocument::_convert_camera_to_gltf(Camera3D *camera, Ref<GLTFState> state, Node3D *spatial, Ref<GLTFNode> gltf_node) {
 	if (camera) {
 		GLTFCameraIndex camera_index = _convert_camera(state, camera);
 		if (camera_index != -1) {
@@ -5334,7 +5339,7 @@ void GLTFDocument::_convert_camera_to_gltf(Camera3D *camera, Ref<GLTFState> stat
 	}
 }
 
-void GLTFDocument::_convert_light_to_gltf(Light3D *light, Ref<GLTFState> state, Node3D *spatial, GLTFNode *gltf_node) {
+void GLTFDocument::_convert_light_to_gltf(Light3D *light, Ref<GLTFState> state, Node3D *spatial, Ref<GLTFNode> gltf_node) {
 	if (light) {
 		GLTFLightIndex light_index = _convert_light(state, light);
 		if (light_index != -1) {
@@ -5344,7 +5349,7 @@ void GLTFDocument::_convert_light_to_gltf(Light3D *light, Ref<GLTFState> state, 
 	}
 }
 
-void GLTFDocument::_convert_grid_map_to_gltf(Node *p_scene_parent, const GLTFNodeIndex &p_parent_node_index, const GLTFNodeIndex &p_root_node_index, GLTFNode *gltf_node, Ref<GLTFState> state, Node *p_root_node, bool &retflag) {
+void GLTFDocument::_convert_grid_map_to_gltf(Node *p_scene_parent, const GLTFNodeIndex &p_parent_node_index, const GLTFNodeIndex &p_root_node_index, Ref<GLTFNode> gltf_node, Ref<GLTFState> state, Node *p_root_node, bool &retflag) {
 	retflag = true;
 	GridMap *grid_map = Object::cast_to<GridMap>(p_scene_parent);
 	if (grid_map) {
@@ -5379,8 +5384,7 @@ void GLTFDocument::_convert_grid_map_to_gltf(Node *p_scene_parent, const GLTFNod
 	retflag = false;
 }
 
-void GLTFDocument::_convert_mult_mesh_instance(Node *p_scene_parent, const GLTFNodeIndex &p_parent_node_index, const GLTFNodeIndex &p_root_node_index, GLTFNode *gltf_node, Ref<GLTFState> state, Node *p_root_node, bool &retflag) {
-	retflag = true;
+void GLTFDocument::_convert_mult_mesh_instance_to_gltf(Node *p_scene_parent, const GLTFNodeIndex &p_parent_node_index, const GLTFNodeIndex &p_root_node_index, Ref<GLTFNode> gltf_node, Ref<GLTFState> state, Node *p_root_node) {
 	MultiMeshInstance3D *multi_mesh_instance = Object::cast_to<MultiMeshInstance3D>(p_scene_parent);
 	if (multi_mesh_instance) {
 		Ref<MultiMesh> multi_mesh = multi_mesh_instance->get_multimesh();
@@ -5424,30 +5428,26 @@ void GLTFDocument::_convert_mult_mesh_instance(Node *p_scene_parent, const GLTFN
 			}
 		}
 	}
-	retflag = false;
 }
 
-void GLTFDocument::_convert_skeleton_to_gltf(Node *p_scene_parent, Ref<GLTFState> state, const GLTFNodeIndex &p_parent_node_index, const GLTFNodeIndex &p_root_node_index, GLTFNode *gltf_node, Node *p_root_node, bool &retflag) {
-	retflag = true;
+void GLTFDocument::_convert_skeleton_to_gltf(Node *p_scene_parent, Ref<GLTFState> state, const GLTFNodeIndex &p_parent_node_index, const GLTFNodeIndex &p_root_node_index, Ref<GLTFNode> gltf_node, Node *p_root_node) {
 	Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(p_scene_parent);
 	if (skeleton) {
 		GLTFSkeletonIndex gltf_skeleton_index = -1;
 		gltf_skeleton_index = _convert_skeleton(state, skeleton, p_parent_node_index);
-		if (p_parent_node_index != p_root_node_index) {
-			memdelete(gltf_node);
-		}
 		if (gltf_skeleton_index != -1) {
 			gltf_node->skeleton = gltf_skeleton_index;
+		}
+		if (p_parent_node_index != p_root_node_index) {
+			gltf_node.unref();
 		}
 		for (int node_i = 0; node_i < p_scene_parent->get_child_count(); node_i++) {
 			_convert_scene_node(state, p_scene_parent->get_child(node_i), p_root_node, p_parent_node_index, p_root_node_index);
 		}
-		return;
 	}
-	retflag = false;
 }
 
-void GLTFDocument::_convert_bone_attachment_to_gltf(Node *p_scene_parent, Ref<GLTFState> state, GLTFNode *gltf_node, bool &retflag) {
+void GLTFDocument::_convert_bone_attachment_to_gltf(Node *p_scene_parent, Ref<GLTFState> state, Ref<GLTFNode> gltf_node, bool &retflag) {
 	retflag = true;
 	BoneAttachment3D *bone_attachment = Object::cast_to<BoneAttachment3D>(p_scene_parent);
 	if (bone_attachment) {
@@ -5467,13 +5467,13 @@ void GLTFDocument::_convert_bone_attachment_to_gltf(Node *p_scene_parent, Ref<GL
 			}
 			node = node->get_parent();
 		}
-		memdelete(gltf_node);
+		gltf_node.unref();
 		return;
 	}
 	retflag = false;
 }
 
-void GLTFDocument::_convert_mesh_to_gltf(Node *p_scene_parent, Ref<GLTFState> state, Node3D *spatial, GLTFNode *gltf_node) {
+void GLTFDocument::_convert_mesh_to_gltf(Node *p_scene_parent, Ref<GLTFState> state, Node3D *spatial, Ref<GLTFNode> gltf_node) {
 	MeshInstance3D *mi = Object::cast_to<MeshInstance3D>(p_scene_parent);
 	if (mi) {
 		GLTFMeshIndex gltf_mesh_index = _convert_mesh_instance(state, mi);

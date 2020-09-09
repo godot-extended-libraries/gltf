@@ -292,57 +292,60 @@ public:
 			MeshInstance3D *p_mesh_instance);
 	void _convert_mesh_instances(Ref<GLTFState> state);
 	GLTFCameraIndex _convert_camera(Ref<GLTFState> state, Camera3D *p_camera);
-	void _convert_light_to_gltf(Light3D *light, Ref<GLTFState> state, Node3D *spatial, GLTFNode *gltf_node);
+	void _convert_light_to_gltf(Light3D *light, Ref<GLTFState> state, Node3D *spatial, Ref<GLTFNode> gltf_node);
 	GLTFLightIndex _convert_light(Ref<GLTFState> state, Light3D *p_light);
 	void _convert_skeletons(Ref<GLTFState> state);
 	GLTFSkeletonIndex _convert_skeleton(Ref<GLTFState> state, Skeleton3D *p_skeleton,
 			GLTFNodeIndex p_node_index);
-	void _convert_spatial(Ref<GLTFState> state, Node3D *p_spatial, GLTFNode *p_node);
+	void _convert_spatial(Ref<GLTFState> state, Node3D *p_spatial, Ref<GLTFNode> p_node);
 	void _convert_scene_node(Ref<GLTFState> state, Node *p_current, Node *p_root,
 			const GLTFNodeIndex p_gltf_current,
 			const GLTFNodeIndex p_gltf_root);
+
+	void _convert_csg_shape_to_gltf(Node *p_current, Ref<GLTFNode> gltf_node, Ref<GLTFState> state);
+
 	void _create_gltf_node(Ref<GLTFState> state,
 			GLTFNodeIndex current_node_i,
 			Node *p_scene_parent,
 			GLTFNodeIndex p_parent_node_index,
-			GLTFNode *gltf_node);
+			Ref<GLTFNode> gltf_node);
 	void _convert_animation_player_to_gltf(
 			AnimationPlayer *animation_player, Ref<GLTFState> state,
 			const GLTFNodeIndex &p_gltf_current,
 			const GLTFNodeIndex &p_gltf_root_index,
-			GLTFNode *p_gltf_node, Node *p_scene_parent,
+			Ref<GLTFNode> p_gltf_node, Node *p_scene_parent,
 			Node *p_root, bool &retflag);
 	void _convert_spatial_to_gltf(Node3D *spatial,
 			Ref<GLTFState> state,
-			GLTFNode *gltf_node);
+			Ref<GLTFNode> gltf_node);
 	void _check_visibility(Node2D *node_2d, Node3D *spatial, bool &retflag);
 	void _convert_camera_to_gltf(Camera3D *camera, Ref<GLTFState> state,
 			Node3D *spatial,
-			GLTFNode *gltf_node);
+			Ref<GLTFNode> gltf_node);
 	void _convert_grid_map_to_gltf(
 			Node *p_scene_parent,
 			const GLTFNodeIndex &p_parent_node_index,
 			const GLTFNodeIndex &p_root_node_index,
-			GLTFNode *gltf_node, Ref<GLTFState> state,
+			Ref<GLTFNode> gltf_node, Ref<GLTFState> state,
 			Node *p_root_node, bool &retflag);
-	void _convert_mult_mesh_instance(
+	void _convert_mult_mesh_instance_to_gltf(
 			Node *p_scene_parent,
 			const GLTFNodeIndex &p_parent_node_index,
 			const GLTFNodeIndex &p_root_node_index,
-			GLTFNode *gltf_node, Ref<GLTFState> state,
-			Node *p_root_node, bool &retflag);
+			Ref<GLTFNode> gltf_node, Ref<GLTFState> state,
+			Node *p_root_node);
 	void _convert_skeleton_to_gltf(
 			Node *p_scene_parent, Ref<GLTFState> state,
 			const GLTFNodeIndex &p_parent_node_index,
 			const GLTFNodeIndex &p_root_node_index,
-			GLTFNode *gltf_node, Node *p_root_node, bool &retflag);
+			Ref<GLTFNode> gltf_node, Node *p_root_node);
 	void _convert_bone_attachment_to_gltf(Node *p_scene_parent,
 			Ref<GLTFState> state,
-			GLTFNode *gltf_node,
+			Ref<GLTFNode> gltf_node,
 			bool &retflag);
 	void _convert_mesh_to_gltf(Node *p_scene_parent,
 			Ref<GLTFState> state, Node3D *spatial,
-			GLTFNode *gltf_node);
+			Ref<GLTFNode> gltf_node);
 	void _convert_animation(Ref<GLTFState> state, AnimationPlayer *ap,
 			String p_animation_track_name);
 	Error serialize(Ref<GLTFState> state, const String &p_path);
