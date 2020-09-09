@@ -5273,19 +5273,20 @@ void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_root, Node 
 		return;
 	}
 	GLTFNodeIndex current_node_i = state->nodes.size();
-	_create_gltf_node(state, current_node_i, p_current, gltf_node);
+	_create_gltf_node(state, current_node_i, p_current, -1, gltf_node);
 	for (int node_i = 0; node_i < p_current->get_child_count(); node_i++) {
 		_convert_scene_node(state, p_root, p_current->get_child(node_i), p_gltf_root, current_node_i);
 	}
 }
 
-void GLTFDocument::_create_gltf_node(Ref<GLTFState> state, GLTFNodeIndex current_node_i, Node *p_scene_parent, GLTFNode *gltf_node) {
-	//gltf_node->parent = p_parent_node_index;
+void GLTFDocument::_create_gltf_node(Ref<GLTFState> state, GLTFNodeIndex current_node_i, Node *p_scene_parent,
+		const GLTFNodeIndex p_parent_node_index, GLTFNode *gltf_node) {
+	gltf_node->parent = p_parent_node_index;
 	state->scene_nodes.insert(current_node_i, p_scene_parent);
 	state->nodes.push_back(gltf_node);
-	//if (p_parent_node_index != current_node_i && p_parent_node_index != -1) {
-	//	state->nodes.write[p_parent_node_index]->children.push_back(current_node_i);
-	//}
+	if (p_parent_node_index != current_node_i && p_parent_node_index != -1) {
+		state->nodes.write[p_parent_node_index]->children.push_back(current_node_i);
+	}
 }
 
 void GLTFDocument::_convert_animation_player_to_gltf(AnimationPlayer *animation_player, Ref<GLTFState> state, const GLTFNodeIndex &p_gltf_current, const GLTFNodeIndex &p_gltf_root_index, GLTFNode *p_gltf_node, Node *p_scene_parent, Node *p_root, bool &retflag) {
