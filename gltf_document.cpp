@@ -249,7 +249,7 @@ Error GLTFDocument::_serialize_bone_attachment(Ref<GLTFState> state) {
 
 				for (int node_i = 0; node_i < bone_attachment->get_child_count(); node_i++) {
 					ERR_CONTINUE(bone >= state->skins[skin_i]->joints.size());
-					_convert_scene_node(state, bone_attachment->get_owner(), bone_attachment->get_child(node_i), 0, state->skins[skin_i]->joints[bone]);
+					_convert_scene_node(state, bone_attachment->get_child(node_i), bone_attachment->get_owner(), state->skins[skin_i]->joints[bone], 0);
 				}
 				break;
 			}
@@ -5214,7 +5214,7 @@ Node3D *GLTFDocument::_generate_spatial(Ref<GLTFState> state, Node *scene_parent
 
 	return spatial;
 }
-void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_root, Node *p_current, const GLTFNodeIndex p_gltf_root, const GLTFNodeIndex p_gltf_current) {
+void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_current, Node *p_root, const GLTFNodeIndex p_gltf_parent, const GLTFNodeIndex p_gltf_root) {
 
 	bool retflag;
 	Node3D *spatial = Object::cast_to<Node3D>(p_current);
@@ -5230,11 +5230,11 @@ void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_root, Node 
 	if (retflag) {
 		return;
 	}
-	_convert_skeleton_to_gltf(p_current, state, p_gltf_current, p_gltf_root, gltf_node, p_root, retflag);
+	_convert_skeleton_to_gltf(p_current, state, p_gltf_parent, p_gltf_root, gltf_node, p_root, retflag);
 	if (retflag) {
 		return;
 	}
-	_convert_mult_mesh_instance(p_current, p_gltf_current, p_gltf_root, gltf_node, state, p_root, retflag);
+	_convert_mult_mesh_instance(p_current, p_gltf_parent, p_gltf_root, gltf_node, state, p_root, retflag);
 	if (retflag) {
 		return;
 	}
@@ -5257,7 +5257,7 @@ void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_root, Node 
 		gltf_node->xform = csg->get_meshes()[0];
 		gltf_node->name = csg->get_name();
 	}
-	_convert_grid_map_to_gltf(p_current, p_gltf_current, p_gltf_root, gltf_node, state, p_root, retflag);
+	_convert_grid_map_to_gltf(p_current, p_gltf_parent, p_gltf_root, gltf_node, state, p_root, retflag);
 	if (retflag) {
 		return;
 	}
@@ -5268,15 +5268,15 @@ void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_root, Node 
 	_convert_spatial_to_gltf(spatial, state, gltf_node);
 
 	AnimationPlayer *animation_player = Object::cast_to<AnimationPlayer>(p_current);
-	_convert_animation_player_to_gltf(animation_player, state, p_gltf_current, p_gltf_root, gltf_node, p_current, p_root, retflag);
+	_convert_animation_player_to_gltf(animation_player, state, p_gltf_parent, p_gltf_root, gltf_node, p_current, p_root, retflag);
 	if (retflag) {
 		return;
 	}
 	GLTFNodeIndex current_node_i = state->nodes.size();
-	_create_gltf_node(state, current_node_i, p_current, p_gltf_current, gltf_node);
+	_create_gltf_node(state, current_node_i, p_current, p_gltf_parent, gltf_node);
 
 	for (int node_i = 0; node_i < p_current->get_child_count(); node_i++) {
-		_convert_scene_node(state, p_root, p_current->get_child(node_i), p_gltf_root, current_node_i);
+		_convert_scene_node(state, p_current->get_child(node_i), p_root, current_node_i, p_gltf_root);
 	}
 }
 
@@ -5299,7 +5299,7 @@ void GLTFDocument::_convert_animation_player_to_gltf(AnimationPlayer *animation_
 			memdelete(p_gltf_node);
 		}
 		for (int node_i = 0; node_i < p_scene_parent->get_child_count(); node_i++) {
-			_convert_scene_node(state, p_root, p_scene_parent->get_child(node_i), p_gltf_root_index, p_gltf_current);
+			_convert_scene_node(state, p_scene_parent->get_child(node_i), p_root, p_gltf_current, p_gltf_root_index);
 		}
 		return;
 	}
@@ -5440,7 +5440,7 @@ void GLTFDocument::_convert_skeleton_to_gltf(Node *p_scene_parent, Ref<GLTFState
 			gltf_node->skeleton = gltf_skeleton_index;
 		}
 		for (int node_i = 0; node_i < p_scene_parent->get_child_count(); node_i++) {
-			_convert_scene_node(state, p_root_node, p_scene_parent->get_child(node_i), p_root_node_index, p_parent_node_index);
+			_convert_scene_node(state, p_scene_parent->get_child(node_i), p_root_node, p_parent_node_index, p_root_node_index);
 		}
 		return;
 	}
