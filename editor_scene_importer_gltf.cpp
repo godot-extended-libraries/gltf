@@ -126,8 +126,7 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
 	gltf_document->_process_mesh_instances(state, root);
 	if (state->animations.size()) {
 		AnimationPlayer *ap = memnew(AnimationPlayer);
-		Node *new_root = root->get_child(0);
-		new_root->add_child(ap);
+		root->add_child(ap);
 		ap->set_owner(root);
 		for (int i = 0; i < state->animations.size(); i++) {
 			gltf_document->_import_animation(state, ap, i, p_bake_fps);
