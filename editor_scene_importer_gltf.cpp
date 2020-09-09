@@ -175,8 +175,8 @@ void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path,
 }
 
 Error PackedSceneGLTF::export_gltf(Node *p_root, String p_path,
-		int32_t p_flags /*= 0*/,
-		real_t p_bake_fps /*= 1000.0f*/) {
+		int32_t p_flags,
+		real_t p_bake_fps) {
 	if (save_thread) {
 		return ERR_BUSY;
 	}
