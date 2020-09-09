@@ -298,9 +298,9 @@ public:
 	GLTFSkeletonIndex _convert_skeleton(Ref<GLTFState> state, Skeleton3D *p_skeleton,
 			GLTFNodeIndex p_node_index);
 	void _convert_spatial(Ref<GLTFState> state, Node3D *p_spatial, GLTFNode *p_node);
-	void _convert_scene_node(Ref<GLTFState> state, Node *p_root_node, Node *p_scene_parent,
-			const GLTFNodeIndex p_root_node_index,
-			const GLTFNodeIndex p_parent_node_index);
+	void _convert_scene_node(Ref<GLTFState> state, Node *p_root, Node *p_current,
+			const GLTFNodeIndex p_gltf_root,
+			const GLTFNodeIndex p_gltf_current);
 	void _create_gltf_node(Ref<GLTFState> state,
 			GLTFNodeIndex &current_node_i,
 			Node *&p_scene_parent,
