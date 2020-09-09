@@ -314,7 +314,7 @@ public:
 			const GLTFNodeIndex &p_gltf_current,
 			const GLTFNodeIndex &p_gltf_root_index,
 			Ref<GLTFNode> p_gltf_node, Node *p_scene_parent,
-			Node *p_root, bool &retflag);
+			Node *p_root);
 	void _convert_spatial_to_gltf(Node3D *spatial,
 			Ref<GLTFState> state,
 			Ref<GLTFNode> gltf_node);
@@ -327,7 +327,7 @@ public:
 			const GLTFNodeIndex &p_parent_node_index,
 			const GLTFNodeIndex &p_root_node_index,
 			Ref<GLTFNode> gltf_node, Ref<GLTFState> state,
-			Node *p_root_node, bool &retflag);
+			Node *p_root_node);
 	void _convert_mult_mesh_instance_to_gltf(
 			Node *p_scene_parent,
 			const GLTFNodeIndex &p_parent_node_index,
