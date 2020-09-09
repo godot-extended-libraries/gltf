@@ -7,29 +7,20 @@ class GLTFNode : public Resource {
 
 public:
 	// matrices need to be transformed to this
-	GLTFNodeIndex parent;
-	int height;
-
+	GLTFNodeIndex parent = -1;
+	int height = -1;
 	Transform xform;
 	String name;
-
-	GLTFMeshIndex mesh;
-	GLTFCameraIndex camera;
-	GLTFSkinIndex skin;
-
-	GLTFSkeletonIndex skeleton;
-	bool joint;
-
+	GLTFMeshIndex mesh = -1;
+	GLTFCameraIndex camera = -1;
+	GLTFSkinIndex skin = -1;
+	GLTFSkeletonIndex skeleton = -1;
+	bool joint = false;
 	Vector3 translation;
 	Quat rotation;
-	Vector3 scale;
-
+	Vector3 scale = Vector3(1, 1, 1);
 	Vector<int> children;
-
-	GLTFNodeIndex fake_joint_parent;
-
-	GLTFLightIndex light;
-
-	GLTFNode() :
-			parent(-1), height(-1), mesh(-1), camera(-1), skin(-1), skeleton(-1), joint(false), translation(0, 0, 0), scale(Vector3(1, 1, 1)), fake_joint_parent(-1), light(-1) {}
+	GLTFNodeIndex fake_joint_parent = -1;
+	GLTFLightIndex light = -1;
+	GLTFNode() {}
 };
