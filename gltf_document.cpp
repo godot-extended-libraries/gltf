@@ -5289,16 +5289,16 @@ void GLTFDocument::_create_gltf_node(Ref<GLTFState> state, GLTFNodeIndex current
 	}
 }
 
-void GLTFDocument::_convert_animation_player_to_gltf(AnimationPlayer *animation_player, Ref<GLTFState> state, const GLTFNodeIndex &p_parent_node_index, const GLTFNodeIndex &p_root_node_index, GLTFNode *gltf_node, Node *p_scene_parent, Node *p_root_node, bool &retflag) {
+void GLTFDocument::_convert_animation_player_to_gltf(AnimationPlayer *animation_player, Ref<GLTFState> state, const GLTFNodeIndex &p_gltf_current, const GLTFNodeIndex &p_gltf_root_index, GLTFNode *p_gltf_node, Node *p_scene_parent, Node *p_root, bool &retflag) {
 	retflag = true;
 	if (animation_player) {
 		state->animation_players.push_back(animation_player);
 		print_verbose(String("glTF: Converting animation player: ") + animation_player->get_name());
-		if (p_parent_node_index != p_root_node_index) {
-			memdelete(gltf_node);
+		if (p_gltf_current != p_gltf_root_index) {
+			memdelete(p_gltf_node);
 		}
 		for (int node_i = 0; node_i < p_scene_parent->get_child_count(); node_i++) {
-			_convert_scene_node(state, p_root_node, p_scene_parent->get_child(node_i), p_root_node_index, p_parent_node_index);
+			_convert_scene_node(state, p_root, p_scene_parent->get_child(node_i), p_gltf_root_index, p_gltf_current);
 		}
 		return;
 	}

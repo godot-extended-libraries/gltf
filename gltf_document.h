@@ -308,10 +308,10 @@ public:
 			GLTFNode *gltf_node);
 	void _convert_animation_player_to_gltf(
 			AnimationPlayer *animation_player, Ref<GLTFState> state,
-			const GLTFNodeIndex &p_parent_node_index,
-			const GLTFNodeIndex &p_root_node_index,
-			GLTFNode *gltf_node, Node *p_scene_parent,
-			Node *p_root_node, bool &retflag);
+			const GLTFNodeIndex &p_gltf_current,
+			const GLTFNodeIndex &p_gltf_root_index,
+			GLTFNode *p_gltf_node, Node *p_scene_parent,
+			Node *p_root, bool &retflag);
 	void _convert_spatial_to_gltf(Node3D *spatial,
 			Ref<GLTFState> state,
 			GLTFNode *gltf_node);
