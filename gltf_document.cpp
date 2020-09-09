@@ -241,7 +241,9 @@ Error GLTFDocument::_serialize_bone_attachment(Ref<GLTFState> state) {
 	for (int skeleton_i = 0; skeleton_i < state->skeletons.size(); skeleton_i++) {
 		for (int attachment_i = 0; attachment_i < state->skeletons[skeleton_i]->bone_attachments.size(); attachment_i++) {
 			BoneAttachment3D *bone_attachment = state->skeletons[skeleton_i]->bone_attachments[attachment_i];
-			int32_t bone = state->skeletons[skeleton_i]->godot_skeleton->find_bone(bone_attachment->get_bone_name());
+			String bone_name = bone_attachment->get_bone_name();
+			bone_name = _sanitize_bone_name(bone_name);
+			int32_t bone = state->skeletons[skeleton_i]->godot_skeleton->find_bone(bone_name);
 			ERR_CONTINUE(bone == -1);
 			for (int skin_i = 0; skin_i < state->skins.size(); skin_i++) {
 				if (state->skins[skin_i]->skeleton != skeleton_i) {
