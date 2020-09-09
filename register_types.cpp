@@ -33,6 +33,19 @@
 #include "editor/editor_node.h"
 #include "editor_scene_exporter_gltf_plugin.h"
 #include "editor_scene_importer_gltf.h"
+#include "gltf_document.h"
+#include "gltf_spec_gloss.h"
+#include "gltf_node.h"
+#include "gltf_animation.h"
+#include "gltf_buffer_view.h"
+#include "gltf_accessor.h"
+#include "gltf_texture.h"
+#include "gltf_skeleton.h"
+#include "gltf_skin.h"
+#include "gltf_mesh.h"
+#include "gltf_camera.h"
+#include "gltf_light.h"
+#include "gltf_state.h"
 
 #ifndef _3D_DISABLED
 #ifdef TOOLS_ENABLED
@@ -54,6 +67,19 @@ void register_gltf_types() {
 	ClassDB::set_current_api(prev_api);
 	EditorNode::add_init_callback(_editor_init);
 #endif
+	ClassDB::register_class<GLTFSpecGloss>();
+	ClassDB::register_class<GLTFNode>();
+	ClassDB::register_class<GLTFAnimation>();
+	ClassDB::register_class<GLTFBufferView>();
+	ClassDB::register_class<GLTFAccessor>();
+	ClassDB::register_class<GLTFTexture>();
+	ClassDB::register_class<GLTFSkeleton>();
+	ClassDB::register_class<GLTFSkin>();
+	ClassDB::register_class<GLTFMesh>();
+	ClassDB::register_class<GLTFCamera>();
+	ClassDB::register_class<GLTFLight>();
+	ClassDB::register_class<GLTFState>();
+	ClassDB::register_class<GLTFDocument>();
 	ClassDB::register_class<PackedSceneGLTF>();
 #endif
 }

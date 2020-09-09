@@ -43,6 +43,7 @@
 #include "scene/animation/animation_player.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/surface_tool.h"
+#include "gltf_state.h"
 
 #ifndef _3D_DISABLED
 #ifdef TOOLS_ENABLED
@@ -105,29 +106,29 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
 		int p_bake_fps,
 		List<String> *r_missing_deps,
 		Error *r_err) {
-	GLTFDocument::GLTFState state;
-	state.use_named_skin_binds =
+	Ref<GLTFState> state;
+	state.instance();
+	state->use_named_skin_binds =
 			p_flags & EditorSceneImporter::IMPORT_USE_NAMED_SKIN_BINDS;
 
 	Ref<GLTFDocument> gltf_document;
 	gltf_document.instance();
-	Error err = gltf_document->parse(&state, p_path);
+	Error err = gltf_document->parse(state, p_path);
 	*r_err = err;
 	ERR_FAIL_COND_V(err != Error::OK, NULL);
 
 	Spatial *root = memnew(Spatial);
 
-	for (int i = 0; i < state.root_nodes.size(); ++i) {
-		gltf_document->_generate_scene_node(state, root, root, state.root_nodes[i]);
+	for (int i = 0; i < state->root_nodes.size(); ++i) {
+		gltf_document->_generate_scene_node(state, root, root, state->root_nodes[i]);
 	}
 
 	gltf_document->_process_mesh_instances(state, root);
-	if (state.animations.size()) {
+	if (state->animations.size()) {
 		AnimationPlayer *ap = memnew(AnimationPlayer);
-		Node *new_root = root->get_child(0);
-		new_root->add_child(ap);
+		root->add_child(ap);
 		ap->set_owner(root);
-		for (int i = 0; i < state.animations.size(); i++) {
+		for (int i = 0; i < state->animations.size(); i++) {
 			gltf_document->_import_animation(state, ap, i, p_bake_fps);
 		}
 	}
@@ -159,10 +160,12 @@ void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path,
 	}
 	Ref<GLTFDocument> gltf_document;
 	gltf_document.instance();
-	GLTFDocument::GLTFState state;
-	const GLTFDocument::GLTFNodeIndex scene_root = 0;
-	gltf_document->_convert_scene_node(state, p_node->get_child(0), p_node,
-			scene_root, scene_root);
+	Ref<GLTFState> state;
+	state.instance();
+	const GLTFNodeIndex scene_root = 0;
+	for (int node_i = 0; node_i < p_node->get_child_count(); node_i++) {
+		gltf_document->_convert_scene_node(state, p_node->get_child(node_i), p_node->get_child(node_i), scene_root, scene_root);
+	}
 	gltf_document->_convert_mesh_instances(state);
 	gltf_document->_convert_skeletons(state);
 	err = gltf_document->serialize(state, p_path);
@@ -172,8 +175,8 @@ void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path,
 }
 
 Error PackedSceneGLTF::export_gltf(Node *p_root, String p_path,
-		int32_t p_flags /*= 0*/,
-		real_t p_bake_fps /*= 1000.0f*/) {
+		int32_t p_flags,
+		real_t p_bake_fps) {
 	if (save_thread) {
 		return ERR_BUSY;
 	}
