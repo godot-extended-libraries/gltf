@@ -49,9 +49,6 @@ protected:
 public:
 	virtual String get_name() const override;
 	bool has_main_screen() const override;
-
-	void _gltf_dialog_action(String p_file);
-	void convert_scene_to_gltf(Variant p_user_data);
 	void _gltf2_dialog_action(String p_file);
 	void convert_scene_to_gltf2(Variant p_user_data);
 	SceneExporterGLTFPlugin(class EditorNode *p_node);
