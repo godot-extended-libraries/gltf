@@ -302,9 +302,9 @@ public:
 			const GLTFNodeIndex p_gltf_root,
 			const GLTFNodeIndex p_gltf_current);
 	void _create_gltf_node(Ref<GLTFState> state,
-			GLTFNodeIndex &current_node_i,
-			Node *&p_scene_parent,
-			const GLTFNodeIndex &p_parent_node_index,
+			GLTFNodeIndex current_node_i,
+			Node *p_scene_parent,
+			GLTFNodeIndex p_parent_node_index,
 			GLTFNode *gltf_node);
 	void _convert_animation_player_to_gltf(
 			AnimationPlayer *animation_player, Ref<GLTFState> state,
