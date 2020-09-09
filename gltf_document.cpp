@@ -4929,7 +4929,7 @@ Error GLTFDocument::_parse_animations(Ref<GLTFState> state) {
 				const Vector<float> weights = _decode_accessor_as_floats(state, output, false);
 
 				ERR_FAIL_INDEX_V(state->nodes[node]->mesh, state->meshes.size(), ERR_PARSE_ERROR);
-				const Ref<GLTFMesh> mesh = &state->meshes[state->nodes[node]->mesh];
+				const Ref<GLTFMesh> mesh = state->meshes[state->nodes[node]->mesh];
 				ERR_CONTINUE(!mesh->blend_weights.size());
 				const int wc = mesh->blend_weights.size();
 
