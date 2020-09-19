@@ -64,6 +64,7 @@
 #include "scene/resources/surface_tool.h"
 #include <limits>
 
+
 Error GLTFDocument::serialize(Ref<GLTFState> state, const String &p_path) {
 
 	uint64_t begin_time = OS::get_singleton()->get_ticks_usec();
@@ -5241,7 +5242,10 @@ void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_current, No
 	} else if (cast_to<MultiMeshInstance3D>(p_current)) {
 		_convert_mult_mesh_instance_to_gltf(p_current, p_gltf_parent, p_gltf_root, gltf_node, state, p_root);
 	} else if (cast_to<CSGShape3D>(p_current)) {
-		_convert_csg_shape_to_gltf(p_current, gltf_node, state);
+		if (p_current->get_parent() && !cast_to<CSGShape3D>(p_current->get_parent())) {
+			_convert_csg_shape_to_gltf(p_current, p_gltf_parent, gltf_node, state);
+			_convert_spatial(state, spatial, gltf_node);
+		}
 	} else if (cast_to<GridMap>(p_current)) {
 		_convert_grid_map_to_gltf(p_current, p_gltf_parent, p_gltf_root, gltf_node, state, p_root);
 	} else if (cast_to<Camera3D>(p_current)) {
@@ -5266,29 +5270,34 @@ void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_current, No
 	}
 }
 
-void GLTFDocument::_convert_csg_shape_to_gltf(Node *p_current, Ref<GLTFNode> gltf_node, Ref<GLTFState> state) {
+void GLTFDocument::_convert_csg_shape_to_gltf(Node *p_current, GLTFNodeIndex p_gltf_parent, Ref<GLTFNode> gltf_node, Ref<GLTFState> state) {
 	CSGShape3D *csg = Object::cast_to<CSGShape3D>(p_current);
-	if (csg && csg->is_root_shape()) {
-		// HACK to call _make_dirty function
-		CSGShape3D::Operation operation = csg->get_operation();
-		csg->set_operation(operation);
-		csg->call("_update_shape");
-		// END HACK
-		Ref<Mesh> mesh = csg->get_meshes()[1];
-		if (csg->get_material_override().is_valid()) {
-			for (int32_t material_i = 0; material_i < mesh->get_surface_count();
-					material_i++) {
-				mesh->surface_set_material(material_i, csg->get_material_override());
-			}
-		}
-		Ref<GLTFMesh> gltf_mesh;
-		gltf_mesh.instance();
-		gltf_mesh->mesh = csg->get_meshes()[1];
-		gltf_node->mesh = state->meshes.size();
-		state->meshes.push_back(gltf_mesh);
-		gltf_node->xform = csg->get_meshes()[0];
-		gltf_node->name = csg->get_name();
+	// HACK to call _make_dirty function
+	CSGShape3D::Operation operation = csg->get_operation();
+	csg->set_operation(operation);
+	// END HACK
+	csg->call("_update_shape");
+	Array meshes = csg->get_meshes();
+	if (meshes.size() < 2) {
+		return;
 	}
+	Ref<Mesh> mesh = meshes[1];
+	if (mesh.is_null()) {
+		return;
+	}
+	if (csg->get_material_override().is_valid()) {
+		for (int32_t material_i = 0; material_i < mesh->get_surface_count();
+				material_i++) {
+			mesh->surface_set_material(material_i, csg->get_material_override());
+		}
+	}
+	Ref<GLTFMesh> gltf_mesh;
+	gltf_mesh.instance();
+	gltf_mesh->mesh = csg->get_meshes()[1];
+	gltf_node->mesh = state->meshes.size();
+	state->meshes.push_back(gltf_mesh);
+	gltf_node->xform = csg->get_meshes()[0];
+	gltf_node->name = csg->get_name();
 }
 
 void GLTFDocument::_create_gltf_node(Ref<GLTFState> state, GLTFNodeIndex current_node_i, Node *p_scene_parent,
