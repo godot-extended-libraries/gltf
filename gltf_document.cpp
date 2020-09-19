@@ -5230,27 +5230,27 @@ void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_current, No
 	Ref<GLTFNode> gltf_node;
 	gltf_node.instance();
 	gltf_node->name = _gen_unique_name(state, p_current->get_name());
-	if (p_current->get_class_name() == MeshInstance3D::get_class_static()) {
+	if (cast_to<MeshInstance3D>(p_current)) {
 		_convert_mesh_to_gltf(p_current, state, spatial, gltf_node);
-	} else if (p_current->get_class_name() == BoneAttachment3D::get_class_static()) {
+	} else if (cast_to<BoneAttachment3D>(p_current)) {
 		_convert_bone_attachment_to_gltf(p_current, state, gltf_node, retflag);
 		return;
-	} else if (p_current->get_class_name() == Skeleton3D::get_class_static()) {
+	} else if (cast_to<Skeleton3D>(p_current)) {
 		_convert_skeleton_to_gltf(p_current, state, p_gltf_parent, p_gltf_root, gltf_node, p_root);
 		return;
-	} else if (p_current->get_class_name() == MultiMeshInstance3D::get_class_static()) {
+	} else if (cast_to<MultiMeshInstance3D>(p_current)) {
 		_convert_mult_mesh_instance_to_gltf(p_current, p_gltf_parent, p_gltf_root, gltf_node, state, p_root);
-	} else if (p_current->get_class_name() == CSGShape3D::get_class_static()) {
+	} else if (cast_to<CSGShape3D>(p_current)) {
 		_convert_csg_shape_to_gltf(p_current, gltf_node, state);
-	} else if (p_current->get_class_name() == GridMap::get_class_static()) {
+	} else if (cast_to<GridMap>(p_current)) {
 		_convert_grid_map_to_gltf(p_current, p_gltf_parent, p_gltf_root, gltf_node, state, p_root);
-	} else if (p_current->get_class_name() == Camera3D::get_class_static()) {
+	} else if (cast_to<Camera3D>(p_current)) {
 		Camera3D *camera = Object::cast_to<Camera3D>(p_current);
 		_convert_camera_to_gltf(camera, state, spatial, gltf_node);
-	} else if (p_current->get_class_name() == Light3D::get_class_static()) {
+	} else if (cast_to<Light3D>(p_current)) {
 		Light3D *light = Object::cast_to<Light3D>(p_current);
 		_convert_light_to_gltf(light, state, spatial, gltf_node);
-	} else if (p_current->get_class_name() == AnimationPlayer::get_class_static()) {
+	} else if (cast_to<AnimationPlayer>(p_current)) {
 		AnimationPlayer *animation_player = Object::cast_to<AnimationPlayer>(p_current);
 		_convert_animation_player_to_gltf(animation_player, state, p_gltf_parent, p_gltf_root, gltf_node, p_current, p_root);
 		return;
@@ -5269,8 +5269,11 @@ void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_current, No
 void GLTFDocument::_convert_csg_shape_to_gltf(Node *p_current, Ref<GLTFNode> gltf_node, Ref<GLTFState> state) {
 	CSGShape3D *csg = Object::cast_to<CSGShape3D>(p_current);
 	if (csg && csg->is_root_shape()) {
-		csg->call("_make_dirty");
+		// HACK to call _make_dirty function
+		CSGShape3D::Operation operation = csg->get_operation();
+		csg->set_operation(operation);
 		csg->call("_update_shape");
+		// END HACK
 		Ref<Mesh> mesh = csg->get_meshes()[1];
 		if (csg->get_material_override().is_valid()) {
 			for (int32_t material_i = 0; material_i < mesh->get_surface_count();
