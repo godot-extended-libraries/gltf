@@ -302,7 +302,7 @@ public:
 			const GLTFNodeIndex p_gltf_current,
 			const GLTFNodeIndex p_gltf_root);
 
-	void _convert_csg_shape_to_gltf(Node *p_current, Ref<GLTFNode> gltf_node, Ref<GLTFState> state);
+	void _convert_csg_shape_to_gltf(Node *p_current, GLTFNodeIndex p_gltf_parent, Ref<GLTFNode> gltf_node, Ref<GLTFState> state);
 
 	void _create_gltf_node(Ref<GLTFState> state,
 			GLTFNodeIndex current_node_i,
