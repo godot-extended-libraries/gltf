@@ -36,6 +36,7 @@
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "editor/import/resource_importer_scene.h"
+#include "gltf_state.h"
 #include "modules/regex/regex.h"
 #include "scene/3d/bone_attachment_3d.h"
 #include "scene/3d/camera_3d.h"
@@ -43,7 +44,7 @@
 #include "scene/animation/animation_player.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/surface_tool.h"
-#include "gltf_state.h"
+
 
 #ifndef _3D_DISABLED
 #ifdef TOOLS_ENABLED
@@ -82,30 +83,14 @@ void PackedSceneGLTF::_bind_methods() {
 	ClassDB::bind_method(
 			D_METHOD("export_gltf", "node", "path", "flags", "bake_fps"),
 			&PackedSceneGLTF::export_gltf, DEFVAL(0), DEFVAL(1000.0f));
-	ClassDB::bind_method(D_METHOD("pack_gltf", "path", "flags", "bake_fps"),
+	ClassDB::bind_method(D_METHOD("pack_gltf", "path", "flags", "bake_fps", "read_binary"),
 			&PackedSceneGLTF::pack_gltf, DEFVAL(0), DEFVAL(1000.0f));
-}
-
-void PackedSceneGLTF::_save_thread_function(void *p_user) {
-	Dictionary *user_data = (Dictionary *)p_user;
-	Node *node = (*user_data)["scene"];
-	List<String> deps;
-	Error err;
-	String path = (*user_data)["path"];
-	int32_t flags = (*user_data)["flags"];
-	real_t baked_fps = (*user_data)["bake_fps"];
-	Ref<PackedSceneGLTF> exporter;
-	exporter.instance();
-	exporter->save_scene(node, path, "", flags, baked_fps, &deps, &err);
-	(*user_data)["error"] = err;
-	Ref<PackedSceneGLTF> self_exporter = (*user_data)["self"];
-	self_exporter->save_thread = NULL;
 }
 
 Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
 		int p_bake_fps,
 		List<String> *r_missing_deps,
-		Error *r_err) {
+		Error *r_err, bool p_read_binary) {
 	Ref<GLTFState> state;
 	state.instance();
 	state->use_named_skin_binds =
@@ -113,7 +98,7 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
 
 	Ref<GLTFDocument> gltf_document;
 	gltf_document.instance();
-	Error err = gltf_document->parse(state, p_path);
+	Error err = gltf_document->parse(state, p_path, p_read_binary);
 	*r_err = err;
 	ERR_FAIL_COND_V(err != Error::OK, NULL);
 
@@ -137,10 +122,10 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
 }
 
 void PackedSceneGLTF::pack_gltf(String p_path, int32_t p_flags,
-		real_t p_bake_fps) {
+		real_t p_bake_fps, bool p_read_binary) {
 	Error err = FAILED;
 	List<String> deps;
-	Node *root = import_scene(p_path, p_flags, p_bake_fps, &deps, &err);
+	Node *root = import_scene(p_path, p_flags, p_bake_fps, &deps, &err, p_read_binary);
 	ERR_FAIL_COND(err != OK);
 	pack(root);
 }
@@ -177,20 +162,17 @@ void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path,
 Error PackedSceneGLTF::export_gltf(Node *p_root, String p_path,
 		int32_t p_flags,
 		real_t p_bake_fps) {
-	if (save_thread) {
-		return ERR_BUSY;
-	}
-	ERR_FAIL_COND_V(p_root == NULL, FAILED);
-	user_data["scene"] = p_root->duplicate();
-	user_data["path"] = p_path;
-	user_data["flags"] = p_flags;
-	user_data["bake_fps"] = p_bake_fps;
-	user_data["error"] = FAILED;
-	user_data["self"] = Ref<PackedSceneGLTF>(this);
+	ERR_FAIL_COND_V(!p_root, FAILED);
+	Node *node = p_root->duplicate();
+	List<String> deps;
+	Error err;
+	String path = p_path;
+	int32_t flags = p_flags;
+	real_t baked_fps = p_bake_fps;
 	Ref<PackedSceneGLTF> exporter;
 	exporter.instance();
-	save_thread = Thread::create(_save_thread_function, &user_data);
-	int32_t error_code = user_data["error"];
+	exporter->save_scene(node, path, "", flags, baked_fps, &deps, &err);
+	int32_t error_code = err;
 	if (error_code != 0) {
 		return Error(error_code);
 	}
