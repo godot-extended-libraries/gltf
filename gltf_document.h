@@ -349,7 +349,7 @@ public:
 	void _convert_animation(Ref<GLTFState> state, AnimationPlayer *ap,
 			String p_animation_track_name);
 	Error serialize(Ref<GLTFState> state, const String &p_path);
-	Error parse(Ref<GLTFState> state, String p_path);
+	Error parse(Ref<GLTFState> state, String p_paths, bool p_read_binary = false);
 };
 
 #endif

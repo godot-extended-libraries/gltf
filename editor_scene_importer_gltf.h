@@ -83,7 +83,6 @@ class PackedSceneGLTF : public PackedScene {
     Node *original_node = nullptr;
     Node *original_parent = nullptr;
   };
-  Thread *save_thread = nullptr;
   Dictionary user_data;
 
 protected:
@@ -97,9 +96,9 @@ public:
                     real_t p_bake_fps = 1000.0f);
   static void _save_thread_function(void *p_user);
   Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps,
-                     List<String> *r_missing_deps, Error *r_err);
+                     List<String> *r_missing_deps, Error *r_err, bool p_read_binary = false);
   void pack_gltf(String p_path, int32_t p_flags = 0,
-                 real_t p_bake_fps = 1000.0f);
+                 real_t p_bake_fps = 1000.0f, bool p_read_binary = false);
   PackedSceneGLTF();
 };
 

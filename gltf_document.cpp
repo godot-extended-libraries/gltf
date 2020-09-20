@@ -6452,9 +6452,9 @@ void GLTFDocument::_convert_animation(Ref<GLTFState> state, AnimationPlayer *ap,
 	}
 }
 
-Error GLTFDocument::parse(Ref<GLTFState> state, String p_path) {
+Error GLTFDocument::parse(Ref<GLTFState> state, String p_path, bool p_read_binary) {
 
-	if (p_path.to_lower().ends_with("glb")) {
+	if (p_path.to_lower().ends_with("glb") || p_read_binary) {
 		//binary file
 		//text file
 		Error err = _parse_glb(p_path, state);
