@@ -6454,7 +6454,13 @@ void GLTFDocument::_convert_animation(Ref<GLTFState> state, AnimationPlayer *ap,
 
 Error GLTFDocument::parse(Ref<GLTFState> state, String p_path, bool p_read_binary) {
 
-	if (p_path.to_lower().ends_with("glb") || p_read_binary) {
+	Error err;
+	FileAccessRef f = FileAccess::open(p_path, FileAccess::READ, &err);
+	if (!f) {
+		return err;
+	}
+	uint32_t magic = f->get_32();
+	if (magic == 0x46546C67) {
 		//binary file
 		//text file
 		Error err = _parse_glb(p_path, state);
@@ -6466,6 +6472,7 @@ Error GLTFDocument::parse(Ref<GLTFState> state, String p_path, bool p_read_binar
 		if (err)
 			return FAILED;
 	}
+	f->close();
 
 	ERR_FAIL_COND_V(!state->json.has("asset"), Error::FAILED);
 
@@ -6479,7 +6486,7 @@ Error GLTFDocument::parse(Ref<GLTFState> state, String p_path, bool p_read_binar
 	state->minor_version = version.get_slice(".", 1).to_int();
 
 	/* STEP 0 PARSE SCENE */
-	Error err = _parse_scenes(state);
+	err = _parse_scenes(state);
 	if (err != OK)
 		return Error::FAILED;
 

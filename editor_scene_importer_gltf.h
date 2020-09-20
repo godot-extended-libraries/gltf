@@ -96,9 +96,9 @@ public:
                     real_t p_bake_fps = 1000.0f);
   static void _save_thread_function(void *p_user);
   Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps,
-                     List<String> *r_missing_deps, Error *r_err, bool p_read_binary = false);
+                     List<String> *r_missing_deps, Error *r_err);
   void pack_gltf(String p_path, int32_t p_flags = 0,
-                 real_t p_bake_fps = 1000.0f, bool p_read_binary = false);
+                 real_t p_bake_fps = 1000.0f);
   PackedSceneGLTF();
 };
 
