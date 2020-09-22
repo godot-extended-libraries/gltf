@@ -3567,13 +3567,20 @@ void GLTFDocument::spec_gloss_to_rough_metal(Ref<GLTFSpecGloss> r_spec_gloss, Re
 		r_spec_gloss->diffuse_img->resize(r_spec_gloss->spec_gloss_img->get_width(), r_spec_gloss->spec_gloss_img->get_height(), Image::INTERPOLATE_LANCZOS);
 		r_spec_gloss->spec_gloss_img->resize(r_spec_gloss->diffuse_img->get_width(), r_spec_gloss->diffuse_img->get_height(), Image::INTERPOLATE_LANCZOS);
 	}
+	rm_img->lock();
+	if (r_spec_gloss->diffuse_img.is_valid()) {
+		r_spec_gloss->diffuse_img->lock();
+		r_spec_gloss->spec_gloss_img->lock();
+	}
 	for (int32_t y = 0; y < r_spec_gloss->spec_gloss_img->get_height(); y++) {
 		for (int32_t x = 0; x < r_spec_gloss->spec_gloss_img->get_width(); x++) {
 			const Color specular_pixel = r_spec_gloss->spec_gloss_img->get_pixel(x, y).to_linear();
 			Color specular = Color(specular_pixel.r, specular_pixel.g, specular_pixel.b);
 			specular *= r_spec_gloss->specular_factor;
 			Color diffuse = Color(1.0f, 1.0f, 1.0f);
-			diffuse *= r_spec_gloss->diffuse_img->get_pixel(x, y).to_linear();
+			if (r_spec_gloss->diffuse_img.is_valid()) {
+				diffuse *= r_spec_gloss->diffuse_img->get_pixel(x, y).to_linear();
+			}
 			float metallic = 0.0f;
 			Color base_color;
 			spec_gloss_to_metal_base_color(specular, diffuse, base_color, metallic);
@@ -3593,6 +3600,10 @@ void GLTFDocument::spec_gloss_to_rough_metal(Ref<GLTFSpecGloss> r_spec_gloss, Re
 				r_spec_gloss->diffuse_img->set_pixel(x, y, base_color.to_srgb());
 			}
 		}
+	}	
+	if (r_spec_gloss->diffuse_img.is_valid()) {
+		r_spec_gloss->diffuse_img->unlock();
+		r_spec_gloss->spec_gloss_img->unlock();
 	}
 	rm_img->unlock();
 	rm_img->generate_mipmaps();
