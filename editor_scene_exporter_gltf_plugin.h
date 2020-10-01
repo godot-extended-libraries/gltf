@@ -47,8 +47,8 @@ protected:
 	virtual void _notification(int notification);
 
 public:
-	virtual String get_name() const override;
-	bool has_main_screen() const override;
+	virtual String get_name() const;
+	bool has_main_screen() const;
 	void _gltf2_dialog_action(String p_file);
 	void convert_scene_to_gltf2(Variant p_user_data);
 	SceneExporterGLTFPlugin(class EditorNode *p_node);
