@@ -36,7 +36,6 @@
 #include "core/project_settings.h"
 #include "core/vector.h"
 #include "editor/import/resource_importer_scene.h"
-#include "gltf_document.h"
 #include "modules/csg/csg_shape.h"
 #include "modules/gridmap/grid_map.h"
 #include "scene/3d/mesh_instance_3d.h"
@@ -48,6 +47,9 @@
 #include "scene/main/node.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/surface_tool.h"
+
+#include "gltf_document.h"
+#include "gltf_state.h"
 
 #ifndef _3D_DISABLED
 class AnimationPlayer;
@@ -96,9 +98,9 @@ public:
                     real_t p_bake_fps = 1000.0f);
   static void _save_thread_function(void *p_user);
   Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps,
-                     List<String> *r_missing_deps, Error *r_err);
+                     List<String> *r_missing_deps, Error *r_err, Ref<GLTFState> state = Ref<GLTFState>());
   void pack_gltf(String p_path, int32_t p_flags = 0,
-                 real_t p_bake_fps = 1000.0f);
+                 real_t p_bake_fps = 1000.0f, Ref<GLTFState> state = Ref<GLTFState>());
   PackedSceneGLTF();
 };
 
