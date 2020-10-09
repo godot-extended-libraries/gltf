@@ -83,16 +83,18 @@ void PackedSceneGLTF::_bind_methods() {
 	ClassDB::bind_method(
 			D_METHOD("export_gltf", "node", "path", "flags", "bake_fps"),
 			&PackedSceneGLTF::export_gltf, DEFVAL(0), DEFVAL(1000.0f));
-	ClassDB::bind_method(D_METHOD("pack_gltf", "path", "flags", "bake_fps"),
-			&PackedSceneGLTF::pack_gltf, DEFVAL(0), DEFVAL(1000.0f));
+	ClassDB::bind_method(D_METHOD("pack_gltf", "path", "flags", "bake_fps", "state"),
+			&PackedSceneGLTF::pack_gltf, DEFVAL(0), DEFVAL(1000.0f), DEFVAL(Ref<GLTFState>()));
 }
 
 Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
 		int p_bake_fps,
 		List<String> *r_missing_deps,
-		Error *r_err) {
-	Ref<GLTFState> state;
-	state.instance();
+		Error *r_err,
+		Ref<GLTFState> state) {
+	if (state == Ref<GLTFState>()) {
+		state.instance();
+	}
 	state->use_named_skin_binds =
 			p_flags & EditorSceneImporter::IMPORT_USE_NAMED_SKIN_BINDS;
 
@@ -122,10 +124,10 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
 }
 
 void PackedSceneGLTF::pack_gltf(String p_path, int32_t p_flags,
-		real_t p_bake_fps) {
+		real_t p_bake_fps, Ref<GLTFState> state) {
 	Error err = FAILED;
 	List<String> deps;
-	Node *root = import_scene(p_path, p_flags, p_bake_fps, &deps, &err);
+	Node *root = import_scene(p_path, p_flags, p_bake_fps, &deps, &err, state);
 	ERR_FAIL_COND(err != OK);
 	pack(root);
 }
