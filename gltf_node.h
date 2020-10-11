@@ -13,7 +13,6 @@ public:
 	GLTFNodeIndex parent = -1;
 	int height = -1;
 	Transform xform;
-	//String name;
 	GLTFMeshIndex mesh = -1;
 	GLTFCameraIndex camera = -1;
 	GLTFSkinIndex skin = -1;
@@ -30,120 +29,112 @@ public:
 	GLTFNodeIndex get_parent() {
 		return this->parent;
 	}
-	void set_parent(GLTFNodeIndex parent) {
-		this->parent = parent;
+	void set_parent(GLTFNodeIndex p_parent) {
+		this->parent = p_parent;
 	}
 
 
 	int get_height() {
 		return this->height;
 	}
-	void set_height(int height) {
-		this->height = height;
+	void set_height(int p_height) {
+		this->height = p_height;
 	}
 
 
 	Transform get_xform() {
 		return this->xform;
 	}
-	void set_xform(Transform xform) {
-		this->xform = xform;
+	void set_xform(Transform p_xform) {
+		this->xform = p_xform;
 	}
-
-
-	//String get_name() {
-	//	return this->name;
-	//}
-	//void set_name(String name) {
-	//	this->name = name;
-	//}
 
 
 	GLTFMeshIndex get_mesh() {
 		return this->mesh;
 	}
-	void set_mesh(GLTFMeshIndex mesh) {
-		this->mesh = mesh;
+	void set_mesh(GLTFMeshIndex p_mesh) {
+		this->mesh = p_mesh;
 	}
 
 
 	GLTFCameraIndex get_camera() {
 		return this->camera;
 	}
-	void set_camera(GLTFCameraIndex camera) {
-		this->camera = camera;
+	void set_camera(GLTFCameraIndex p_camera) {
+		this->camera = p_camera;
 	}
 
 
 	GLTFSkinIndex get_skin() {
 		return this->skin;
 	}
-	void set_skin(GLTFSkinIndex skin) {
-		this->skin = skin;
+	void set_skin(GLTFSkinIndex p_skin) {
+		this->skin = p_skin;
 	}
 
 
 	GLTFSkeletonIndex get_skeleton() {
 		return this->skeleton;
 	}
-	void set_skeleton(GLTFSkeletonIndex skeleton) {
-		this->skeleton = skeleton;
+	void set_skeleton(GLTFSkeletonIndex p_skeleton) {
+		this->skeleton = p_skeleton;
 	}
 
 
 	bool get_joint() {
 		return this->joint;
 	}
-	void set_joint(bool joint) {
-		this->joint = joint;
+	void set_joint(bool p_joint) {
+		this->joint = p_joint;
 	}
 
 
 	Vector3 get_translation() {
 		return this->translation;
 	}
-	void set_translation(Vector3 translation) {
-		this->translation = translation;
+	void set_translation(Vector3 p_translation) {
+		this->translation = p_translation;
 	}
 
 
 	Quat get_rotation() {
 		return this->rotation;
 	}
-	void set_rotation(Quat rotation) {
-		this->rotation = rotation;
+	void set_rotation(Quat p_rotation) {
+		this->rotation = p_rotation;
 	}
 
 
 	Vector3 get_scale() {
 		return this->scale;
 	}
-	void set_scale(Vector3 scale) {
-		this->scale = scale;
+	void set_scale(Vector3 p_scale) {
+		this->scale = p_scale;
 	}
 
 
 	Vector<int> get_children() {
 		return this->children;
 	}
-	void set_children(Vector<int> children) {
-		this->children = children;
+	void set_children(Vector<int> p_children) {
+		this->children = p_children;
 	}
 
 
 	GLTFNodeIndex get_fake_joint_parent() {
 		return this->fake_joint_parent;
 	}
-	void set_fake_joint_parent(GLTFNodeIndex fake_joint_parent) {
-		this->fake_joint_parent = fake_joint_parent;
+	void set_fake_joint_parent(GLTFNodeIndex p_fake_joint_parent) {
+		this->fake_joint_parent = p_fake_joint_parent;
 	}
 
 
 	GLTFLightIndex get_light() {
 		return this->light;
 	}
-	void set_light(GLTFLightIndex light) {
-		this->light = light;
+	void set_light(GLTFLightIndex p_light) {
+		this->light = p_light;
 	}
 
 	GLTFNode() {}

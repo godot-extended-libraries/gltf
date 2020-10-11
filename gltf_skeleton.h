@@ -31,53 +31,53 @@ public:
 	Vector<GLTFNodeIndex> get_joints() {
 		return this->joints;
 	}
-	void set_joints(Vector<GLTFNodeIndex> joints) {
-		this->joints = joints;
+	void set_joints(Vector<GLTFNodeIndex> p_joints) {
+		this->joints = p_joints;
 	}
 
 
 	Vector<GLTFNodeIndex> get_roots() {
 		return this->roots;
 	}
-	void set_roots(Vector<GLTFNodeIndex> roots) {
-		this->roots = roots;
+	void set_roots(Vector<GLTFNodeIndex> p_roots) {
+		this->roots = p_roots;
 	}
 
 
 	// Skeleton *get_godot_skeleton() {
 	// 	return this->godot_skeleton;
 	// }
-	// void set_godot_skeleton(Skeleton *godot_skeleton) {
-	// 	this->godot_skeleton = godot_skeleton;
+	// void set_godot_skeleton(Skeleton p_*godot_skeleton) {
+	// 	this->godot_skeleton = p_godot_skeleton;
 	// }
 
 
 	Array get_unique_names() {
 		return godot_conv::to_array(this->unique_names);
 	}
-	void set_unique_names(Array unique_names) {
-		godot_conv::set_from_array(this->unique_names, unique_names);
+	void set_unique_names(Array p_unique_names) {
+		godot_conv::set_from_array(this->unique_names, p_unique_names);
 	}
 
 
 	//Map<int32_t, GLTFNodeIndex> get_godot_bone_node() {
 	//	return this->godot_bone_node;
 	//}
-	//void set_godot_bone_node(Map<int32_t, GLTFNodeIndex> godot_bone_node) {
-	//	this->godot_bone_node = godot_bone_node;
+	//void set_godot_bone_node(Map<int32_t, GLTFNodeIndex> p_godot_bone_node) {
+	//	this->godot_bone_node = p_godot_bone_node;
 	//}
 	Dictionary get_godot_bone_node() {
 		return godot_conv::to_dict(this->godot_bone_node);
 	}
-	void set_godot_bone_node(Dictionary indict) {
-		godot_conv::set_from_dict(this->godot_bone_node, indict);
+	void set_godot_bone_node(Dictionary p_indict) {
+		godot_conv::set_from_dict(this->godot_bone_node, p_indict);
 	}
 
 	//Dictionary get_godot_bone_node() {
 	//	return godot_conv::to_dict(this->godot_bone_node);
 	//}
-	//void set_godot_bone_node(Dictionary indict) {
-	//	godot_conv::set_from_dict(this->godot_bone_node, indict);
+	//void set_godot_bone_node(Dictionary p_indict) {
+	//	godot_conv::set_from_dict(this->godot_bone_node, p_indict);
 	//}
 
 
@@ -85,8 +85,8 @@ public:
 	// Vector<BoneAttachment *> get_bone_attachments() {
 	// 	return this->bone_attachments;
 	// }
-	// void set_bone_attachments(Vector<BoneAttachment *> bone_attachments) {
-	// 	this->bone_attachments = bone_attachments;
+	// void set_bone_attachments(Vector<BoneAttachment *> p_bone_attachments) {
+	// 	this->bone_attachments = p_bone_attachments;
 	// }
 
 	GLTFSkeleton() :

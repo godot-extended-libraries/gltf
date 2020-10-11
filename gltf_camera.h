@@ -14,13 +14,13 @@ protected:
 
 public:
 	bool get_perspective() const { return perspective; }
-	void set_perspective(bool val) { perspective = val; }
+	void set_perspective(bool p_val) { perspective = p_val; }
 	float get_fov_size() const { return fov_size; }
-	void set_fov_size(float val) { fov_size = val; }
+	void set_fov_size(float p_val) { fov_size = p_val; }
 	float get_zfar() const { return zfar; }
-	void set_zfar(float val) { zfar = val; }
+	void set_zfar(float p_val) { zfar = p_val; }
 	float get_znear() const { return znear; }
-	void set_znear(float val) { znear = val; }
+	void set_znear(float p_val) { znear = p_val; }
 	GLTFCamera() {
 		set_perspective(true);
 		set_fov_size(65);
