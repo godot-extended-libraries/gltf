@@ -5,6 +5,9 @@
 class GLTFAnimation : public Resource {
 	GDCLASS(GLTFAnimation, Resource);
 
+protected:
+	static void _bind_methods();
+
 public:
 	enum Interpolation {
 		INTERP_LINEAR,
@@ -29,16 +32,13 @@ public:
 
 public:
 	bool get_loop() const { return loop; }
-	void set_loop(bool val) { loop = val; }
-	String get_name() const { return name; }
-	void set_name(String val) { name = val; }
+	void set_loop(bool p_val) { loop = p_val; }
 	Map<int, GLTFAnimation::Track> &get_tracks() { return tracks; }
 	GLTFAnimation() {
 	}
 
 private:
 	bool loop = false;
-	String name;
 	Map<int, Track> tracks;
 };
 

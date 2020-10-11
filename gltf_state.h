@@ -2,21 +2,25 @@
 #include "core/resource.h"
 #include "core/vector.h"
 #include "gltf_accessor.h"
+#include "gltf_animation.h"
 #include "gltf_buffer_view.h"
+#include "gltf_camera.h"
 #include "gltf_document.h"
+#include "gltf_light.h"
 #include "gltf_mesh.h"
 #include "gltf_node.h"
+#include "gltf_skeleton.h"
+#include "gltf_skin.h"
 #include "gltf_texture.h"
+#include "godot_conversion_operators.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/texture.h"
-#include "gltf_light.h"
-#include "gltf_skeleton.h"
-#include "gltf_animation.h"
-#include "gltf_skin.h"
-#include "gltf_camera.h"
 
 class GLTFState : public Resource {
 	GDCLASS(GLTFState, Resource);
+
+protected:
+	static void _bind_methods();
 
 public:
 	Dictionary json;
@@ -26,12 +30,12 @@ public:
 
 	bool use_named_skin_binds;
 
-	Vector<Ref<GLTFNode>> nodes;
+	Vector<Ref<GLTFNode> > nodes;
 	Vector<Vector<uint8_t> > buffers;
-	Vector<Ref<GLTFBufferView>> buffer_views;
-	Vector<Ref<GLTFAccessor>> accessors;
+	Vector<Ref<GLTFBufferView> > buffer_views;
+	Vector<Ref<GLTFAccessor> > accessors;
 
-	Vector<Ref<GLTFMesh>> meshes; // meshes are loaded directly, no reason not to.
+	Vector<Ref<GLTFMesh> > meshes; // meshes are loaded directly, no reason not to.
 
 	Vector<AnimationPlayer *> animation_players;
 	Map<Ref<Material>, GLTFMaterialIndex> material_cache;
@@ -39,21 +43,194 @@ public:
 
 	String scene_name;
 	Vector<int> root_nodes;
-
-	Vector<Ref<GLTFTexture>> textures;
+	Vector<Ref<GLTFTexture> > textures;
 	Vector<Ref<Texture> > images;
 
-	Vector<Ref<GLTFSkin>> skins;
-	Vector<Ref<GLTFCamera>> cameras;
-	Vector<Ref<GLTFLight>> lights;
-
+	Vector<Ref<GLTFSkin> > skins;
+	Vector<Ref<GLTFCamera> > cameras;
+	Vector<Ref<GLTFLight> > lights;
 	Set<String> unique_names;
 
-	Vector<Ref<GLTFSkeleton>> skeletons;
+	Vector<Ref<GLTFSkeleton> > skeletons;
 	Map<GLTFSkeletonIndex, GLTFNodeIndex> skeleton_to_node;
-	Vector<Ref<GLTFAnimation>> animations;
-
+	Vector<Ref<GLTFAnimation> > animations;
 	Map<GLTFNodeIndex, Node *> scene_nodes;
+
+	Dictionary get_json() {
+		return this->json;
+	}
+	void set_json(Dictionary p_json) {
+		this->json = p_json;
+	}
+
+	int get_major_version() {
+		return this->major_version;
+	}
+	void set_major_version(int p_major_version) {
+		this->major_version = p_major_version;
+	}
+
+	int get_minor_version() {
+		return this->minor_version;
+	}
+	void set_minor_version(int p_minor_version) {
+		this->minor_version = p_minor_version;
+	}
+
+	Vector<uint8_t> get_glb_data() {
+		return this->glb_data;
+	}
+	void set_glb_data(Vector<uint8_t> p_glb_data) {
+		this->glb_data = p_glb_data;
+	}
+
+	bool get_use_named_skin_binds() {
+		return this->use_named_skin_binds;
+	}
+	void set_use_named_skin_binds(bool p_use_named_skin_binds) {
+		this->use_named_skin_binds = p_use_named_skin_binds;
+	}
+
+	Array get_nodes() {
+		return godot_conv::to_array(this->nodes);
+	}
+	void set_nodes(Array p_nodes) {
+		godot_conv::set_from_array(this->nodes, p_nodes);
+	}
+
+	Array get_buffers() {
+		return godot_conv::to_array(this->buffers);
+	}
+	void set_buffers(Array p_buffers) {
+		godot_conv::set_from_array(this->buffers, p_buffers);
+	}
+
+	Array get_buffer_views() {
+		return godot_conv::to_array(this->buffer_views);
+	}
+	void set_buffer_views(Array p_buffer_views) {
+		godot_conv::set_from_array(this->buffer_views, p_buffer_views);
+	}
+
+	Array get_accessors() {
+		return godot_conv::to_array(this->accessors);
+	}
+	void set_accessors(Array p_accessors) {
+		godot_conv::set_from_array(this->accessors, p_accessors);
+	}
+
+	Array get_meshes() {
+		return godot_conv::to_array(this->meshes);
+	}
+	void set_meshes(Array p_meshes) {
+		godot_conv::set_from_array(this->meshes, p_meshes);
+	}
+
+	Array get_materials() {
+		return godot_conv::to_array(this->materials);
+	}
+	void set_materials(Array p_materials) {
+		godot_conv::set_from_array(this->materials, p_materials);
+	}
+
+	String get_scene_name() {
+		return this->scene_name;
+	}
+	void set_scene_name(String p_scene_name) {
+		this->scene_name = p_scene_name;
+	}
+
+	Array get_root_nodes() {
+		return godot_conv::to_array(this->root_nodes);
+	}
+	void set_root_nodes(Array p_root_nodes) {
+		godot_conv::set_from_array(this->root_nodes, p_root_nodes);
+	}
+
+	Array get_textures() {
+		return godot_conv::to_array(this->textures);
+	}
+	void set_textures(Array p_textures) {
+		godot_conv::set_from_array(this->textures, p_textures);
+	}
+
+	Array get_images() {
+		return godot_conv::to_array(this->images);
+	}
+	void set_images(Array p_images) {
+		godot_conv::set_from_array(this->images, p_images);
+	}
+
+	Array get_skins() {
+		return godot_conv::to_array(this->skins);
+	}
+	void set_skins(Array p_skins) {
+		godot_conv::set_from_array(this->skins, p_skins);
+	}
+
+	Array get_cameras() {
+		return godot_conv::to_array(this->cameras);
+	}
+	void set_cameras(Array p_cameras) {
+		godot_conv::set_from_array(this->cameras, p_cameras);
+	}
+
+	Array get_lights() {
+		return godot_conv::to_array(this->lights);
+	}
+	void set_lights(Array p_lights) {
+		godot_conv::set_from_array(this->lights, p_lights);
+	}
+
+	Array get_unique_names() {
+		return godot_conv::to_array(this->unique_names);
+	}
+	void set_unique_names(Array p_unique_names) {
+		godot_conv::set_from_array(this->unique_names, p_unique_names);
+	}
+
+	Array get_skeletons() {
+		return godot_conv::to_array(this->skeletons);
+	}
+	void set_skeletons(Array p_skeletons) {
+		godot_conv::set_from_array(this->skeletons, p_skeletons);
+	}
+
+	Dictionary get_skeleton_to_node() {
+		return godot_conv::to_dict(this->skeleton_to_node);
+	}
+	void set_skeleton_to_node(Dictionary p_skeleton_to_node) {
+		godot_conv::set_from_dict(this->skeleton_to_node, p_skeleton_to_node);
+	}
+
+	Array get_animations() {
+		return godot_conv::to_array(this->animations);
+	}
+	void set_animations(Array p_animations) {
+		godot_conv::set_from_array(this->animations, p_animations);
+	}
+
+	//Map<GLTFNodeIndex, Node *> get_scene_nodes() {
+	//	return this->scene_nodes;
+	//}
+	//void set_scene_nodes(Map<GLTFNodeIndex, Node *> p_scene_nodes) {
+	//	this->scene_nodes = p_scene_nodes;
+	//}
+
+	//Vector<AnimationPlayer *> get_animation_players() {
+	//	return this->animation_players;
+	//}
+	//void set_animation_players(Vector<AnimationPlayer *> p_animation_players) {
+	//	this->animation_players = p_animation_players;
+	//}
+
+	//Map<Ref<Material>, GLTFMaterialIndex> get_material_cache() {
+	//	return this->material_cache;
+	//}
+	//void set_material_cache(Map<Ref<Material>, GLTFMaterialIndex> p_material_cache) {
+	//	this->material_cache = p_material_cache;
+	//}
+
 	GLTFState() {
 	}
 	~GLTFState() {
