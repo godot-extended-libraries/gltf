@@ -40,7 +40,7 @@ void set_from_array(Set<T>& r_out, const Array& p_inp) {
 template <class K, class V>
 Dictionary to_dict(const Map<K, V>& p_inp) {
 	Dictionary ret;
-	for (Map<K, V>::Element *E = p_inp.front(); E; E = E->next()) {
+	for (typename Map<K, V>::Element *E = p_inp.front(); E; E = E->next()) {
 		ret[E->key()] = E->value();
 	}
 	return ret;
