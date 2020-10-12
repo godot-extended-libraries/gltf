@@ -21,10 +21,8 @@ void GLTFState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_accessors", "accessors"),  &GLTFState::set_accessors);
 	ClassDB::bind_method(D_METHOD("get_meshes"),  &GLTFState::get_meshes);
 	ClassDB::bind_method(D_METHOD("set_meshes", "meshes"),  &GLTFState::set_meshes);
-	//ClassDB::bind_method(D_METHOD("get_animation_players"),  &GLTFState::get_animation_players);
-	//ClassDB::bind_method(D_METHOD("set_animation_players", "animation_players"),  &GLTFState::set_animation_players);
-	//ClassDB::bind_method(D_METHOD("get_material_cache"),  &GLTFState::get_material_cache);
-	//ClassDB::bind_method(D_METHOD("set_material_cache", "material_cache"),  &GLTFState::set_material_cache);
+	ClassDB::bind_method(D_METHOD("get_animation_players_count"),  &GLTFState::get_animation_players_count);
+	ClassDB::bind_method(D_METHOD("get_animation_player"),  &GLTFState::get_animation_player);
 	ClassDB::bind_method(D_METHOD("get_materials"),  &GLTFState::get_materials);
 	ClassDB::bind_method(D_METHOD("set_materials", "materials"),  &GLTFState::set_materials);
 	ClassDB::bind_method(D_METHOD("get_scene_name"),  &GLTFState::get_scene_name);
@@ -49,8 +47,7 @@ void GLTFState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_skeleton_to_node", "skeleton_to_node"),  &GLTFState::set_skeleton_to_node);
 	ClassDB::bind_method(D_METHOD("get_animations"),  &GLTFState::get_animations);
 	ClassDB::bind_method(D_METHOD("set_animations", "animations"),  &GLTFState::set_animations);
-	//ClassDB::bind_method(D_METHOD("get_scene_nodes"),  &GLTFState::get_scene_nodes);
-	//ClassDB::bind_method(D_METHOD("set_scene_nodes", "scene_nodes"),  &GLTFState::set_scene_nodes);
+	ClassDB::bind_method(D_METHOD("get_scene_node"),  &GLTFState::get_scene_node);
 
 	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "json"), "set_json", "get_json"); // Dictionary
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "major_version"), "set_major_version", "get_major_version"); // int
@@ -62,8 +59,6 @@ void GLTFState::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "buffer_views", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL | PROPERTY_USAGE_EDITOR), "set_buffer_views", "get_buffer_views"); // Vector<Ref<GLTFBufferView>>
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "accessors", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL | PROPERTY_USAGE_EDITOR), "set_accessors", "get_accessors"); // Vector<Ref<GLTFAccessor>>
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "meshes", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL | PROPERTY_USAGE_EDITOR), "set_meshes", "get_meshes"); // Vector<Ref<GLTFMesh>>
-	//ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "animation_players"), "set_animation_players", "get_animation_players"); // Vector<AnimationPlayer
-	//ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "material_cache"), "set_material_cache", "get_material_cache"); // Map<Ref<Material>,
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "materials", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL | PROPERTY_USAGE_EDITOR), "set_materials", "get_materials"); // Vector<Ref<Material>
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "scene_name"), "set_scene_name", "get_scene_name"); // String
 	ADD_PROPERTY(PropertyInfo(Variant::POOL_INT_ARRAY, "root_nodes"), "set_root_nodes", "get_root_nodes"); // Vector<int>
@@ -76,6 +71,5 @@ void GLTFState::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "skeletons", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL | PROPERTY_USAGE_EDITOR), "set_skeletons", "get_skeletons"); // Vector<Ref<GLTFSkeleton>>
 	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "skeleton_to_node", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL | PROPERTY_USAGE_EDITOR), "set_skeleton_to_node", "get_skeleton_to_node"); // Map<GLTFSkeletonIndex,
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "animations", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL | PROPERTY_USAGE_EDITOR), "set_animations", "get_animations"); // Vector<Ref<GLTFAnimation>>
-	//ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "scene_nodes"), "set_scene_nodes", "get_scene_nodes"); // Map<GLTFNodeIndex,
 
 }
