@@ -2863,6 +2863,12 @@ Error GLTFDocument::_parse_meshes(Ref<GLTFState> state) {
 				const Ref<Material> &mat = state->materials[material];
 
 				array_mesh->surface_set_material(array_mesh->get_surface_count() - 1, mat);
+			} else {
+				Ref<SpatialMaterial> mat;
+				mat.instance();
+				mat->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
+
+				array_mesh->surface_set_material(array_mesh->get_surface_count() - 1, mat);
 			}
 		}
 
@@ -3371,6 +3377,7 @@ Error GLTFDocument::_parse_materials(Ref<GLTFState> state) {
 		if (d.has("name")) {
 			material->set_name(d["name"]);
 		}
+		material->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
 		Dictionary pbr_spec_gloss_extensions;
 		if (d.has("extensions")) {
 			pbr_spec_gloss_extensions = d["extensions"];
