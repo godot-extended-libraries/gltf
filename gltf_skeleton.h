@@ -44,12 +44,9 @@ public:
 	}
 
 
-	// Skeleton *get_godot_skeleton() {
-	// 	return this->godot_skeleton;
-	// }
-	// void set_godot_skeleton(Skeleton p_*godot_skeleton) {
-	// 	this->godot_skeleton = p_godot_skeleton;
-	// }
+	Skeleton *get_godot_skeleton() {
+	 	return this->godot_skeleton;
+	}
 
 
 	Array get_unique_names() {
@@ -60,12 +57,6 @@ public:
 	}
 
 
-	//Map<int32_t, GLTFNodeIndex> get_godot_bone_node() {
-	//	return this->godot_bone_node;
-	//}
-	//void set_godot_bone_node(Map<int32_t, GLTFNodeIndex> p_godot_bone_node) {
-	//	this->godot_bone_node = p_godot_bone_node;
-	//}
 	Dictionary get_godot_bone_node() {
 		return godot_conv::to_dict(this->godot_bone_node);
 	}
@@ -73,21 +64,15 @@ public:
 		godot_conv::set_from_dict(this->godot_bone_node, p_indict);
 	}
 
-	//Dictionary get_godot_bone_node() {
-	//	return godot_conv::to_dict(this->godot_bone_node);
-	//}
-	//void set_godot_bone_node(Dictionary p_indict) {
-	//	godot_conv::set_from_dict(this->godot_bone_node, p_indict);
-	//}
 
+	int get_bone_attachment_count() {
+		return this->bone_attachments.size();
+	}
+	BoneAttachment * get_bone_attachment(int idx) {
+		ERR_FAIL_INDEX_V(idx, this->bone_attachments.size(), nullptr);
+		return this->bone_attachments[idx];
+	}
 
-
-	// Vector<BoneAttachment *> get_bone_attachments() {
-	// 	return this->bone_attachments;
-	// }
-	// void set_bone_attachments(Vector<BoneAttachment *> p_bone_attachments) {
-	// 	this->bone_attachments = p_bone_attachments;
-	// }
 
 	GLTFSkeleton() :
 			godot_skeleton(nullptr) {}
