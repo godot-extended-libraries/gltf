@@ -2884,6 +2884,12 @@ Error GLTFDocument::_parse_meshes(Ref<GLTFState> state) {
 			for (int j = 0; j < weights.size(); j++) {
 				mesh->blend_weights.write[j] = weights[j];
 			}
+		} else {
+			// CowData.resize() does not default initialize trivial objects.
+			// Avoid initialized blendshapes:
+			for (int j = 0; j < mesh->blend_weights.size(); j++) {
+				mesh->blend_weights.write[j] = 0.0f;
+			}
 		}
 
 		state->meshes.push_back(mesh);
