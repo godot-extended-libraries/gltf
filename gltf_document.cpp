@@ -5630,7 +5630,9 @@ void GLTFDocument::_generate_scene_node(Ref<GLTFState> state, Node *scene_parent
 		}
 
 		scene_parent->add_child(current_node);
-		current_node->set_owner(scene_root);
+		if (current_node != scene_root) {
+			current_node->set_owner(scene_root);
+		}
 		current_node->set_transform(gltf_node->xform);
 		current_node->set_name(gltf_node->get_name());
 	}
