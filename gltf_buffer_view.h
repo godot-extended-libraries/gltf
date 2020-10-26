@@ -18,36 +18,36 @@ public:
 	GLTFBufferIndex get_buffer() {
 		return this->buffer;
 	}
-	void set_buffer(GLTFBufferIndex buffer) {
-		this->buffer = buffer;
+	void set_buffer(GLTFBufferIndex p_buffer) {
+		this->buffer = p_buffer;
 	}
 
 	int get_byte_offset() {
 		return this->byte_offset;
 	}
-	void set_byte_offset(int byte_offset) {
-		this->byte_offset = byte_offset;
+	void set_byte_offset(int p_byte_offset) {
+		this->byte_offset = p_byte_offset;
 	}
 
 	int get_byte_length() {
 		return this->byte_length;
 	}
-	void set_byte_length(int byte_length) {
-		this->byte_length = byte_length;
+	void set_byte_length(int p_byte_length) {
+		this->byte_length = p_byte_length;
 	}
 
 	int get_byte_stride() {
 		return this->byte_stride;
 	}
-	void set_byte_stride(int byte_stride) {
-		this->byte_stride = byte_stride;
+	void set_byte_stride(int p_byte_stride) {
+		this->byte_stride = p_byte_stride;
 	}
 
 	bool get_indices() {
 		return this->indices;
 	}
-	void set_indices(bool indices) {
-		this->indices = indices;
+	void set_indices(bool p_indices) {
+		this->indices = p_indices;
 	}
 	// matrices need to be transformed to this
 

@@ -31,15 +31,12 @@ public:
 
 public:
 	bool get_loop() const { return loop; }
-	void set_loop(bool val) { loop = val; }
-	//String get_anim_name() const { return name; }
-	//void set_anim_name(String val) { name = val; }
+	void set_loop(bool p_val) { loop = p_val; }
 	Map<int, GLTFAnimation::Track> &get_tracks() { return tracks; }
 	GLTFAnimation() {
 	}
 
 private:
 	bool loop = false;
-	//String name;
 	Map<int, Track> tracks;
 };

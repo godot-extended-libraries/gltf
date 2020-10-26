@@ -14,7 +14,7 @@ public:
 	int get_src_image() {
 		return this->src_image;
 	}
-	void set_src_image(int src_image) {
-		this->src_image = src_image;
+	void set_src_image(int p_src_image) {
+		this->src_image = p_src_image;
 	}
 };

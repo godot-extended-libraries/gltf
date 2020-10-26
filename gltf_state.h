@@ -59,155 +59,155 @@ public:
 	Dictionary get_json() {
 		return this->json;
 	}
-	void set_json(Dictionary json) {
-		this->json = json;
+	void set_json(Dictionary p_json) {
+		this->json = p_json;
 	}
 
 	int get_major_version() {
 		return this->major_version;
 	}
-	void set_major_version(int major_version) {
-		this->major_version = major_version;
+	void set_major_version(int p_major_version) {
+		this->major_version = p_major_version;
 	}
 
 	int get_minor_version() {
 		return this->minor_version;
 	}
-	void set_minor_version(int minor_version) {
-		this->minor_version = minor_version;
+	void set_minor_version(int p_minor_version) {
+		this->minor_version = p_minor_version;
 	}
 
 	Vector<uint8_t> get_glb_data() {
 		return this->glb_data;
 	}
-	void set_glb_data(Vector<uint8_t> glb_data) {
-		this->glb_data = glb_data;
+	void set_glb_data(Vector<uint8_t> p_glb_data) {
+		this->glb_data = p_glb_data;
 	}
 
 	bool get_use_named_skin_binds() {
 		return this->use_named_skin_binds;
 	}
-	void set_use_named_skin_binds(bool use_named_skin_binds) {
-		this->use_named_skin_binds = use_named_skin_binds;
+	void set_use_named_skin_binds(bool p_use_named_skin_binds) {
+		this->use_named_skin_binds = p_use_named_skin_binds;
 	}
 
 	Array get_nodes() {
 		return godot_conv::to_array(this->nodes);
 	}
-	void set_nodes(Array nodes) {
-		godot_conv::set_from_array(this->nodes, nodes);
+	void set_nodes(Array p_nodes) {
+		godot_conv::set_from_array(this->nodes, p_nodes);
 	}
 
 	Array get_buffers() {
 		return godot_conv::to_array(this->buffers);
 	}
-	void set_buffers(Array buffers) {
-		godot_conv::set_from_array(this->buffers, buffers);
+	void set_buffers(Array p_buffers) {
+		godot_conv::set_from_array(this->buffers, p_buffers);
 	}
 
 	Array get_buffer_views() {
 		return godot_conv::to_array(this->buffer_views);
 	}
-	void set_buffer_views(Array buffer_views) {
-		godot_conv::set_from_array(this->buffer_views, buffer_views);
+	void set_buffer_views(Array p_buffer_views) {
+		godot_conv::set_from_array(this->buffer_views, p_buffer_views);
 	}
 
 	Array get_accessors() {
 		return godot_conv::to_array(this->accessors);
 	}
-	void set_accessors(Array accessors) {
-		godot_conv::set_from_array(this->accessors, accessors);
+	void set_accessors(Array p_accessors) {
+		godot_conv::set_from_array(this->accessors, p_accessors);
 	}
 
 	Array get_meshes() {
 		return godot_conv::to_array(this->meshes);
 	}
-	void set_meshes(Array meshes) {
-		godot_conv::set_from_array(this->meshes, meshes);
+	void set_meshes(Array p_meshes) {
+		godot_conv::set_from_array(this->meshes, p_meshes);
 	}
 
 	Array get_materials() {
 		return godot_conv::to_array(this->materials);
 	}
-	void set_materials(Array materials) {
-		godot_conv::set_from_array(this->materials, materials);
+	void set_materials(Array p_materials) {
+		godot_conv::set_from_array(this->materials, p_materials);
 	}
 
 	String get_scene_name() {
 		return this->scene_name;
 	}
-	void set_scene_name(String scene_name) {
-		this->scene_name = scene_name;
+	void set_scene_name(String p_scene_name) {
+		this->scene_name = p_scene_name;
 	}
 
 	Array get_root_nodes() {
 		return godot_conv::to_array(this->root_nodes);
 	}
-	void set_root_nodes(Array root_nodes) {
-		godot_conv::set_from_array(this->root_nodes, root_nodes);
+	void set_root_nodes(Array p_root_nodes) {
+		godot_conv::set_from_array(this->root_nodes, p_root_nodes);
 	}
 
 	Array get_textures() {
 		return godot_conv::to_array(this->textures);
 	}
-	void set_textures(Array textures) {
-		godot_conv::set_from_array(this->textures, textures);
+	void set_textures(Array p_textures) {
+		godot_conv::set_from_array(this->textures, p_textures);
 	}
 
 	Array get_images() {
 		return godot_conv::to_array(this->images);
 	}
-	void set_images(Array images) {
-		godot_conv::set_from_array(this->images, images);
+	void set_images(Array p_images) {
+		godot_conv::set_from_array(this->images, p_images);
 	}
 
 	Array get_skins() {
 		return godot_conv::to_array(this->skins);
 	}
-	void set_skins(Array skins) {
-		godot_conv::set_from_array(this->skins, skins);
+	void set_skins(Array p_skins) {
+		godot_conv::set_from_array(this->skins, p_skins);
 	}
 
 	Array get_cameras() {
 		return godot_conv::to_array(this->cameras);
 	}
-	void set_cameras(Array cameras) {
-		godot_conv::set_from_array(this->cameras, cameras);
+	void set_cameras(Array p_cameras) {
+		godot_conv::set_from_array(this->cameras, p_cameras);
 	}
 
 	Array get_lights() {
 		return godot_conv::to_array(this->lights);
 	}
-	void set_lights(Array lights) {
-		godot_conv::set_from_array(this->lights, lights);
+	void set_lights(Array p_lights) {
+		godot_conv::set_from_array(this->lights, p_lights);
 	}
 
 	Array get_unique_names() {
 		return godot_conv::to_array(this->unique_names);
 	}
-	void set_unique_names(Array unique_names) {
-		godot_conv::set_from_array(this->unique_names, unique_names);
+	void set_unique_names(Array p_unique_names) {
+		godot_conv::set_from_array(this->unique_names, p_unique_names);
 	}
 
 	Array get_skeletons() {
 		return godot_conv::to_array(this->skeletons);
 	}
-	void set_skeletons(Array skeletons) {
-		godot_conv::set_from_array(this->skeletons, skeletons);
+	void set_skeletons(Array p_skeletons) {
+		godot_conv::set_from_array(this->skeletons, p_skeletons);
 	}
 
 	Dictionary get_skeleton_to_node() {
 		return godot_conv::to_dict(this->skeleton_to_node);
 	}
-	void set_skeleton_to_node(Dictionary skeleton_to_node) {
-		godot_conv::set_from_dict(this->skeleton_to_node, skeleton_to_node);
+	void set_skeleton_to_node(Dictionary p_skeleton_to_node) {
+		godot_conv::set_from_dict(this->skeleton_to_node, p_skeleton_to_node);
 	}
 
 	Array get_animations() {
 		return godot_conv::to_array(this->animations);
 	}
-	void set_animations(Array animations) {
-		godot_conv::set_from_array(this->animations, animations);
+	void set_animations(Array p_animations) {
+		godot_conv::set_from_array(this->animations, p_animations);
 	}
 
 	Node *get_scene_node(GLTFNodeIndex idx) {
@@ -237,8 +237,8 @@ public:
 	//Map<Ref<Material>, GLTFMaterialIndex> get_material_cache() {
 	//	return this->material_cache;
 	//}
-	//void set_material_cache(Map<Ref<Material>, GLTFMaterialIndex> material_cache) {
-	//	this->material_cache = material_cache;
+	//void set_material_cache(Map<Ref<Material>, GLTFMaterialIndex> p_material_cache) {
+	//	this->material_cache = p_material_cache;
 	//}
 
 	GLTFState() {

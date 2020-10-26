@@ -64,8 +64,7 @@ Node *EditorSceneImporterGLTF::import_scene(const String &p_path,
 
 	Ref<PackedSceneGLTF> importer;
 	importer.instance();
-	return importer->import_scene(p_path, p_flags, p_bake_fps, r_missing_deps,
-			r_err);
+	return importer->import_scene(p_path, p_flags, p_bake_fps, r_missing_deps, r_err, Ref<GLTFState>());
 }
 
 Ref<Animation> EditorSceneImporterGLTF::import_animation(const String &p_path,
@@ -87,10 +86,7 @@ void PackedSceneGLTF::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("import_gltf_scene", "path", "flags", "bake_fps", "state"),
 			&PackedSceneGLTF::import_gltf_scene, DEFVAL(0), DEFVAL(1000.0f), DEFVAL(Ref<GLTFState>()));
 }
-
-Node *PackedSceneGLTF::import_gltf_scene(const String &p_path, uint32_t p_flags,
-		int p_bake_fps,
-		Ref<GLTFState> r_state) {
+Node *PackedSceneGLTF::import_gltf_scene(const String &p_path, uint32_t p_flags, float p_bake_fps, Ref<GLTFState> r_state) {
 	Error err = FAILED;
 	List<String> deps;
 	return import_scene(p_path, p_flags, p_bake_fps, &deps, &err, r_state);
@@ -100,38 +96,32 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
 		int p_bake_fps,
 		List<String> *r_missing_deps,
 		Error *r_err,
-		Ref<GLTFState> state) {
-	if (state == Ref<GLTFState>()) {
-		state.instance();
+		Ref<GLTFState> r_state) {
+	if (r_state == Ref<GLTFState>()) {
+		r_state.instance();
 	}
-	state->use_named_skin_binds =
+	r_state->use_named_skin_binds =
 			p_flags & EditorSceneImporter::IMPORT_USE_NAMED_SKIN_BINDS;
 
 	Ref<GLTFDocument> gltf_document;
 	gltf_document.instance();
-	if (p_path.empty()) {
-		*r_err = Error::ERR_INVALID_PARAMETER;
-		ERR_FAIL_COND_V(state->nodes.empty(), NULL);
-		*r_err = Error::OK;
-	} else {
-		Error err = gltf_document->parse(state, p_path);
-		*r_err = err;
-		ERR_FAIL_COND_V(err != Error::OK, NULL);
-	}
+	Error err = gltf_document->parse(r_state, p_path);
+	*r_err = err;
+	ERR_FAIL_COND_V(err != Error::OK, NULL);
 
 	Node3D *root = memnew(Node3D);
 
-	for (int i = 0; i < state->root_nodes.size(); ++i) {
-		gltf_document->_generate_scene_node(state, root, root, state->root_nodes[i]);
+	for (int i = 0; i < r_state->root_nodes.size(); ++i) {
+		gltf_document->_generate_scene_node(r_state, root, root, r_state->root_nodes[i]);
 	}
 
-	gltf_document->_process_mesh_instances(state, root);
-	if (state->animations.size()) {
+	gltf_document->_process_mesh_instances(r_state, root);
+	if (r_state->animations.size()) {
 		AnimationPlayer *ap = memnew(AnimationPlayer);
 		root->add_child(ap);
 		ap->set_owner(root);
-		for (int i = 0; i < state->animations.size(); i++) {
-			gltf_document->_import_animation(state, ap, i, p_bake_fps);
+		for (int i = 0; i < r_state->animations.size(); i++) {
+			gltf_document->_import_animation(r_state, ap, i, p_bake_fps);
 		}
 	}
 
@@ -139,10 +129,10 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
 }
 
 void PackedSceneGLTF::pack_gltf(String p_path, int32_t p_flags,
-		real_t p_bake_fps, Ref<GLTFState> state) {
+		real_t p_bake_fps, Ref<GLTFState> r_state) {
 	Error err = FAILED;
 	List<String> deps;
-	Node *root = import_scene(p_path, p_flags, p_bake_fps, &deps, &err, state);
+	Node *root = import_scene(p_path, p_flags, p_bake_fps, &deps, &err, r_state);
 	ERR_FAIL_COND(err != OK);
 	pack(root);
 }
