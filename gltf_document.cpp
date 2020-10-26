@@ -40,6 +40,11 @@
 #include "gltf_state.h"
 #include "gltf_texture.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "thirdparty/misc/rjm_texbleed.h"
+
 #include "core/bind/core_bind.h"
 #include "core/crypto/crypto_core.h"
 #include "core/io/json.h"
@@ -63,7 +68,6 @@
 #include "scene/animation/animation_player.h"
 #include "scene/resources/surface_tool.h"
 #include <limits>
-
 
 Error GLTFDocument::serialize(Ref<GLTFState> state, const String &p_path) {
 
@@ -2885,6 +2889,12 @@ Error GLTFDocument::_parse_meshes(Ref<GLTFState> state) {
 			for (int j = 0; j < weights.size(); j++) {
 				mesh->blend_weights.write[j] = weights[j];
 			}
+		} else {
+			// CowData.resize() does not default initialize trivial objects.
+			// Avoid initialized blendshapes:
+			for (int j = 0; j < mesh->blend_weights.size(); j++) {
+				mesh->blend_weights.write[j] = 0.0f;
+			}
 		}
 
 		state->meshes.push_back(mesh);
@@ -3119,6 +3129,46 @@ Ref<Texture> GLTFDocument::_get_texture(Ref<GLTFState> state, const GLTFTextureI
 	return state->images[image];
 }
 
+Ref<Image> GLTFDocument::dilate(Ref<Image> source_image) {
+	Ref<Image> target_image = source_image->duplicate();
+	target_image->convert(Image::FORMAT_RGBA8);
+	Vector<uint8_t> pixels;
+	int32_t height = target_image->get_size().y;
+	int32_t width = target_image->get_size().x;
+	const int32_t bytes_in_pixel = 4;
+	pixels.resize(height * width * bytes_in_pixel);
+	target_image->lock();
+	for (int32_t y = 0; y < height; y++) {
+		for (int32_t x = 0; x < width; x++) {
+			int32_t pixel_index = x + (width * y);
+			int32_t index = pixel_index * bytes_in_pixel;
+			Color pixel = target_image->get_pixel(x, y);
+			pixels.write[index + 0] = uint8_t(pixel.r * 255.0);
+			pixels.write[index + 1] = uint8_t(pixel.g * 255.0);
+			pixels.write[index + 2] = uint8_t(pixel.b * 255.0);
+			pixels.write[index + 3] = uint8_t(pixel.a * 255.0);
+		}
+	}
+	target_image->unlock();
+	rjm_texbleed(pixels.ptrw(), width, height, 3, bytes_in_pixel, bytes_in_pixel * width);
+	target_image->lock();
+	for (int32_t y = 0; y < height; y++) {
+		for (int32_t x = 0; x < width; x++) {
+			Color pixel;
+			int32_t pixel_index = x + (width * y);
+			int32_t index = bytes_in_pixel * pixel_index;
+			pixel.r = pixels[index + 0] / 255.0;
+			pixel.g = pixels[index + 1] / 255.0;
+			pixel.b = pixels[index + 2] / 255.0;
+			pixel.a = 1.0f;
+			target_image->set_pixel(x, y, pixel);
+		}
+	}
+	target_image->unlock();
+	target_image->generate_mipmaps();
+	return target_image;
+}
+
 Error GLTFDocument::_serialize_materials(Ref<GLTFState> state) {
 
 	Array materials;
@@ -3284,11 +3334,33 @@ Error GLTFDocument::_serialize_materials(Ref<GLTFState> state) {
 
 		if (material->get_feature(StandardMaterial3D::FEATURE_NORMAL_MAPPING)) {
 			Dictionary nt;
+			Ref<ImageTexture> tex;
+			tex.instance();
+			{
+				Ref<Texture2D> normal_texture = material->get_texture(SpatialMaterial3D::TEXTURE_NORMAL);
+				// Code for uncompressing RG normal maps
+				Ref<Image> img = normal_texture->get_data();
+				img->decompress();
+				img->convert(Image::FORMAT_RGBA8);
+				for (int32_t y = 0; y < img->get_height(); y++) {
+					for (int32_t x = 0; x < img->get_width(); x++) {
+						Color c = img->get_pixel(x, y);
+						Vector2 red_green = Vector2(c.r, c.g);
+						red_green = red_green * Vector2(2.0f, 2.0f) - Vector2(1.0f, 1.0f);
+						float blue = 1.0f - red_green.dot(red_green);
+						blue = MAX(0.0f, blue);
+						c.b = Math::sqrt(blue);
+						img->set_pixel(x, y, c);
+					}
+				}
+				img = dilate(img);
+				tex->create_from_image(img);
+			}
 			Ref<Texture2D> normal_texture = material->get_texture(StandardMaterial3D::TEXTURE_NORMAL);
 			GLTFTextureIndex gltf_texture_index = -1;
-			if (normal_texture.is_valid() && normal_texture->get_data().is_valid()) {
-				normal_texture->set_name(material->get_name() + "_normal");
-				gltf_texture_index = _set_texture(state, normal_texture);
+			if (tex.is_valid() && tex->get_data().is_valid()) {
+				tex->set_name(material->get_name() + "_normal");
+				gltf_texture_index = _set_texture(state, tex);
 			}
 			nt["scale"] = material->get_normal_scale();
 			if (gltf_texture_index != -1) {

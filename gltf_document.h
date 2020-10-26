@@ -97,6 +97,7 @@ public:
 	};
 
 private:
+	Ref<Image> dilate(Ref<Image> source_image);
 	String _get_component_type_name(const uint32_t p_component);
 	int _get_component_type_size(const int component_type);
 	Error _parse_scenes(Ref<GLTFState> state);
