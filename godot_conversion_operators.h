@@ -23,7 +23,7 @@ Array to_array(const Set<T> &p_inp) {
 }
 
 template <class T>
-void set_from_array(Vector<T>& r_out, const Array& p_inp) {
+void set_from_array(Vector<T> &r_out, const Array &p_inp) {
 	r_out.clear();
 	for (int i = 0; i < p_inp.size(); i++) {
 		r_out.push_back(p_inp[i]);
@@ -31,14 +31,14 @@ void set_from_array(Vector<T>& r_out, const Array& p_inp) {
 }
 
 template <class T>
-void set_from_array(Set<T>& r_out, const Array& p_inp) {
+void set_from_array(Set<T> &r_out, const Array &p_inp) {
 	r_out.clear();
 	for (int i = 0; i < p_inp.size(); i++) {
 		r_out.insert(p_inp[i]);
 	}
 }
 template <class K, class V>
-Dictionary to_dict(const Map<K, V>& p_inp) {
+Dictionary to_dict(const Map<K, V> &p_inp) {
 	Dictionary ret;
 	for (typename Map<K, V>::Element *E = p_inp.front(); E; E = E->next()) {
 		ret[E->key()] = E->value();
@@ -47,7 +47,7 @@ Dictionary to_dict(const Map<K, V>& p_inp) {
 }
 
 template <class K, class V>
-void set_from_dict(Map<K, V> &r_out, const Dictionary& p_inp) {
+void set_from_dict(Map<K, V> &r_out, const Dictionary &p_inp) {
 	r_out.clear();
 	Array keys = p_inp.keys();
 	for (int i = 0; i < keys.size(); i++) {

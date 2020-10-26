@@ -46,7 +46,6 @@ public:
 		this->xform = p_xform;
 	}
 
-
 	GLTFMeshIndex get_mesh() {
 		return this->mesh;
 	}

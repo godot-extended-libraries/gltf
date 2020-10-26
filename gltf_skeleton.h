@@ -52,14 +52,12 @@ public:
 	// 	this->godot_skeleton = p_godot_skeleton;
 	// }
 
-
 	Array get_unique_names() {
 		return godot_conv::to_array(this->unique_names);
 	}
 	void set_unique_names(Array p_unique_names) {
 		godot_conv::set_from_array(this->unique_names, p_unique_names);
 	}
-
 
 	//Map<int32_t, GLTFNodeIndex> get_godot_bone_node() {
 	//	return this->godot_bone_node;
@@ -81,7 +79,7 @@ public:
 	//	godot_conv::set_from_dict(this->godot_bone_node, p_indict);
 	//}
 
-	BoneAttachment3D * get_bone_attachment(int idx) {
+	BoneAttachment3D *get_bone_attachment(int idx) {
 		ERR_FAIL_INDEX_V(idx, this->bone_attachments.size(), nullptr);
 		return this->bone_attachments[idx];
 	}
