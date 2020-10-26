@@ -17,7 +17,7 @@ public:
 	// same parent (ie roots are siblings)
 	Vector<GLTFNodeIndex> roots;
 
-	// The created Skeleton for the scene
+	// The created Skeleton3D for the scene
 	Skeleton3D *godot_skeleton;
 
 	// Set of unique bone names for the skeleton
@@ -27,14 +27,12 @@ public:
 
 	Vector<BoneAttachment3D *> bone_attachments;
 
-
 	Vector<GLTFNodeIndex> get_joints() {
 		return this->joints;
 	}
 	void set_joints(Vector<GLTFNodeIndex> joints) {
 		this->joints = joints;
 	}
-
 
 	Vector<GLTFNodeIndex> get_roots() {
 		return this->roots;
@@ -43,14 +41,9 @@ public:
 		this->roots = roots;
 	}
 
-
-	// Skeleton *get_godot_skeleton() {
-	// 	return this->godot_skeleton;
-	// }
-	// void set_godot_skeleton(Skeleton *godot_skeleton) {
-	// 	this->godot_skeleton = godot_skeleton;
-	// }
-
+	Skeleton3D *get_godot_skeleton() {
+		return this->godot_skeleton;
+	}
 
 	Array get_unique_names() {
 		return godot_conv::to_array(this->unique_names);
@@ -59,13 +52,6 @@ public:
 		godot_conv::set_from_array(this->unique_names, unique_names);
 	}
 
-
-	//Map<int32_t, GLTFNodeIndex> get_godot_bone_node() {
-	//	return this->godot_bone_node;
-	//}
-	//void set_godot_bone_node(Map<int32_t, GLTFNodeIndex> godot_bone_node) {
-	//	this->godot_bone_node = godot_bone_node;
-	//}
 	Dictionary get_godot_bone_node() {
 		return godot_conv::to_dict(this->godot_bone_node);
 	}
@@ -73,21 +59,13 @@ public:
 		godot_conv::set_from_dict(this->godot_bone_node, indict);
 	}
 
-	//Dictionary get_godot_bone_node() {
-	//	return godot_conv::to_dict(this->godot_bone_node);
-	//}
-	//void set_godot_bone_node(Dictionary indict) {
-	//	godot_conv::set_from_dict(this->godot_bone_node, indict);
-	//}
-
-
-
-	// Vector<BoneAttachment *> get_bone_attachments() {
-	// 	return this->bone_attachments;
-	// }
-	// void set_bone_attachments(Vector<BoneAttachment *> bone_attachments) {
-	// 	this->bone_attachments = bone_attachments;
-	// }
+	int get_bone_attachment_count() {
+		return this->bone_attachments.size();
+	}
+	BoneAttachment3D *get_bone_attachment(int idx) {
+		ERR_FAIL_INDEX_V(idx, this->bone_attachments.size(), nullptr);
+		return this->bone_attachments[idx];
+	}
 
 	GLTFSkeleton() :
 			godot_skeleton(nullptr) {}

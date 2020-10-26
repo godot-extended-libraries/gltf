@@ -43,7 +43,7 @@ public:
 
 	String scene_name;
 	Vector<int> root_nodes;
-	Vector<Ref<GLTFTexture>> textures;
+	Vector<Ref<GLTFTexture> > textures;
 	Vector<Ref<Texture2D> > images;
 
 	Vector<Ref<GLTFSkin> > skins;
@@ -210,18 +210,28 @@ public:
 		godot_conv::set_from_array(this->animations, animations);
 	}
 
-	//Map<GLTFNodeIndex, Node *> get_scene_nodes() {
-	//	return this->scene_nodes;
-	//}
-	//void set_scene_nodes(Map<GLTFNodeIndex, Node *> scene_nodes) {
-	//	this->scene_nodes = scene_nodes;
+	Node *get_scene_node(GLTFNodeIndex idx) {
+		if (!this->scene_nodes.has(idx)) {
+			return nullptr;
+		}
+		return this->scene_nodes[idx];
+	}
+
+	int get_animation_players_count(int idx) {
+		return animation_players.size();
+	}
+
+	AnimationPlayer *get_animation_player(int idx) {
+		ERR_FAIL_INDEX_V(idx, animation_players.size(), nullptr);
+		return this->animation_players[idx];
+	}
+
+	//void set_scene_nodes(Map<GLTFNodeIndex, Node *> p_scene_nodes) {
+	//	this->scene_nodes = p_scene_nodes;
 	//}
 
-	//Vector<AnimationPlayer *> get_animation_players() {
-	//	return this->animation_players;
-	//}
-	//void set_animation_players(Vector<AnimationPlayer *> animation_players) {
-	//	this->animation_players = animation_players;
+	//void set_animation_players(Vector<AnimationPlayer *> p_animation_players) {
+	//	this->animation_players = p_animation_players;
 	//}
 
 	//Map<Ref<Material>, GLTFMaterialIndex> get_material_cache() {

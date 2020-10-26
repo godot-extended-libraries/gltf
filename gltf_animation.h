@@ -1,7 +1,6 @@
 #pragma once
 #include "core/resource.h"
 
-
 class GLTFAnimation : public Resource {
 	GDCLASS(GLTFAnimation, Resource);
 
@@ -44,4 +43,3 @@ private:
 	//String name;
 	Map<int, Track> tracks;
 };
-

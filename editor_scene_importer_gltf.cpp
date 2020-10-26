@@ -45,7 +45,6 @@
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/surface_tool.h"
 
-
 #ifndef _3D_DISABLED
 #ifdef TOOLS_ENABLED
 uint32_t EditorSceneImporterGLTF::get_import_flags() const {
@@ -85,6 +84,16 @@ void PackedSceneGLTF::_bind_methods() {
 			&PackedSceneGLTF::export_gltf, DEFVAL(0), DEFVAL(1000.0f));
 	ClassDB::bind_method(D_METHOD("pack_gltf", "path", "flags", "bake_fps", "state"),
 			&PackedSceneGLTF::pack_gltf, DEFVAL(0), DEFVAL(1000.0f), DEFVAL(Ref<GLTFState>()));
+	ClassDB::bind_method(D_METHOD("import_gltf_scene", "path", "flags", "bake_fps", "state"),
+			&PackedSceneGLTF::import_gltf_scene, DEFVAL(0), DEFVAL(1000.0f), DEFVAL(Ref<GLTFState>()));
+}
+
+Node *PackedSceneGLTF::import_gltf_scene(const String &p_path, uint32_t p_flags,
+		int p_bake_fps,
+		Ref<GLTFState> r_state) {
+	Error err = FAILED;
+	List<String> deps;
+	return import_scene(p_path, p_flags, p_bake_fps, &deps, &err, r_state);
 }
 
 Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
@@ -100,9 +109,15 @@ Node *PackedSceneGLTF::import_scene(const String &p_path, uint32_t p_flags,
 
 	Ref<GLTFDocument> gltf_document;
 	gltf_document.instance();
-	Error err = gltf_document->parse(state, p_path);
-	*r_err = err;
-	ERR_FAIL_COND_V(err != Error::OK, NULL);
+	if (p_path.empty()) {
+		*r_err = Error::ERR_INVALID_PARAMETER;
+		ERR_FAIL_COND_V(state->nodes.empty(), NULL);
+		*r_err = Error::OK;
+	} else {
+		Error err = gltf_document->parse(state, p_path);
+		*r_err = err;
+		ERR_FAIL_COND_V(err != Error::OK, NULL);
+	}
 
 	Node3D *root = memnew(Node3D);
 

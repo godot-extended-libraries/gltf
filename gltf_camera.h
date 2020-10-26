@@ -1,7 +1,6 @@
 #pragma once
 #include "core/resource.h"
 
-
 class GLTFCamera : public Resource {
 	GDCLASS(GLTFCamera, Resource);
 	bool perspective;
@@ -28,4 +27,3 @@ public:
 		set_znear(0.1);
 	}
 };
-

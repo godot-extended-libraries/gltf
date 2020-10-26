@@ -15,14 +15,12 @@ public:
 	int byte_stride;
 	bool indices;
 
-
 	GLTFBufferIndex get_buffer() {
 		return this->buffer;
 	}
 	void set_buffer(GLTFBufferIndex buffer) {
 		this->buffer = buffer;
 	}
-
 
 	int get_byte_offset() {
 		return this->byte_offset;
@@ -31,7 +29,6 @@ public:
 		this->byte_offset = byte_offset;
 	}
 
-
 	int get_byte_length() {
 		return this->byte_length;
 	}
@@ -39,14 +36,12 @@ public:
 		this->byte_length = byte_length;
 	}
 
-
 	int get_byte_stride() {
 		return this->byte_stride;
 	}
 	void set_byte_stride(int byte_stride) {
 		this->byte_stride = byte_stride;
 	}
-
 
 	bool get_indices() {
 		return this->indices;

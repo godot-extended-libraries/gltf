@@ -45,14 +45,12 @@ public:
 	// this skin to the generated skeleton for the mesh instances.
 	Ref<Skin> godot_skin;
 
-
 	GLTFNodeIndex get_skin_root() {
 		return this->skin_root;
 	}
 	void set_skin_root(GLTFNodeIndex skin_root) {
 		this->skin_root = skin_root;
 	}
-
 
 	Vector<GLTFNodeIndex> get_joints_original() {
 		return this->joints_original;
@@ -61,14 +59,12 @@ public:
 		this->joints_original = joints_original;
 	}
 
-
 	Array get_inverse_binds() {
 		return godot_conv::to_array(this->inverse_binds);
 	}
 	void set_inverse_binds(Array inverse_binds) {
 		godot_conv::set_from_array(this->inverse_binds, inverse_binds);
 	}
-
 
 	Vector<GLTFNodeIndex> get_joints() {
 		return this->joints;
@@ -77,14 +73,12 @@ public:
 		this->joints = joints;
 	}
 
-	
 	Vector<GLTFNodeIndex> get_non_joints() {
 		return this->non_joints;
 	}
 	void set_non_joints(Vector<GLTFNodeIndex> non_joints) {
 		this->non_joints = non_joints;
 	}
-
 
 	Vector<GLTFNodeIndex> get_roots() {
 		return this->roots;
@@ -93,7 +87,6 @@ public:
 		this->roots = roots;
 	}
 
-
 	int get_skeleton() {
 		return this->skeleton;
 	}
@@ -101,14 +94,12 @@ public:
 		this->skeleton = skeleton;
 	}
 
-
 	Dictionary get_joint_i_to_bone_i() {
 		return godot_conv::to_dict(this->joint_i_to_bone_i);
 	}
 	void set_joint_i_to_bone_i(Dictionary joint_i_to_bone_i) {
 		godot_conv::set_from_dict(this->joint_i_to_bone_i, joint_i_to_bone_i);
 	}
-
 
 	Dictionary get_joint_i_to_name() {
 		Dictionary ret;
@@ -123,10 +114,9 @@ public:
 		this->joint_i_to_name = Map<int, StringName>();
 		Array keys = joint_i_to_name.keys();
 		for (int i = 0; i < keys.size(); i++) {
-			this->joint_i_to_name[keys[i]] = p_joint_i_to_name[keys[i]];
+			this->joint_i_to_name[keys[i]] = joint_i_to_name[keys[i]];
 		}
 	}
-
 
 	Ref<Skin> get_godot_skin() {
 		return this->godot_skin;
@@ -138,4 +128,3 @@ public:
 	GLTFSkin() :
 			skin_root(-1), skeleton(-1) {}
 };
-

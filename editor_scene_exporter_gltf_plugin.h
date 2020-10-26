@@ -30,8 +30,8 @@
 
 #ifndef EDITOR_SCENE_EXPORTER_GLTF_PLUGIN_H
 #define EDITOR_SCENE_EXPORTER_GLTF_PLUGIN_H
-#include "editor_scene_importer_gltf.h"
 #include "editor/editor_plugin.h"
+#include "editor_scene_importer_gltf.h"
 
 #ifndef _3D_DISABLED
 class SceneExporterGLTFPlugin : public EditorPlugin {

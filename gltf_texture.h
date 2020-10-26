@@ -2,7 +2,6 @@
 #include "core/resource.h"
 #include "gltf_document.h"
 
-
 class GLTFTexture : public Resource {
 	GDCLASS(GLTFTexture, Resource);
 
@@ -12,7 +11,6 @@ protected:
 public:
 	GLTFImageIndex src_image;
 
-
 	int get_src_image() {
 		return this->src_image;
 	}
@@ -20,6 +18,3 @@ public:
 		this->src_image = src_image;
 	}
 };
-
-
-

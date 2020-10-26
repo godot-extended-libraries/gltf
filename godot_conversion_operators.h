@@ -55,4 +55,4 @@ void set_from_dict(Map<K, V> &out, const Dictionary &inp) {
 	}
 }
 
-}
+} // namespace godot_conv
