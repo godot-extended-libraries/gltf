@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_SPEC_GLOSS_H
+#define GLTF_SPEC_GLOSS_H
+
 #include "core/image.h"
 #include "core/resource.h"
 
@@ -50,3 +52,4 @@ public:
 		this->spec_gloss_img = p_spec_gloss_img;
 	}
 };
+#endif

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_SKIN_H
+#define GLTF_SKIN_H
+
 #include "core/resource.h"
 #include "gltf_document.h"
 #include "godot_conversion_operators.h"
@@ -128,3 +130,4 @@ public:
 	GLTFSkin() :
 			skin_root(-1), skeleton(-1) {}
 };
+#endif

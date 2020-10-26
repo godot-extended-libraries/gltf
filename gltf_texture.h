@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_TEXTURE_H
+#define GLTF_TEXTURE_H
+
 #include "core/resource.h"
 #include "gltf_document.h"
 
@@ -18,3 +20,5 @@ public:
 		this->src_image = p_src_image;
 	}
 };
+
+#endif

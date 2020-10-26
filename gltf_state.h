@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_STATE_H
+#define GLTF_STATE_H
+
 #include "core/resource.h"
 #include "core/vector.h"
 #include "gltf_accessor.h"
@@ -246,3 +248,4 @@ public:
 	~GLTFState() {
 	}
 };
+#endif

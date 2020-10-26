@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_ANIMATION_H
+#define GLTF_ANIMATION_H
+
 #include "core/resource.h"
 
 class GLTFAnimation : public Resource {
@@ -40,3 +42,4 @@ private:
 	bool loop = false;
 	Map<int, Track> tracks;
 };
+#endif

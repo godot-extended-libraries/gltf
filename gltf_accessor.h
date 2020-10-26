@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_ACCESSOR_H
+#define GLTF_ACCESSOR_H
+
 #include "core/resource.h"
 #include "gltf_document.h"
 
@@ -137,3 +139,5 @@ public:
 		sparse_values_byte_offset = 0;
 	}
 };
+
+#endif

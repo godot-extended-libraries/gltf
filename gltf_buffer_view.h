@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_BUFFER_VIEW_H
+#define GLTF_BUFFER_VIEW_H
+
 #include "core/resource.h"
 #include "gltf_document.h"
 
@@ -54,3 +56,4 @@ public:
 	GLTFBufferView() :
 			buffer(-1), byte_offset(0), byte_length(0), byte_stride(-1), indices(false) {}
 };
+#endif

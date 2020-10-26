@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_CAMERA_H
+#define GLTF_CAMERA_H
+
 #include "core/resource.h"
 
 class GLTFCamera : public Resource {
@@ -27,3 +29,5 @@ public:
 		set_znear(0.1);
 	}
 };
+
+#endif
