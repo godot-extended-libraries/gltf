@@ -123,7 +123,7 @@ public:
 		this->joint_i_to_name = Map<int, StringName>();
 		Array keys = joint_i_to_name.keys();
 		for (int i = 0; i < keys.size(); i++) {
-			this->joint_i_to_name[keys[i]] = StringName(joint_i_to_name[keys[i]]);
+			this->joint_i_to_name[keys[i]] = p_joint_i_to_name[keys[i]];
 		}
 	}
 
