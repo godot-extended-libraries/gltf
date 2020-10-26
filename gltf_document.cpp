@@ -394,8 +394,8 @@ Error GLTFDocument::_serialize_nodes(Ref<GLTFState> state) {
 		Ref<GLTFNode> n = state->nodes[i];
 		Dictionary extensions;
 		node["extensions"] = extensions;
-		if (!n->name.empty()) {
-			node["name"] = n->name;
+		if (!n->get_name().empty()) {
+			node["name"] = n->get_name();
 		}
 		if (n->camera != -1) {
 			node["camera"] = n->camera;
@@ -557,7 +557,7 @@ Error GLTFDocument::_parse_nodes(Ref<GLTFState> state) {
 		const Dictionary &n = nodes[i];
 
 		if (n.has("name")) {
-			node->name = n["name"];
+			node->set_name(n["name"]);
 		}
 		if (n.has("camera")) {
 			node->camera = n["camera"];
@@ -3959,7 +3959,7 @@ Error GLTFDocument::_parse_skins(Ref<GLTFState> state) {
 		}
 
 		if (d.has("name")) {
-			skin->name = d["name"];
+			skin->set_name(d["name"]);
 		}
 
 		if (d.has("skeleton")) {
@@ -4188,7 +4188,7 @@ Error GLTFDocument::_reparent_to_fake_joint(Ref<GLTFState> state, Ref<GLTFSkelet
 	fake_joint->joint = true;
 
 	// We can use the exact same name here, because the joint will be inside a skeleton and not the scene
-	fake_joint->name = node->name;
+	fake_joint->set_name(node->get_name());
 
 	// Clear the nodes transforms, since it will be parented to the fake joint
 	node->translation = Vector3(0, 0, 0);
@@ -4332,19 +4332,19 @@ Error GLTFDocument::_create_skeletons(Ref<GLTFState> state) {
 
 			const int bone_index = skeleton->get_bone_count();
 
-			if (node->name.empty()) {
-				node->name = "bone";
+			if (node->get_name().empty()) {
+				node->set_name("bone");
 			}
 
-			node->name = _gen_unique_bone_name(state, skel_i, node->name);
+			node->set_name(_gen_unique_bone_name(state, skel_i, node->get_name()));
 
-			skeleton->add_bone(node->name);
+			skeleton->add_bone(node->get_name());
 			skeleton->set_bone_rest(bone_index, node->xform);
 
 			if (node->parent >= 0 && state->nodes[node->parent]->skeleton == skel_i) {
-				const int bone_parent = skeleton->find_bone(state->nodes[node->parent]->name);
+				const int bone_parent = skeleton->find_bone(state->nodes[node->parent]->get_name());
 				ERR_FAIL_COND_V(bone_parent < 0, FAILED);
-				skeleton->set_bone_parent(bone_index, skeleton->find_bone(state->nodes[node->parent]->name));
+				skeleton->set_bone_parent(bone_index, skeleton->find_bone(state->nodes[node->parent]->get_name()));
 			}
 
 			state->scene_nodes.insert(node_i, skeleton);
@@ -4366,7 +4366,7 @@ Error GLTFDocument::_map_skin_joints_indices_to_skeleton_bone_indices(Ref<GLTFSt
 			const GLTFNodeIndex node_i = skin->joints_original[joint_index];
 			const Ref<GLTFNode> node = state->nodes[node_i];
 
-			const int bone_index = skeleton->godot_skeleton->find_bone(node->name);
+			const int bone_index = skeleton->godot_skeleton->find_bone(node->get_name());
 			ERR_FAIL_COND_V(bone_index < 0, FAILED);
 
 			skin->joint_i_to_bone_i.insert(joint_index, bone_index);
@@ -4414,7 +4414,7 @@ Error GLTFDocument::_serialize_skins(Ref<GLTFState> state) {
 
 		Map<String, GLTFNodeIndex> name_gltf_node;
 		for (int32_t node_name_i = 0; node_name_i < state->nodes.size(); node_name_i++) {
-			name_gltf_node.insert(state->nodes[node_name_i]->name, node_name_i);
+			name_gltf_node.insert(state->nodes[node_name_i]->get_name(), node_name_i);
 		}
 		for (int32_t bind_i = 0; bind_i < skin->get_bind_count(); bind_i++) {
 			String bone_name = skin->get_bind_name(bind_i);
@@ -4452,7 +4452,7 @@ Error GLTFDocument::_serialize_skins(Ref<GLTFState> state) {
 		for (int32_t joint_i = 0; joint_i < gltf_skin->joints.size(); joint_i++) {
 			for (int32_t bone_i = 0; bone_i < skeleton->get_bone_count(); bone_i++) {
 				String bone_name = skeleton->get_bone_name(bone_i);
-				if (_sanitize_bone_name(bone_name) == state->nodes[gltf_skin->joints[joint_i]]->name) {
+				if (_sanitize_bone_name(bone_name) == state->nodes[gltf_skin->joints[joint_i]]->get_name()) {
 					gltf_skin->joint_i_to_bone_i.insert(joint_i, bone_i);
 					break;
 				}
@@ -4465,14 +4465,14 @@ Error GLTFDocument::_serialize_skins(Ref<GLTFState> state) {
 			}
 		}
 		gltf_skin->godot_skin = skin;
-		gltf_skin->name = _gen_unique_name(state, skin->get_name());
+		gltf_skin->set_name(_gen_unique_name(state, skin->get_name()));
 		state->nodes.write[node_i]->skin = state->skins.size();
 		_expand_skin(state, gltf_skin);
 		state->skins.push_back(gltf_skin);
 
 		json_skin["inverseBindMatrices"] = _encode_accessor_as_xform(state, gltf_skin->inverse_binds, false);
 		json_skin["joints"] = json_joints;
-		json_skin["name"] = gltf_skin->name;
+		json_skin["name"] = gltf_skin->get_name();
 		json_skins.push_back(json_skin);
 	}
 	state->json["skins"] = json_skins;
@@ -4495,7 +4495,7 @@ Error GLTFDocument::_create_skins(Ref<GLTFState> state) {
 
 		for (int joint_i = 0; joint_i < gltf_skin->joints_original.size(); ++joint_i) {
 			GLTFNodeIndex node = gltf_skin->joints_original[joint_i];
-			String bone_name = state->nodes[node]->name;
+			String bone_name = state->nodes[node]->get_name();
 
 			Transform xform;
 			if (has_ibms) {
@@ -5058,17 +5058,17 @@ void GLTFDocument::_assign_scene_names(Ref<GLTFState> state) {
 		if (n->skeleton >= 0)
 			continue;
 
-		if (n->name.empty()) {
+		if (n->get_name().empty()) {
 			if (n->mesh >= 0) {
-				n->name = "Mesh";
+				n->set_name("Mesh");
 			} else if (n->camera >= 0) {
-				n->name = "Camera3D";
+				n->set_name("Camera3D");
 			} else {
-				n->name = "Node";
+				n->set_name("Node");
 			}
 		}
 
-		n->name = _gen_unique_name(state, n->name);
+		n->set_name(_gen_unique_name(state, n->get_name()));
 	}
 }
 
@@ -5078,11 +5078,11 @@ BoneAttachment3D *GLTFDocument::_generate_bone_attachment(Ref<GLTFState> state, 
 	Ref<GLTFNode> bone_node = state->nodes[gltf_node->parent];
 
 	BoneAttachment3D *bone_attachment = memnew(BoneAttachment3D);
-	print_verbose("glTF: Creating bone attachment for: " + gltf_node->name);
+	print_verbose("glTF: Creating bone attachment for: " + gltf_node->get_name());
 
 	ERR_FAIL_COND_V(!bone_node->joint, nullptr);
 
-	bone_attachment->set_bone_name(bone_node->name);
+	bone_attachment->set_bone_name(bone_node->get_name());
 
 	return bone_attachment;
 }
@@ -5130,13 +5130,13 @@ MeshInstance3D *GLTFDocument::_generate_mesh_instance(Ref<GLTFState> state, Node
 	ERR_FAIL_INDEX_V(gltf_node->mesh, state->meshes.size(), nullptr);
 
 	MeshInstance3D *mi = memnew(MeshInstance3D);
-	print_verbose("glTF: Creating mesh for: " + gltf_node->name);
+	print_verbose("glTF: Creating mesh for: " + gltf_node->get_name());
 
 	Ref<GLTFMesh> mesh = state->meshes.write[gltf_node->mesh];
 	mi->set_mesh(mesh->mesh);
 
 	if (mesh->mesh->get_name().empty()) {
-		mesh->mesh->set_name(gltf_node->name);
+		mesh->mesh->set_name(gltf_node->get_name());
 	}
 
 	for (int i = 0; i < mesh->blend_weights.size(); i++) {
@@ -5151,7 +5151,7 @@ Light3D *GLTFDocument::_generate_light(Ref<GLTFState> state, Node *scene_parent,
 
 	ERR_FAIL_INDEX_V(gltf_node->light, state->lights.size(), nullptr);
 
-	print_verbose("glTF: Creating light for: " + gltf_node->name);
+	print_verbose("glTF: Creating light for: " + gltf_node->get_name());
 
 	Ref<GLTFLight> l = state->lights[gltf_node->light];
 
@@ -5204,7 +5204,7 @@ Camera3D *GLTFDocument::_generate_camera(Ref<GLTFState> state, Node *scene_paren
 	ERR_FAIL_INDEX_V(gltf_node->camera, state->cameras.size(), nullptr);
 
 	Camera3D *camera = memnew(Camera3D);
-	print_verbose("glTF: Creating camera for: " + gltf_node->name);
+	print_verbose("glTF: Creating camera for: " + gltf_node->get_name());
 
 	Ref<GLTFCamera> c = state->cameras[gltf_node->camera];
 	if (c->get_perspective()) {
@@ -5294,7 +5294,7 @@ Node3D *GLTFDocument::_generate_spatial(Ref<GLTFState> state, Node *scene_parent
 	Ref<GLTFNode> gltf_node = state->nodes[node_index];
 
 	Node3D *spatial = memnew(Node3D);
-	print_verbose("glTF: Converting spatial: " + gltf_node->name);
+	print_verbose("glTF: Converting spatial: " + gltf_node->get_name());
 
 	return spatial;
 }
@@ -5310,7 +5310,7 @@ void GLTFDocument::_convert_scene_node(Ref<GLTFState> state, Node *p_current, No
 
 	Ref<GLTFNode> gltf_node;
 	gltf_node.instance();
-	gltf_node->name = _gen_unique_name(state, p_current->get_name());
+	gltf_node->set_name(_gen_unique_name(state, p_current->get_name()));
 	if (cast_to<MeshInstance3D>(p_current)) {
 		_convert_mesh_to_gltf(p_current, state, spatial, gltf_node);
 	} else if (cast_to<BoneAttachment3D>(p_current)) {
@@ -5377,7 +5377,7 @@ void GLTFDocument::_convert_csg_shape_to_gltf(Node *p_current, GLTFNodeIndex p_g
 	gltf_node->mesh = state->meshes.size();
 	state->meshes.push_back(gltf_mesh);
 	gltf_node->xform = csg->get_meshes()[0];
-	gltf_node->name = csg->get_name();
+	gltf_node->set_name(csg->get_name());
 }
 
 void GLTFDocument::_create_gltf_node(Ref<GLTFState> state, GLTFNodeIndex current_node_i, Node *p_scene_parent,
@@ -5469,7 +5469,7 @@ void GLTFDocument::_convert_grid_map_to_gltf(Node *p_scene_parent, const GLTFNod
 			new_gltf_node->mesh = state->meshes.size();
 			state->meshes.push_back(gltf_mesh);
 			new_gltf_node->xform = cell_xform * grid_map->get_transform();
-			new_gltf_node->name = grid_map->get_mesh_library()->get_item_name(cell);
+			new_gltf_node->set_name(grid_map->get_mesh_library()->get_item_name(cell));
 		}
 	}
 }
@@ -5511,7 +5511,7 @@ void GLTFDocument::_convert_mult_mesh_instance_to_gltf(Node *p_scene_parent, con
 				new_gltf_node->mesh = state->meshes.size();
 				state->meshes.push_back(gltf_mesh);
 				new_gltf_node->xform = transform;
-				new_gltf_node->name = multi_mesh_instance->get_name();
+				new_gltf_node->set_name(multi_mesh_instance->get_name());
 				new_gltf_node->parent = p_parent_node_index;
 				gltf_node->children.push_back(state->nodes.size());
 				state->nodes.push_back(new_gltf_node);
@@ -5632,7 +5632,7 @@ void GLTFDocument::_generate_scene_node(Ref<GLTFState> state, Node *scene_parent
 		scene_parent->add_child(current_node);
 		current_node->set_owner(scene_root);
 		current_node->set_transform(gltf_node->xform);
-		current_node->set_name(gltf_node->name);
+		current_node->set_name(gltf_node->get_name());
 	}
 
 	state->scene_nodes.insert(node_index, current_node);
@@ -5805,7 +5805,7 @@ void GLTFDocument::_import_animation(Ref<GLTFState> state, AnimationPlayer *ap, 
 			ERR_FAIL_COND(sk == nullptr);
 
 			const String path = ap->get_parent()->get_path_to(sk);
-			const String bone = gltf_node->name;
+			const String bone = gltf_node->get_name();
 			node_path = path + ":" + bone;
 		} else {
 			Node *root = ap->get_parent();
@@ -5881,7 +5881,7 @@ void GLTFDocument::_import_animation(Ref<GLTFState> state, AnimationPlayer *ap, 
 					xform.origin = pos;
 
 					const Skeleton3D *skeleton = state->skeletons[gltf_node->skeleton]->godot_skeleton;
-					const int bone_idx = skeleton->find_bone(gltf_node->name);
+					const int bone_idx = skeleton->find_bone(gltf_node->get_name());
 					xform = skeleton->get_bone_rest(bone_idx).affine_inverse() * xform;
 
 					rot = xform.basis.get_rotation_quat();
@@ -5957,7 +5957,7 @@ void GLTFDocument::_convert_skeletons(Ref<GLTFState> state) {
 			node.instance();
 			String bone_name = state->skeletons[skeleton_i]->godot_skeleton->get_bone_name(bone_i);
 			bone_name = _sanitize_bone_name(bone_name);
-			node->name = _gen_unique_name(state, bone_name);
+			node->set_name(_gen_unique_name(state, bone_name));
 
 			Transform xform = state->skeletons[skeleton_i]->godot_skeleton->get_bone_rest(bone_i);
 			node->scale = xform.basis.get_scale();
@@ -6348,7 +6348,7 @@ void GLTFDocument::_convert_animation(Ref<GLTFState> state, AnimationPlayer *ap,
 			GLTFNodeIndex mesh_index = -1;
 			for (GLTFNodeIndex node_i = 0; node_i < state->nodes.size(); node_i++) {
 				String mesh_name = path.get_name(path.get_name_count() - 1);
-				if (state->nodes[node_i]->name == _sanitize_scene_name(mesh_name)) {
+				if (state->nodes[node_i]->get_name() == _sanitize_scene_name(mesh_name)) {
 					mesh_index = node_i;
 					break;
 				}

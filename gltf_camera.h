@@ -9,6 +9,9 @@ class GLTFCamera : public Resource {
 	float zfar;
 	float znear;
 
+protected:
+	static void _bind_methods();
+
 public:
 	bool get_perspective() const { return perspective; }
 	void set_perspective(bool val) { perspective = val; }
