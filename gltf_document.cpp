@@ -2869,9 +2869,9 @@ Error GLTFDocument::_parse_meshes(Ref<GLTFState> state) {
 
 				array_mesh->surface_set_material(array_mesh->get_surface_count() - 1, mat);
 			} else {
-				Ref<SpatialMaterial> mat;
+				Ref<StandardMaterial3D> mat;
 				mat.instance();
-				mat->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
+				mat->set_flag(StandardMaterial3D::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
 
 				array_mesh->surface_set_material(array_mesh->get_surface_count() - 1, mat);
 			}
@@ -3137,7 +3137,6 @@ Ref<Image> GLTFDocument::dilate(Ref<Image> source_image) {
 	int32_t width = target_image->get_size().x;
 	const int32_t bytes_in_pixel = 4;
 	pixels.resize(height * width * bytes_in_pixel);
-	target_image->lock();
 	for (int32_t y = 0; y < height; y++) {
 		for (int32_t x = 0; x < width; x++) {
 			int32_t pixel_index = x + (width * y);
@@ -3149,9 +3148,7 @@ Ref<Image> GLTFDocument::dilate(Ref<Image> source_image) {
 			pixels.write[index + 3] = uint8_t(pixel.a * 255.0);
 		}
 	}
-	target_image->unlock();
 	rjm_texbleed(pixels.ptrw(), width, height, 3, bytes_in_pixel, bytes_in_pixel * width);
-	target_image->lock();
 	for (int32_t y = 0; y < height; y++) {
 		for (int32_t x = 0; x < width; x++) {
 			Color pixel;
@@ -3164,7 +3161,6 @@ Ref<Image> GLTFDocument::dilate(Ref<Image> source_image) {
 			target_image->set_pixel(x, y, pixel);
 		}
 	}
-	target_image->unlock();
 	target_image->generate_mipmaps();
 	return target_image;
 }
@@ -3337,7 +3333,7 @@ Error GLTFDocument::_serialize_materials(Ref<GLTFState> state) {
 			Ref<ImageTexture> tex;
 			tex.instance();
 			{
-				Ref<Texture2D> normal_texture = material->get_texture(SpatialMaterial3D::TEXTURE_NORMAL);
+				Ref<Texture2D> normal_texture = material->get_texture(StandardMaterial3D::TEXTURE_NORMAL);
 				// Code for uncompressing RG normal maps
 				Ref<Image> img = normal_texture->get_data();
 				img->decompress();
@@ -3424,7 +3420,7 @@ Error GLTFDocument::_parse_materials(Ref<GLTFState> state) {
 		if (d.has("name")) {
 			material->set_name(d["name"]);
 		}
-		material->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
+		material->set_flag(StandardMaterial3D::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
 		Dictionary pbr_spec_gloss_extensions;
 		if (d.has("extensions")) {
 			pbr_spec_gloss_extensions = d["extensions"];
@@ -6520,12 +6516,12 @@ Error GLTFDocument::parse(Ref<GLTFState> state, String p_path, bool p_read_binar
 	if (magic == 0x46546C67) {
 		//binary file
 		//text file
-		Error err = _parse_glb(p_path, state);
+		err = _parse_glb(p_path, state);
 		if (err)
 			return FAILED;
 	} else {
 		//text file
-		Error err = _parse_json(p_path, state);
+		err = _parse_json(p_path, state);
 		if (err)
 			return FAILED;
 	}
