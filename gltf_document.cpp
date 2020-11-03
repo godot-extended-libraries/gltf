@@ -6561,12 +6561,12 @@ Error GLTFDocument::parse(Ref<GLTFState> state, String p_path, bool p_read_binar
 	if (magic == 0x46546C67) {
 		//binary file
 		//text file
-		Error err = _parse_glb(p_path, state);
+		err = _parse_glb(p_path, state);
 		if (err)
 			return FAILED;
 	} else {
 		//text file
-		Error err = _parse_json(p_path, state);
+		err = _parse_json(p_path, state);
 		if (err)
 			return FAILED;
 	}

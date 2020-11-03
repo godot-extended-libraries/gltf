@@ -49,6 +49,8 @@
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/surface_tool.h"
 
+#include "gltf_state.h"
+
 #ifndef _3D_DISABLED
 class AnimationPlayer;
 class BoneAttachment;
