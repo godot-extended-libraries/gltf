@@ -48,11 +48,9 @@
 #ifndef _3D_DISABLED
 #ifdef TOOLS_ENABLED
 uint32_t EditorSceneImporterGLTF::get_import_flags() const {
-
 	return IMPORT_SCENE | IMPORT_ANIMATION;
 }
 void EditorSceneImporterGLTF::get_extensions(List<String> *r_extensions) const {
-
 	r_extensions->push_back("gltf");
 	r_extensions->push_back("glb");
 }
@@ -61,7 +59,6 @@ Node *EditorSceneImporterGLTF::import_scene(const String &p_path,
 		uint32_t p_flags, int p_bake_fps,
 		List<String> *r_missing_deps,
 		Error *r_err) {
-
 	Ref<PackedSceneGLTF> importer;
 	importer.instance();
 	return importer->import_scene(p_path, p_flags, p_bake_fps, r_missing_deps, r_err, Ref<GLTFState>());
@@ -70,7 +67,6 @@ Node *EditorSceneImporterGLTF::import_scene(const String &p_path,
 Ref<Animation> EditorSceneImporterGLTF::import_animation(const String &p_path,
 		uint32_t p_flags,
 		int p_bake_fps) {
-
 	return Ref<Animation>();
 }
 
@@ -154,15 +150,32 @@ void PackedSceneGLTF::save_scene(Node *p_node, const String &p_path,
 	gltf_document.instance();
 	Ref<GLTFState> state;
 	state.instance();
-	const GLTFNodeIndex scene_root = 0;
 	for (int node_i = 0; node_i < p_node->get_child_count(); node_i++) {
-		gltf_document->_convert_scene_node(state, p_node->get_child(node_i), p_node->get_child(node_i), scene_root, scene_root);
+		const GLTFNodeIndex scene_root = state->nodes.size();
+		state->root_nodes.push_back(scene_root);
+		gltf_document->_convert_scene_node(state, p_node->get_child(node_i), p_node, -1, scene_root);
+	}
+	if (!state->buffers.size()) {
+		state->buffers.push_back(Vector<uint8_t>());
 	}
 	gltf_document->_convert_mesh_instances(state);
-	gltf_document->_convert_skeletons(state);
 	err = gltf_document->serialize(state, p_path);
 	if (r_err) {
 		*r_err = err;
+	}
+}
+
+void PackedSceneGLTF::_build_parent_hierachy(Ref<GLTFState> state) {
+	// build the hierarchy
+	for (GLTFNodeIndex node_i = 0; node_i < state->nodes.size(); node_i++) {
+		for (int j = 0; j < state->nodes[node_i]->children.size(); j++) {
+			GLTFNodeIndex child_i = state->nodes[node_i]->children[j];
+			ERR_FAIL_INDEX(child_i, state->nodes.size());
+			if (state->nodes.write[child_i]->parent != -1) {
+				continue;
+			}
+			state->nodes.write[child_i]->parent = node_i;
+		}
 	}
 }
 
@@ -170,7 +183,6 @@ Error PackedSceneGLTF::export_gltf(Node *p_root, String p_path,
 		int32_t p_flags,
 		real_t p_bake_fps) {
 	ERR_FAIL_COND_V(!p_root, FAILED);
-	Node *node = p_root->duplicate();
 	List<String> deps;
 	Error err;
 	String path = p_path;
@@ -178,7 +190,7 @@ Error PackedSceneGLTF::export_gltf(Node *p_root, String p_path,
 	real_t baked_fps = p_bake_fps;
 	Ref<PackedSceneGLTF> exporter;
 	exporter.instance();
-	exporter->save_scene(node, path, "", flags, baked_fps, &deps, &err);
+	exporter->save_scene(p_root, path, "", flags, baked_fps, &deps, &err);
 	int32_t error_code = err;
 	if (error_code != 0) {
 		return Error(error_code);

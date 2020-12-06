@@ -27,10 +27,10 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 #include "gltf_spec_gloss.h"
 
 void GLTFSpecGloss::_bind_methods() {
-
 	ClassDB::bind_method(D_METHOD("get_diffuse_img"), &GLTFSpecGloss::get_diffuse_img);
 	ClassDB::bind_method(D_METHOD("set_diffuse_img", "diffuse_img"), &GLTFSpecGloss::set_diffuse_img);
 	ClassDB::bind_method(D_METHOD("get_diffuse_factor"), &GLTFSpecGloss::get_diffuse_factor);

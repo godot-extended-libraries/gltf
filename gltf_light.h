@@ -27,11 +27,12 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 #ifndef GLTF_LIGHT_H
 #define GLTF_LIGHT_H
 
-#include "core/engine.h"
-#include "core/resource.h"
+#include "core/config/engine.h"
+#include "core/io/resource.h"
 
 class GLTFLight : public Resource {
 	GDCLASS(GLTFLight, Resource);

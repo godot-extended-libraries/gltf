@@ -35,7 +35,6 @@
 
 #ifndef _3D_DISABLED
 class SceneExporterGLTFPlugin : public EditorPlugin {
-
 	GDCLASS(SceneExporterGLTFPlugin, EditorPlugin);
 
 	Ref<PackedSceneGLTF> convert_gltf2 = nullptr;

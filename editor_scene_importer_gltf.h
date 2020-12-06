@@ -31,10 +31,10 @@
 #ifndef EDITOR_SCENE_IMPORTER_GLTF_H
 #define EDITOR_SCENE_IMPORTER_GLTF_H
 
+#include "core/config/project_settings.h"
 #include "core/io/json.h"
-#include "core/object.h"
-#include "core/project_settings.h"
-#include "core/vector.h"
+#include "core/object/object.h"
+#include "core/templates/vector.h"
 #include "editor/import/resource_importer_scene.h"
 #include "modules/csg/csg_shape.h"
 #include "modules/gridmap/grid_map.h"
@@ -58,7 +58,6 @@ class MeshInstance;
 
 #ifdef TOOLS_ENABLED
 class EditorSceneImporterGLTF : public EditorSceneImporter {
-
 	GDCLASS(EditorSceneImporterGLTF, EditorSceneImporter);
 
 public:
@@ -81,7 +80,7 @@ class PackedSceneGLTF : public PackedScene {
 		Transform transform = Transform();
 		Ref<Mesh> mesh = nullptr;
 		String name = "";
-		Vector<Ref<Material> > materials;
+		Vector<Ref<Material>> materials;
 		Node *original_node = nullptr;
 		Node *original_parent = nullptr;
 	};
@@ -94,6 +93,9 @@ public:
 	virtual void save_scene(Node *p_node, const String &p_path, const String &p_src_path,
 			uint32_t p_flags, int p_bake_fps,
 			List<String> *r_missing_deps, Error *r_err = NULL);
+
+	virtual void _build_parent_hierachy(Ref<GLTFState> state);
+
 	virtual Error export_gltf(Node *p_root, String p_path, int32_t p_flags = 0,
 			real_t p_bake_fps = 1000.0f);
 	static void _save_thread_function(void *p_user);

@@ -27,10 +27,10 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 #include "gltf_light.h"
 
 void GLTFLight::_bind_methods() {
-
 	ClassDB::bind_method(D_METHOD("get_color"), &GLTFLight::get_color);
 	ClassDB::bind_method(D_METHOD("set_color", "color"), &GLTFLight::set_color);
 	ClassDB::bind_method(D_METHOD("get_intensity"), &GLTFLight::get_intensity);

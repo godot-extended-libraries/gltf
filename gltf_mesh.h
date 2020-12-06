@@ -27,10 +27,11 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 #ifndef GLTF_MESH_H
 #define GLTF_MESH_H
 
-#include "core/resource.h"
+#include "core/io/resource.h"
 #include "scene/resources/mesh.h"
 
 class GLTFMesh : public Resource {

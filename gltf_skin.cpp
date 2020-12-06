@@ -27,10 +27,10 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 #include "gltf_skin.h"
 
 void GLTFSkin::_bind_methods() {
-
 	ClassDB::bind_method(D_METHOD("get_skin_root"), &GLTFSkin::get_skin_root);
 	ClassDB::bind_method(D_METHOD("set_skin_root", "skin_root"), &GLTFSkin::set_skin_root);
 	ClassDB::bind_method(D_METHOD("get_joints_original"), &GLTFSkin::get_joints_original);

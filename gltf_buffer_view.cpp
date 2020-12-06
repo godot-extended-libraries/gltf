@@ -31,7 +31,6 @@
 #include "gltf_buffer_view.h"
 
 void GLTFBufferView::_bind_methods() {
-
 	ClassDB::bind_method(D_METHOD("get_buffer"), &GLTFBufferView::get_buffer);
 	ClassDB::bind_method(D_METHOD("set_buffer", "buffer"), &GLTFBufferView::set_buffer);
 	ClassDB::bind_method(D_METHOD("get_byte_offset"), &GLTFBufferView::get_byte_offset);

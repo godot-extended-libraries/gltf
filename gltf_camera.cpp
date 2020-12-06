@@ -27,10 +27,10 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 #include "gltf_camera.h"
 
 void GLTFCamera::_bind_methods() {
-
 	ClassDB::bind_method(D_METHOD("get_perspective"), &GLTFCamera::get_perspective);
 	ClassDB::bind_method(D_METHOD("set_perspective", "perspective"), &GLTFCamera::set_perspective);
 	ClassDB::bind_method(D_METHOD("get_fov_size"), &GLTFCamera::get_fov_size);
