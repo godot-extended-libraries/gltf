@@ -65,8 +65,7 @@ Node *EditorSceneImporterGLTF::import_scene(const String &p_path,
 
 	Ref<PackedSceneGLTF> importer;
 	importer.instance();
-	return importer->import_scene(p_path, p_flags, p_bake_fps, r_missing_deps,
-			r_err);
+	return importer->import_scene(p_path, p_flags, p_bake_fps, r_missing_deps, r_err, Ref<GLTFState>());
 }
 
 Ref<Animation> EditorSceneImporterGLTF::import_animation(const String &p_path,
@@ -88,10 +87,7 @@ void PackedSceneGLTF::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("import_gltf_scene", "path", "flags", "bake_fps", "state"),
 			&PackedSceneGLTF::import_gltf_scene, DEFVAL(0), DEFVAL(1000.0f), DEFVAL(Ref<GLTFState>()));
 }
-
-Node *PackedSceneGLTF::import_gltf_scene(const String &p_path, uint32_t p_flags,
-		int p_bake_fps,
-		Ref<GLTFState> r_state) {
+Node *PackedSceneGLTF::import_gltf_scene(const String &p_path, uint32_t p_flags, float p_bake_fps, Ref<GLTFState> r_state) {
 	Error err = FAILED;
 	List<String> deps;
 	return import_scene(p_path, p_flags, p_bake_fps, &deps, &err, r_state);
