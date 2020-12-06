@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_SKELETON_H
+#define GLTF_SKELETON_H
+
 #include "core/resource.h"
 #include "gltf_document.h"
 #include "godot_conversion_operators.h"
@@ -77,3 +79,4 @@ public:
 	GLTFSkeleton() :
 			godot_skeleton(nullptr) {}
 };
+#endif

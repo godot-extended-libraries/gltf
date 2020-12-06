@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GLTF_LIGHT_H
+#define GLTF_LIGHT_H
 
 #include "core/engine.h"
 #include "core/resource.h"
@@ -68,3 +69,5 @@ public:
 	GLTFLight() {}
 	~GLTFLight(){}
 };
+
+#endif

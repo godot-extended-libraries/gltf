@@ -1,5 +1,6 @@
-#pragma once
-#include "core/resource.h"
+#ifndef GLTF_SPEC_GLOSS_H
+#define GLTF_SPEC_GLOSS_H
+
 #include "core/image.h"
 
 class GLTFSpecGloss : public Resource {
@@ -54,5 +55,4 @@ public:
 		this->spec_gloss_img = p_spec_gloss_img;
 	}
 };
-
-
+#endif

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_MESH_H
+#define GLTF_MESH_H
+
 #include "core/resource.h"
 #include "scene/resources/mesh.h"
 
@@ -28,3 +30,4 @@ public:
 	}
 
 };
+#endif

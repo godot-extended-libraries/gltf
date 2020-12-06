@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_CAMERA_H
+#define GLTF_CAMERA_H
+
 #include "core/resource.h"
 
 
@@ -29,3 +31,4 @@ public:
 	}
 };
 
+#endif

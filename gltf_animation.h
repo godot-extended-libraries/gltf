@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_ANIMATION_H
+#define GLTF_ANIMATION_H
+
 #include "core/resource.h"
 
 
@@ -41,4 +43,4 @@ private:
 	bool loop = false;
 	Map<int, Track> tracks;
 };
-
+#endif

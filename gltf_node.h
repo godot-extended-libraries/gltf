@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GLTF_NODE_H
+#define GLTF_NODE_H
+
 #include "core/resource.h"
 #include "gltf_document.h"
 
@@ -139,3 +141,4 @@ public:
 
 	GLTFNode() {}
 };
+#endif
