@@ -5342,6 +5342,7 @@ void GLTFDocument::_convert_grid_map_to_gltf(Node *p_scene_parent, const GLTFNod
 		cell_xform.set_origin(grid_map->map_to_world(
 					cell_location.x, cell_location.y, cell_location.z));
 		Ref<GLTFMesh> gltf_mesh;
+		gltf_mesh.instance();
 		gltf_mesh->mesh = mesh;
 		new_gltf_node->mesh = state->meshes.size();
 		state->meshes.push_back(gltf_mesh);
