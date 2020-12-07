@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  gltf_spec_gloss.cpp                                                  */
+/*  variant_conversion.h                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,26 +28,64 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "gltf_spec_gloss.h"
-#include "gltf_spec_gloss.h"
+#ifndef CORE_CONVERSION_OPERATORS_H
+#define CORE_CONVERSION_OPERATORS_H
 
+#include "core/engine.h"
 
-void GLTFSpecGloss::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_diffuse_img"), &GLTFSpecGloss::get_diffuse_img);
-	ClassDB::bind_method(D_METHOD("set_diffuse_img", "diffuse_img"), &GLTFSpecGloss::set_diffuse_img);
-	ClassDB::bind_method(D_METHOD("get_diffuse_factor"), &GLTFSpecGloss::get_diffuse_factor);
-	ClassDB::bind_method(D_METHOD("set_diffuse_factor", "diffuse_factor"), &GLTFSpecGloss::set_diffuse_factor);
-	ClassDB::bind_method(D_METHOD("get_gloss_factor"), &GLTFSpecGloss::get_gloss_factor);
-	ClassDB::bind_method(D_METHOD("set_gloss_factor", "gloss_factor"), &GLTFSpecGloss::set_gloss_factor);
-	ClassDB::bind_method(D_METHOD("get_specular_factor"), &GLTFSpecGloss::get_specular_factor);
-	ClassDB::bind_method(D_METHOD("set_specular_factor", "specular_factor"), &GLTFSpecGloss::set_specular_factor);
-	ClassDB::bind_method(D_METHOD("get_spec_gloss_img"), &GLTFSpecGloss::get_spec_gloss_img);
-	ClassDB::bind_method(D_METHOD("set_spec_gloss_img", "spec_gloss_img"), &GLTFSpecGloss::set_spec_gloss_img);
+class VariantConversion {
+public:
+	template <class T>
+	static Array to_array(const Vector<T> &p_inp) {
+		Array ret;
+		for (int i = 0; i < p_inp.size(); i++) {
+			ret.push_back(p_inp[i]);
+		}
+		return ret;
+	}
 
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "diffuse_img"), "set_diffuse_img", "get_diffuse_img"); // Ref<Image>
-	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "diffuse_factor"), "set_diffuse_factor", "get_diffuse_factor"); // Color
-	ADD_PROPERTY(PropertyInfo(Variant::REAL, "gloss_factor"), "set_gloss_factor", "get_gloss_factor"); // float
-	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "specular_factor"), "set_specular_factor", "get_specular_factor"); // Color
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "spec_gloss_img"), "set_spec_gloss_img", "get_spec_gloss_img"); // Ref<Image>
+	template <class T>
+	static Array to_array(const Set<T> &p_inp) {
+		Array ret;
+		typename Set<T>::Element *elem = p_inp.front();
+		while (elem) {
+			ret.push_back(elem->get());
+			elem = elem->next();
+		}
+		return ret;
+	}
 
-}
+	template <class T>
+	static void set_from_array(Vector<T> &r_out, const Array &p_inp) {
+		r_out.clear();
+		for (int i = 0; i < p_inp.size(); i++) {
+			r_out.push_back(p_inp[i]);
+		}
+	}
+
+	template <class T>
+	static void set_from_array(Set<T> &r_out, const Array &p_inp) {
+		r_out.clear();
+		for (int i = 0; i < p_inp.size(); i++) {
+			r_out.insert(p_inp[i]);
+		}
+	}
+	template <class K, class V>
+	static Dictionary to_dict(const Map<K, V> &p_inp) {
+		Dictionary ret;
+		for (typename Map<K, V>::Element *E = p_inp.front(); E; E = E->next()) {
+			ret[E->key()] = E->value();
+		}
+		return ret;
+	}
+
+	template <class K, class V>
+	static void set_from_dict(Map<K, V> &r_out, const Dictionary &p_inp) {
+		r_out.clear();
+		Array keys = p_inp.keys();
+		for (int i = 0; i < keys.size(); i++) {
+			r_out[keys[i]] = p_inp[keys[i]];
+		}
+	}
+};
+#endif

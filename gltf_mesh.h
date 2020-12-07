@@ -27,6 +27,7 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 #ifndef GLTF_MESH_H
 #define GLTF_MESH_H
 
@@ -50,13 +51,11 @@ public:
 		this->mesh = p_mesh;
 	}
 
-
 	Vector<float> get_blend_weights() {
 		return this->blend_weights;
 	}
 	void set_blend_weights(Vector<float> p_blend_weights) {
 		this->blend_weights = p_blend_weights;
 	}
-
 };
 #endif

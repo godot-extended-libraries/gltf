@@ -27,12 +27,13 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 #ifndef GLTF_SKIN_H
 #define GLTF_SKIN_H
 
 #include "core/resource.h"
+#include "core/variant/variant_conversion.h"
 #include "gltf_document.h"
-#include "godot_conversion_operators.h"
 
 class GLTFSkin : public Resource {
 	GDCLASS(GLTFSkin, Resource);
@@ -94,10 +95,10 @@ public:
 
 
 	Array get_inverse_binds() {
-		return godot_conv::to_array(this->inverse_binds);
+		return VariantConversion::to_array(this->inverse_binds);
 	}
 	void set_inverse_binds(Array p_inverse_binds) {
-		godot_conv::set_from_array(this->inverse_binds, p_inverse_binds);
+		VariantConversion::set_from_array(this->inverse_binds, p_inverse_binds);
 	}
 
 
@@ -134,10 +135,10 @@ public:
 
 
 	Dictionary get_joint_i_to_bone_i() {
-		return godot_conv::to_dict(this->joint_i_to_bone_i);
+		return VariantConversion::to_dict(this->joint_i_to_bone_i);
 	}
 	void set_joint_i_to_bone_i(Dictionary p_joint_i_to_bone_i) {
-		godot_conv::set_from_dict(this->joint_i_to_bone_i, p_joint_i_to_bone_i);
+		VariantConversion::set_from_dict(this->joint_i_to_bone_i, p_joint_i_to_bone_i);
 	}
 
 

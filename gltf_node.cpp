@@ -27,19 +27,19 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 #include "gltf_node.h"
 
 
 
 
 void GLTFNode::_bind_methods() {
-
-	ClassDB::bind_method(D_METHOD("get_parent"),  &GLTFNode::get_parent);
-	ClassDB::bind_method(D_METHOD("set_parent", "parent"),  &GLTFNode::set_parent);
-	ClassDB::bind_method(D_METHOD("get_height"),  &GLTFNode::get_height);
-	ClassDB::bind_method(D_METHOD("set_height", "height"),  &GLTFNode::set_height);
-	ClassDB::bind_method(D_METHOD("get_xform"),  &GLTFNode::get_xform);
-	ClassDB::bind_method(D_METHOD("set_xform", "xform"),  &GLTFNode::set_xform);
+	ClassDB::bind_method(D_METHOD("get_parent"), &GLTFNode::get_parent);
+	ClassDB::bind_method(D_METHOD("set_parent", "parent"), &GLTFNode::set_parent);
+	ClassDB::bind_method(D_METHOD("get_height"), &GLTFNode::get_height);
+	ClassDB::bind_method(D_METHOD("set_height", "height"), &GLTFNode::set_height);
+	ClassDB::bind_method(D_METHOD("get_xform"), &GLTFNode::get_xform);
+	ClassDB::bind_method(D_METHOD("set_xform", "xform"), &GLTFNode::set_xform);
 	//ClassDB::bind_method(D_METHOD("get_name"),  &GLTFNode::get_name);
 	//ClassDB::bind_method(D_METHOD("set_name", "name"),  &GLTFNode::set_name);
 	ClassDB::bind_method(D_METHOD("get_mesh"),  &GLTFNode::get_mesh);

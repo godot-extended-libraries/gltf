@@ -27,10 +27,12 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 #ifndef GLTF_STATE_H
 #define GLTF_STATE_H
 
 #include "core/resource.h"
+#include "core/variant/variant_conversion.h"
 #include "core/vector.h"
 #include "gltf_accessor.h"
 #include "gltf_animation.h"
@@ -43,9 +45,9 @@
 #include "gltf_skeleton.h"
 #include "gltf_skin.h"
 #include "gltf_texture.h"
-#include "godot_conversion_operators.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/texture.h"
+
 
 class GLTFState : public Resource {
 	GDCLASS(GLTFState, Resource);
@@ -123,45 +125,45 @@ public:
 	}
 
 	Array get_nodes() {
-		return godot_conv::to_array(this->nodes);
+		return VariantConversion::to_array(this->nodes);
 	}
 	void set_nodes(Array p_nodes) {
-		godot_conv::set_from_array(this->nodes, p_nodes);
+		VariantConversion::set_from_array(this->nodes, p_nodes);
 	}
 
 	Array get_buffers() {
-		return godot_conv::to_array(this->buffers);
+		return VariantConversion::to_array(this->buffers);
 	}
 	void set_buffers(Array p_buffers) {
-		godot_conv::set_from_array(this->buffers, p_buffers);
+		VariantConversion::set_from_array(this->buffers, p_buffers);
 	}
 
 	Array get_buffer_views() {
-		return godot_conv::to_array(this->buffer_views);
+		return VariantConversion::to_array(this->buffer_views);
 	}
 	void set_buffer_views(Array p_buffer_views) {
-		godot_conv::set_from_array(this->buffer_views, p_buffer_views);
+		VariantConversion::set_from_array(this->buffer_views, p_buffer_views);
 	}
 
 	Array get_accessors() {
-		return godot_conv::to_array(this->accessors);
+		return VariantConversion::to_array(this->accessors);
 	}
 	void set_accessors(Array p_accessors) {
-		godot_conv::set_from_array(this->accessors, p_accessors);
+		VariantConversion::set_from_array(this->accessors, p_accessors);
 	}
 
 	Array get_meshes() {
-		return godot_conv::to_array(this->meshes);
+		return VariantConversion::to_array(this->meshes);
 	}
 	void set_meshes(Array p_meshes) {
-		godot_conv::set_from_array(this->meshes, p_meshes);
+		VariantConversion::set_from_array(this->meshes, p_meshes);
 	}
 
 	Array get_materials() {
-		return godot_conv::to_array(this->materials);
+		return VariantConversion::to_array(this->materials);
 	}
 	void set_materials(Array p_materials) {
-		godot_conv::set_from_array(this->materials, p_materials);
+		VariantConversion::set_from_array(this->materials, p_materials);
 	}
 
 	String get_scene_name() {
@@ -172,76 +174,76 @@ public:
 	}
 
 	Array get_root_nodes() {
-		return godot_conv::to_array(this->root_nodes);
+		return VariantConversion::to_array(this->root_nodes);
 	}
 	void set_root_nodes(Array p_root_nodes) {
-		godot_conv::set_from_array(this->root_nodes, p_root_nodes);
+		VariantConversion::set_from_array(this->root_nodes, p_root_nodes);
 	}
 
 	Array get_textures() {
-		return godot_conv::to_array(this->textures);
+		return VariantConversion::to_array(this->textures);
 	}
 	void set_textures(Array p_textures) {
-		godot_conv::set_from_array(this->textures, p_textures);
+		VariantConversion::set_from_array(this->textures, p_textures);
 	}
 
 	Array get_images() {
-		return godot_conv::to_array(this->images);
+		return VariantConversion::to_array(this->images);
 	}
 	void set_images(Array p_images) {
-		godot_conv::set_from_array(this->images, p_images);
+		VariantConversion::set_from_array(this->images, p_images);
 	}
 
 	Array get_skins() {
-		return godot_conv::to_array(this->skins);
+		return VariantConversion::to_array(this->skins);
 	}
 	void set_skins(Array p_skins) {
-		godot_conv::set_from_array(this->skins, p_skins);
+		VariantConversion::set_from_array(this->skins, p_skins);
 	}
 
 	Array get_cameras() {
-		return godot_conv::to_array(this->cameras);
+		return VariantConversion::to_array(this->cameras);
 	}
 	void set_cameras(Array p_cameras) {
-		godot_conv::set_from_array(this->cameras, p_cameras);
+		VariantConversion::set_from_array(this->cameras, p_cameras);
 	}
 
 	Array get_lights() {
-		return godot_conv::to_array(this->lights);
+		return VariantConversion::to_array(this->lights);
 	}
 	void set_lights(Array p_lights) {
-		godot_conv::set_from_array(this->lights, p_lights);
+		VariantConversion::set_from_array(this->lights, p_lights);
 	}
 
 	Array get_unique_names() {
-		return godot_conv::to_array(this->unique_names);
+		return VariantConversion::to_array(this->unique_names);
 	}
 	void set_unique_names(Array p_unique_names) {
-		godot_conv::set_from_array(this->unique_names, p_unique_names);
+		VariantConversion::set_from_array(this->unique_names, p_unique_names);
 	}
 
 	Array get_skeletons() {
-		return godot_conv::to_array(this->skeletons);
+		return VariantConversion::to_array(this->skeletons);
 	}
 	void set_skeletons(Array p_skeletons) {
-		godot_conv::set_from_array(this->skeletons, p_skeletons);
+		VariantConversion::set_from_array(this->skeletons, p_skeletons);
 	}
 
 	Dictionary get_skeleton_to_node() {
-		return godot_conv::to_dict(this->skeleton_to_node);
+		return VariantConversion::to_dict(this->skeleton_to_node);
 	}
 	void set_skeleton_to_node(Dictionary p_skeleton_to_node) {
-		godot_conv::set_from_dict(this->skeleton_to_node, p_skeleton_to_node);
+		VariantConversion::set_from_dict(this->skeleton_to_node, p_skeleton_to_node);
 	}
 
 	Array get_animations() {
-		return godot_conv::to_array(this->animations);
+		return VariantConversion::to_array(this->animations);
 	}
 	void set_animations(Array p_animations) {
-		godot_conv::set_from_array(this->animations, p_animations);
+		VariantConversion::set_from_array(this->animations, p_animations);
 	}
 
-	Node* get_scene_node(GLTFNodeIndex idx) {
+	Node *get_scene_node(GLTFNodeIndex idx) {
 		if (!this->scene_nodes.has(idx)) {
 			return nullptr;
 		}
@@ -252,7 +254,7 @@ public:
 		return animation_players.size();
 	}
 
-	AnimationPlayer * get_animation_player(int idx) {
+	AnimationPlayer *get_animation_player(int idx) {
 		ERR_FAIL_INDEX_V(idx, animation_players.size(), nullptr);
 		return this->animation_players[idx];
 	}

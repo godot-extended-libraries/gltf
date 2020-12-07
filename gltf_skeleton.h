@@ -27,12 +27,13 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 #ifndef GLTF_SKELETON_H
 #define GLTF_SKELETON_H
 
 #include "core/resource.h"
+#include "core/variant/variant_conversion.h"
 #include "gltf_document.h"
-#include "godot_conversion_operators.h"
 
 class GLTFSkeleton : public Resource {
 	GDCLASS(GLTFSkeleton, Resource);
@@ -81,18 +82,18 @@ public:
 
 
 	Array get_unique_names() {
-		return godot_conv::to_array(this->unique_names);
+		return VariantConversion::to_array(this->unique_names);
 	}
 	void set_unique_names(Array p_unique_names) {
-		godot_conv::set_from_array(this->unique_names, p_unique_names);
+		VariantConversion::set_from_array(this->unique_names, p_unique_names);
 	}
 
 
 	Dictionary get_godot_bone_node() {
-		return godot_conv::to_dict(this->godot_bone_node);
+		return VariantConversion::to_dict(this->godot_bone_node);
 	}
 	void set_godot_bone_node(Dictionary p_indict) {
-		godot_conv::set_from_dict(this->godot_bone_node, p_indict);
+		VariantConversion::set_from_dict(this->godot_bone_node, p_indict);
 	}
 
 

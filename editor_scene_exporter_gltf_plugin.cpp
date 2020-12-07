@@ -29,8 +29,8 @@
 /*************************************************************************/
 
 #include "editor_scene_exporter_gltf_plugin.h"
-#include "core/object.h"
 #include "core/project_settings.h"
+#include "core/object.h"
 #include "core/vector.h"
 #include "editor/editor_file_system.h"
 #include "scene/3d/mesh_instance.h"

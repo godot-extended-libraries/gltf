@@ -49,6 +49,7 @@
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/surface_tool.h"
 
+
 #include "gltf_state.h"
 
 #ifndef _3D_DISABLED
@@ -58,52 +59,56 @@ class MeshInstance;
 
 #ifdef TOOLS_ENABLED
 class EditorSceneImporterGLTF : public EditorSceneImporter {
-
-  GDCLASS(EditorSceneImporterGLTF, EditorSceneImporter);
+	GDCLASS(EditorSceneImporterGLTF, EditorSceneImporter);
 
 public:
-  virtual uint32_t get_import_flags() const;
-  virtual void get_extensions(List<String> *r_extensions) const;
-  virtual Node *import_scene(const String &p_path, uint32_t p_flags,
-                             int p_bake_fps,
-                             List<String> *r_missing_deps = NULL,
-                             Error *r_err = NULL);
-  virtual Ref<Animation> import_animation(const String &p_path,
-                                          uint32_t p_flags, int p_bake_fps);
+	virtual uint32_t get_import_flags() const;
+	virtual void get_extensions(List<String> *r_extensions) const;
+	virtual Node *import_scene(const String &p_path, uint32_t p_flags,
+			int p_bake_fps,
+			List<String> *r_missing_deps = NULL,
+			Error *r_err = NULL);
+	virtual Ref<Animation> import_animation(const String &p_path,
+			uint32_t p_flags, int p_bake_fps);
 
-  EditorSceneImporterGLTF();
+	EditorSceneImporterGLTF();
 };
 #endif
 
 class PackedSceneGLTF : public PackedScene {
-  GDCLASS(PackedSceneGLTF, PackedScene);
-  struct MeshInfo {
-    Transform transform = Transform();
-    Ref<Mesh> mesh = nullptr;
-    String name = "";
-    Vector<Ref<Material>> materials;
-    Node *original_node = nullptr;
-    Node *original_parent = nullptr;
-  };
-  Dictionary user_data;
+	GDCLASS(PackedSceneGLTF, PackedScene);
+	struct MeshInfo {
+		Transform transform = Transform();
+		Ref<Mesh> mesh = nullptr;
+		String name = "";
+		Vector<Ref<Material> > materials;
+		Node *original_node = nullptr;
+		Node *original_parent = nullptr;
+	};
+	Dictionary user_data;
 
 protected:
-  static void _bind_methods();
+	static void _bind_methods();
 
 public:
-  void save_scene(Node *p_node, const String &p_path, const String &p_src_path,
-                  uint32_t p_flags, int p_bake_fps,
-                  List<String> *r_missing_deps, Error *r_err = NULL);
-  Error export_gltf(Node *p_root, String p_path, int32_t p_flags = 0,
-                    real_t p_bake_fps = 1000.0f);
-  static void _save_thread_function(void *p_user);
-  Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps,
-                     List<String> *r_missing_deps, Error *r_err, Ref<GLTFState> r_state = Ref<GLTFState>());
-  Node *import_gltf_scene(const String &p_path, uint32_t p_flags, int p_bake_fps,
-                     Ref<GLTFState> r_state = Ref<GLTFState>());
-  void pack_gltf(String p_path, int32_t p_flags = 0,
-                 real_t p_bake_fps = 1000.0f, Ref<GLTFState> r_state = Ref<GLTFState>());
-  PackedSceneGLTF();
+	virtual void save_scene(Node *p_node, const String &p_path, const String &p_src_path,
+			uint32_t p_flags, int p_bake_fps,
+			List<String> *r_missing_deps, Error *r_err = NULL);
+
+	virtual void _build_parent_hierachy(Ref<GLTFState> state);
+
+	virtual Error export_gltf(Node *p_root, String p_path, int32_t p_flags = 0,
+			real_t p_bake_fps = 1000.0f);
+	static void _save_thread_function(void *p_user);
+	virtual Node *import_scene(const String &p_path, uint32_t p_flags,
+			int p_bake_fps,
+			List<String> *r_missing_deps,
+			Error *r_err,
+			Ref<GLTFState> r_state);
+	virtual Node *import_gltf_scene(const String &p_path, uint32_t p_flags, float p_bake_fps, Ref<GLTFState> r_state = Ref<GLTFState>());
+	virtual void pack_gltf(String p_path, int32_t p_flags = 0,
+			real_t p_bake_fps = 1000.0f, Ref<GLTFState> r_state = Ref<GLTFState>());
+	PackedSceneGLTF();
 };
 
 #endif // _3D_DISABLED
